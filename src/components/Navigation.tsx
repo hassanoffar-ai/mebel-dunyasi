@@ -78,7 +78,6 @@ export function Header({ cartCount: propCartCount }: HeaderProps) {
             {/* Mobile Hamburger */}
             <button
               className="hamburger"
-              style={{ display: 'flex' }}
               onClick={() => setIsMobileOpen(!isMobileOpen)}
             >
               {isMobileOpen ? <X size={24} /> : <Menu size={24} />}

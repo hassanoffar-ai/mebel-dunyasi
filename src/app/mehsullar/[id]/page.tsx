@@ -31,37 +31,60 @@ export default function ProductDetailPage() {
   const [submittingReview, setSubmittingReview] = useState(false);
   const [addedToCartMsg, setAddedToCartMsg] = useState(false);
 
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
   // Initial Product Data Fetch
   useEffect(() => {
-    const found = MOCK_PRODUCTS.find((p) => p.id === productId) || MOCK_PRODUCTS[0];
-    setProduct(found);
-    setSelectedImage(found.image_url);
-
-    // Try fetching from Supabase
     async function getProduct() {
+      setLoading(true);
       try {
         const { data, error } = await supabase.from('products').select('*').eq('id', productId).single();
         if (data && !error) {
           setProduct(data as Product);
           setSelectedImage(data.image_url);
+
+          // Fetch related products
+          const { data: relData } = await supabase.from('products').select('*').neq('id', productId).limit(4);
+          if (relData) {
+            setRelatedProducts(relData as Product[]);
+          }
+        } else {
+          setProduct(null);
         }
       } catch (err) {
-        console.log('Using mock product data');
+        console.log('Error fetching product data');
+      } finally {
+        setLoading(false);
       }
     }
     getProduct();
   }, [productId]);
 
-  if (!product) {
+  if (loading) {
     return <div style={{ padding: '80px', textAlign: 'center' }}>Yüklənir...</div>;
   }
 
-  // Thumbnails gallery (mock array including product image)
+  if (!product) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: 'var(--bg-main)' }}>
+        <Header />
+        <main style={{ flexGrow: 1, padding: '80px 20px', textAlign: 'center' }}>
+          <h2>Məhsul tapılmadı</h2>
+          <p style={{ marginTop: '12px', color: 'var(--text-muted)' }}>Axtardığınız məhsul mövcud deyil və ya ləğv edilib.</p>
+          <Link href="/mehsullar" className="btn btn-gold" style={{ marginTop: '24px', display: 'inline-block' }}>
+            Məhsullara Qayıt
+          </Link>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Thumbnails gallery (product image)
   const thumbnails = [
     product.image_url,
-    'https://images.unsplash.com/photo-1615066390971-03e4e1c36ddf?auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=800&q=80',
-  ];
+  ].filter(Boolean);
 
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,15 +108,12 @@ export default function ProductDetailPage() {
       setReviewComment('');
       setSubmittingReview(false);
     } catch (err) {
-      // Fallback response for UI demo
       setReviewStatusMsg('Rəyiniz göndərildi, admin təsdiqindən sonra dərc olunacaq.');
       setReviewName('');
       setReviewComment('');
       setSubmittingReview(false);
     }
   };
-
-  const relatedProducts = MOCK_PRODUCTS.filter((p) => p.id !== product.id).slice(0, 4);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: 'var(--bg-main)' }}>

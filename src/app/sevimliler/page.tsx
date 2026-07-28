@@ -11,7 +11,7 @@ import { Heart, ShoppingBag } from 'lucide-react';
 
 export default function WishlistPage() {
   const router = useRouter();
-  const [favoriteProducts, setFavoriteProducts] = useState<Product[]>(MOCK_PRODUCTS.slice(0, 3));
+  const [favoriteProducts, setFavoriteProducts] = useState<Product[]>([]);
   const [cartCount, setCartCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
@@ -21,20 +21,15 @@ export default function WishlistPage() {
       try {
         const { data: { user } } = await supabase.auth.getUser();
 
-        // Demoda qonaq istifadəçilərin də rahat baxa bilməsi üçün fallback saxlanılır
-        if (!user) {
-          // Un-comment for strict auth redirect:
-          // router.push('/login');
-          // return;
-        }
-
-        const { data, error } = await supabase.from('favorites').select('products(*)');
-        if (data && data.length > 0 && !error) {
-          const prods = data.map((item: any) => item.products);
-          setFavoriteProducts(prods);
+        if (user) {
+          const { data, error } = await supabase.from('favorites').select('products(*)');
+          if (data && !error) {
+            const prods = data.map((item: any) => item.products).filter(Boolean);
+            setFavoriteProducts(prods);
+          }
         }
       } catch (err) {
-        console.log('Using mock favorites');
+        console.log('Error fetching favorites');
       } finally {
         setLoading(false);
       }
