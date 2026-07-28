@@ -38,28 +38,31 @@ const MOCK_PENDING_REVIEWS = [
 
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState<DashboardStats>({
-    totalOrders: 142,
-    totalRevenue: 48250,
-    pendingReviewsCount: 5,
-    activeProductsCount: 86,
+    totalOrders: 0,
+    totalRevenue: 0,
+    pendingReviewsCount: 0,
+    activeProductsCount: 0,
   });
 
-  // Supabase dynamic stats calculation
+  // Supabase dynamic stats calculation from real backend database
   useEffect(() => {
     async function loadStats() {
       try {
         const { count: ordersCount } = await supabase.from('orders').select('*', { count: 'exact', head: true });
         const { count: productsCount } = await supabase.from('products').select('*', { count: 'exact', head: true });
         const { count: pendingRevCount } = await supabase.from('reviews').select('*', { count: 'exact', head: true }).eq('status', 'pending');
+        
+        const { data: revenueData } = await supabase.from('orders').select('umumi_meblegh');
+        const totalRevenue = (revenueData || []).reduce((acc: number, item: any) => acc + (item.umumi_meblegh || 0), 0);
 
-        setStats((prev) => ({
-          ...prev,
-          totalOrders: ordersCount || prev.totalOrders,
-          activeProductsCount: productsCount || prev.activeProductsCount,
-          pendingReviewsCount: pendingRevCount || prev.pendingReviewsCount,
-        }));
+        setStats({
+          totalOrders: ordersCount || 0,
+          activeProductsCount: productsCount || 0,
+          pendingReviewsCount: pendingRevCount || 0,
+          totalRevenue: totalRevenue || 0,
+        });
       } catch (err) {
-        console.log('Using mock dashboard metrics');
+        console.log('Database metrics fetch error:', err);
       }
     }
     loadStats();

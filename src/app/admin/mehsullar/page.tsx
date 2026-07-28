@@ -7,7 +7,8 @@ import { Plus, Search, Filter, Edit, Trash2, X, Upload, Check, AlertTriangle, Im
 import '@/app/admin/admin.css';
 
 export default function AdminProductsPage() {
-  const [products, setProducts] = useState<Product[]>(MOCK_PRODUCTS);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -24,16 +25,19 @@ export default function AdminProductsPage() {
   const [material, setMaterial] = useState('Təbii Palıd / Velvet');
   const [imageUrl, setImageUrl] = useState('');
 
-  // Fetch Products from Supabase
+  // Fetch Products from Supabase Backend
   useEffect(() => {
     async function loadProducts() {
+      setLoading(true);
       try {
         const { data, error } = await supabase.from('products').select('*');
-        if (data && data.length > 0 && !error) {
+        if (data && !error) {
           setProducts(data as Product[]);
         }
       } catch (err) {
-        console.log('Using mock products list');
+        console.log('Error fetching products from DB:', err);
+      } finally {
+        setLoading(false);
       }
     }
     loadProducts();

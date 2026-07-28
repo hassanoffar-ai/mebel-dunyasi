@@ -22,88 +22,10 @@ export interface OrderItem {
   products: { name: string; quantity: number; price: number; image_url: string }[];
 }
 
-const MOCK_ORDERS: OrderItem[] = [
-  {
-    id: 'MD-584912',
-    order_id: 'MD-584912',
-    customer: 'Anar Məmmədov',
-    email: 'anar@example.com',
-    phone: '+994 50 123 45 67',
-    address: 'Bakı şəh., Həsən Əliyev küç. 45, mənzil 12',
-    items_count: 2,
-    total_amount: 2430,
-    status: 'pending',
-    date: '28 İyul 2026',
-    notes: 'Kuryer gəlməzdən 1 saat əvvəl zəng etsin.',
-    products: [
-      { name: 'Minimalist Velvet Divan', quantity: 1, price: 1450, image_url: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80' },
-      { name: 'Təbii Palıd Yemək Masası', quantity: 1, price: 980, image_url: 'https://images.unsplash.com/photo-1615066390971-03e4e1c36ddf?auto=format&fit=crop&w=800&q=80' },
-    ],
-  },
-  {
-    id: 'MD-391204',
-    order_id: 'MD-391204',
-    customer: 'Leyla Həsənova',
-    email: 'leyla@example.com',
-    phone: '+994 55 987 65 43',
-    address: 'Sumqayıt şəh., 4-cü mkr. ev 12',
-    items_count: 1,
-    total_amount: 980,
-    status: 'processing',
-    date: '28 İyul 2026',
-    products: [
-      { name: 'Təbii Palıd Yemək Masası', quantity: 1, price: 980, image_url: 'https://images.unsplash.com/photo-1615066390971-03e4e1c36ddf?auto=format&fit=crop&w=800&q=80' },
-    ],
-  },
-  {
-    id: 'MD-901244',
-    order_id: 'MD-901244',
-    customer: 'Nərgiz Əliyeva',
-    email: 'nergiz@example.com',
-    phone: '+994 70 555 44 33',
-    address: 'Bakı şəh., Nizami küç. 102',
-    items_count: 1,
-    total_amount: 2100,
-    status: 'shipped',
-    date: '26 İyul 2026',
-    products: [
-      { name: 'Lüks Ketan Çarpayı Dəsti', quantity: 1, price: 2100, image_url: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=800&q=80' },
-    ],
-  },
-  {
-    id: 'MD-109283',
-    order_id: 'MD-109283',
-    customer: 'Vüsal Qasımov',
-    email: 'vusal@example.com',
-    phone: '+994 50 444 33 22',
-    address: 'Gəncə şəh., Atatürk pr. 15',
-    items_count: 1,
-    total_amount: 1450,
-    status: 'delivered',
-    date: '25 İyul 2026',
-    products: [
-      { name: 'Minimalist Velvet Divan', quantity: 1, price: 1450, image_url: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80' },
-    ],
-  },
-  {
-    id: 'MD-748392',
-    order_id: 'MD-748392',
-    customer: 'Elvin Qasımov',
-    email: 'elvin@example.com',
-    phone: '+994 51 222 11 00',
-    address: 'Bakı şəh., Məti mütbuat pr. 8',
-    items_count: 1,
-    total_amount: 750,
-    status: 'cancelled',
-    date: '24 İyul 2026',
-    products: [
-      { name: 'Qəhvəyi Dəri Aksent Kreslo', quantity: 1, price: 750, image_url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=800&q=80' },
-    ],
-  },
-];
+
 
 export default function AdminOrdersPage() {
-  const [orders, setOrders] = useState<OrderItem[]>(MOCK_ORDERS);
+  const [orders, setOrders] = useState<OrderItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -148,7 +70,7 @@ export default function AdminOrdersPage() {
           throw error;
         }
 
-        if (data && data.length > 0) {
+        if (data) {
           const mappedData: OrderItem[] = data.map((item: any) => ({
             id: item.id,
             order_id: item.id,
@@ -166,13 +88,10 @@ export default function AdminOrdersPage() {
             ],
           }));
           setOrders(mappedData);
-        } else {
-          // Keep sorted mock orders if table is empty in dev
-          setOrders(MOCK_ORDERS);
         }
       } catch (err: any) {
-        console.log('Database read error, using mock fallback:', err);
-        setOrders(MOCK_ORDERS);
+        console.log('Database read error:', err);
+        setOrders([]);
       } finally {
         setLoading(false);
       }

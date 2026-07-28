@@ -16,38 +16,10 @@ export interface TestimonialItem {
   created_at?: string;
 }
 
-const DEFAULT_TESTIMONIALS: TestimonialItem[] = [
-  {
-    id: '1',
-    name: 'Anar Qasımov',
-    role: 'İnteryer Dizayneri',
-    avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
-    comment: 'Mebel Dünyasından aldığımız divan dəsti evimizin interyerini tamamilə dəyişdi. Keyfiyyət və dizayn mükəmməldir!',
-    rating: 5,
-    is_active: true,
-  },
-  {
-    id: '2',
-    name: 'Nərgiz Məmmədova',
-    role: 'Ev Sahibi',
-    avatar_url: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80',
-    comment: 'Çatdırılma çox sürətli oldu və quraşdırma komandası peşəkar iş gördü. Şübhəsiz ki, yenidən sifariş edəcəyəm.',
-    rating: 5,
-    is_active: true,
-  },
-  {
-    id: '3',
-    name: 'Elvin Əliyev',
-    role: 'Arxitektor',
-    avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
-    comment: 'Yemək masasının təbii ağac materialı və minimalist stili çox zərif görünür. Təşəkkürlər!',
-    rating: 5,
-    is_active: false,
-  },
-];
+
 
 export default function AdminTestimonialsPage() {
-  const [testimonials, setTestimonials] = useState<TestimonialItem[]>(DEFAULT_TESTIMONIALS);
+  const [testimonials, setTestimonials] = useState<TestimonialItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
@@ -65,18 +37,18 @@ export default function AdminTestimonialsPage() {
   const [isActive, setIsActive] = useState(true);
   const [errorMsg, setErrorMsg] = useState('');
 
-  // Fetch Testimonials
+  // Fetch Testimonials from Backend / Supabase
   const loadTestimonials = async () => {
     setLoading(true);
     try {
       const { data, error } = await supabase.from('testimonials').select('*').order('created_at', { ascending: false });
-      if (data && data.length > 0 && !error) {
+      if (data && !error) {
         setTestimonials(data as TestimonialItem[]);
       } else {
-        setTestimonials(DEFAULT_TESTIMONIALS);
+        setTestimonials([]);
       }
     } catch (err) {
-      setTestimonials(DEFAULT_TESTIMONIALS);
+      setTestimonials([]);
     } finally {
       setLoading(false);
     }
