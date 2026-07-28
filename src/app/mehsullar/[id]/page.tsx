@@ -29,6 +29,7 @@ export default function ProductDetailPage() {
   const [reviewComment, setReviewComment] = useState('');
   const [reviewStatusMsg, setReviewStatusMsg] = useState('');
   const [submittingReview, setSubmittingReview] = useState(false);
+  const [addedToCartMsg, setAddedToCartMsg] = useState(false);
 
   // Initial Product Data Fetch
   useEffect(() => {
@@ -255,7 +256,13 @@ export default function ProductDetailPage() {
                 <button
                   className="btn btn-primary"
                   style={{ flex: 1, padding: '14px 24px' }}
-                  onClick={() => addToCart(product, quantity, selectedColor)}
+                  onClick={() => {
+                    if (product) {
+                      addToCart(product, quantity, selectedColor);
+                      setAddedToCartMsg(true);
+                      setTimeout(() => setAddedToCartMsg(false), 3000);
+                    }
+                  }}
                 >
                   <ShoppingBag size={20} />
                   Səbətə Əlavə Et
@@ -270,6 +277,32 @@ export default function ProductDetailPage() {
                   Sevimlilər
                 </button>
               </div>
+
+              {addedToCartMsg && (
+                <div
+                  style={{
+                    backgroundColor: 'var(--success-bg)',
+                    color: 'var(--success-color)',
+                    padding: '12px 16px',
+                    borderRadius: 'var(--radius-sm)',
+                    marginBottom: '24px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    fontWeight: '600',
+                    fontSize: '0.9rem',
+                    border: '1px solid var(--success-color)',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <CheckCircle2 size={18} />
+                    <span>Məhsul səbətə əlavə olundu!</span>
+                  </div>
+                  <Link href="/sebet" style={{ color: 'var(--success-color)', textDecoration: 'underline' }}>
+                    Səbətə Bax
+                  </Link>
+                </div>
+              )}
 
               {/* Əlavə Məlumat İkonları */}
               <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>

@@ -20,7 +20,7 @@ import { useCart } from '@/context/CartContext';
 function CheckoutContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { cartItems } = useCart();
+  const { cartItems, clearCart } = useCart();
 
   const [step, setStep] = useState<1 | 2>(1);
   const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'cash'>('stripe');
@@ -106,8 +106,10 @@ function CheckoutContent() {
             odenis_usulu: 'Nağd (Kuryerə)',
           },
         ]);
+        clearCart();
         router.push(`/checkout/ugur?order_id=${generatedOrderId}`);
       } catch (err) {
+        clearCart();
         router.push(`/checkout/ugur?order_id=MD-${Math.floor(100000 + Math.random() * 900000)}`);
       }
     }
