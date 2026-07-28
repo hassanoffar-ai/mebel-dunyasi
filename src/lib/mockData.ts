@@ -1,5 +1,6 @@
 export interface Product {
   id: string;
+  sku?: string;
   name: string;
   category: string;
   price: number;
@@ -7,6 +8,12 @@ export interface Product {
   rating: number;
   reviews_count: number;
   image_url: string;
+  images?: string[];
+  material?: string;
+  dimensions?: string;
+  color?: string;
+  description?: string;
+  stock?: number;
 }
 
 export const MOCK_PRODUCTS: Product[] = [

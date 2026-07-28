@@ -2,9 +2,33 @@
 
 import React, { useState, useEffect } from 'react';
 import { supabase, uploadImage } from '@/lib/supabase';
-import { MOCK_PRODUCTS, Product } from '@/lib/mockData';
-import { Plus, Search, Filter, Edit, Trash2, X, Upload, Check, AlertTriangle, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { Product } from '@/lib/mockData';
+import { Plus, Search, Edit, Trash2, X, Upload, AlertTriangle, Loader2, Image as ImageIcon, CheckCircle2 } from 'lucide-react';
 import '@/app/admin/admin.css';
+
+const CATEGORIES = [
+  'Qonaq Otağı',
+  'Yataq Otağı',
+  'Mətbəx',
+  'Ofis',
+  'Uşaq Otağı',
+  'Bağ və Balkon'
+];
+
+const MATERIALS = [
+  'Təbii Palıd',
+  'Qoz Ağacı',
+  'Şam Ağacı',
+  'MDF',
+  'Laminat MDF',
+  'DSP (Sunta)',
+  'Təbii Dəri',
+  'Süni Dəri',
+  'Parça',
+  'Məxmər (Velvet)',
+  'Metal',
+  'Şüşə'
+];
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -14,17 +38,24 @@ export default function AdminProductsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
-  const [uploadingImage, setUploadingImage] = useState(false);
 
-  // Form State
+  // Form State & Validation
+  const [sku, setSku] = useState('');
   const [name, setName] = useState('');
   const [category, setCategory] = useState('Qonaq Otağı');
   const [price, setPrice] = useState('');
   const [oldPrice, setOldPrice] = useState('');
-  const [stock, setStock] = useState('15');
+  const [stock, setStock] = useState('10');
+  const [material, setMaterial] = useState('Təbii Palıd');
+  const [dimensions, setDimensions] = useState('');
+  const [color, setColor] = useState('');
   const [description, setDescription] = useState('');
-  const [material, setMaterial] = useState('Təbii Palıd / Velvet');
-  const [imageUrl, setImageUrl] = useState('');
+
+  // Image Management (Multiple images + primary URL)
+  const [images, setImages] = useState<string[]>([]);
+  const [newImageUrlInput, setNewImageUrlInput] = useState('');
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   // Fetch Products from Supabase Backend
   useEffect(() => {
@@ -46,65 +77,122 @@ export default function AdminProductsPage() {
 
   // Filter products by search and category
   const filteredProducts = products.filter((prod) => {
-    const matchesSearch = prod.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch =
+      prod.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (prod.sku && prod.sku.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchesCategory = selectedCategory ? prod.category === selectedCategory : true;
     return matchesSearch && matchesCategory;
   });
 
   const handleOpenAddModal = () => {
     setEditingProduct(null);
+    setSku(`MBL-${Math.floor(10000 + Math.random() * 90000)}`);
     setName('');
     setCategory('Qonaq Otağı');
     setPrice('');
     setOldPrice('');
-    setStock('15');
+    setStock('10');
+    setMaterial('Təbii Palıd');
+    setDimensions('');
+    setColor('');
     setDescription('');
-    setImageUrl('');
+    setImages([]);
+    setNewImageUrlInput('');
+    setFormErrors({});
     setIsModalOpen(true);
   };
 
   const handleOpenEditModal = (prod: Product) => {
     setEditingProduct(prod);
+    setSku(prod.sku || `MBL-${Math.floor(10000 + Math.random() * 90000)}`);
     setName(prod.name);
-    setCategory(prod.category);
+    setCategory(prod.category || 'Qonaq Otağı');
     setPrice(prod.price.toString());
     setOldPrice(prod.old_price ? prod.old_price.toString() : '');
-    setStock('12');
-    setDescription('Yüksək keyfiyyətli premium mebel.');
-    setImageUrl(prod.image_url);
+    setStock(prod.stock ? prod.stock.toString() : '10');
+    setMaterial(prod.material || 'Təbii Palıd');
+    setDimensions(prod.dimensions || '');
+    setColor(prod.color || '');
+    setDescription(prod.description || '');
+
+    const existingImages = prod.images && prod.images.length > 0 ? prod.images : (prod.image_url ? [prod.image_url] : []);
+    setImages(existingImages);
+    setNewImageUrlInput('');
+    setFormErrors({});
     setIsModalOpen(true);
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Image Handlers
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
-    const file = e.target.files[0];
+    const fileList = Array.from(e.target.files);
     setUploadingImage(true);
+
     try {
-      const publicUrl = await uploadImage(file);
-      if (publicUrl) {
-        setImageUrl(publicUrl);
-      } else {
-        alert('Şəkil yüklənərkən xəta baş verdi. Zəhmət olmasa Supabase Storage "images" bucket-inin yaradıldığından əmin olun.');
+      for (const file of fileList) {
+        const publicUrl = await uploadImage(file);
+        if (publicUrl) {
+          setImages((prev) => [...prev, publicUrl]);
+        }
       }
     } catch (err) {
       console.error('File upload error:', err);
     } finally {
       setUploadingImage(false);
+      e.target.value = '';
     }
+  };
+
+  const handleAddUrlImage = () => {
+    if (!newImageUrlInput.trim()) return;
+    if (!newImageUrlInput.startsWith('http')) {
+      alert('Zəhmət olmasa düzgün şəkil URL ünvanı daxil edin (http:// və ya https://)');
+      return;
+    }
+    setImages((prev) => [...prev, newImageUrlInput.trim()]);
+    setNewImageUrlInput('');
+  };
+
+  const handleRemoveImage = (index: number) => {
+    setImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  // Validation Check
+  const validateForm = () => {
+    const errors: Record<string, string> = {};
+    if (!name.trim()) errors.name = 'Məhsul adı məcburidir.';
+    if (!price || parseFloat(price) <= 0) errors.price = 'Məhsulun qiyməti düzgün daxil edilməlidir (0-dan böyük).';
+    if (oldPrice && parseFloat(oldPrice) <= parseFloat(price)) {
+      errors.oldPrice = 'Endirimli qiymət ilkin qiymətdən az olmalıdır.';
+    }
+    if (images.length === 0) errors.images = 'Ən azı 1 ədəd şəkil yüklənməlidir və ya URL daxil edilməlidir.';
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateForm()) return;
+
+    const primaryImage = images[0] || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&auto=format&fit=crop&q=60';
 
     const newProd: Product = {
-      id: editingProduct ? editingProduct.id : (Date.now()).toString(),
-      name,
+      id: editingProduct ? editingProduct.id : Date.now().toString(),
+      sku: sku || `MBL-${Date.now().toString().slice(-5)}`,
+      name: name.trim(),
       category,
-      price: parseFloat(price) || 0,
+      price: parseFloat(price),
       old_price: oldPrice ? parseFloat(oldPrice) : undefined,
+      stock: parseInt(stock) || 0,
+      material,
+      dimensions: dimensions.trim(),
+      color: color.trim(),
+      description: description.trim(),
+      image_url: primaryImage,
+      images,
       rating: editingProduct ? editingProduct.rating : 5.0,
       reviews_count: editingProduct ? editingProduct.reviews_count : 0,
-      image_url: imageUrl || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&auto=format&fit=crop&q=60',
     };
 
     if (editingProduct) {
@@ -135,8 +223,8 @@ export default function AdminProductsPage() {
       {/* Üst Bar & Düymə */}
       <div className="admin-header-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px' }}>
         <div>
-          <h2 style={{ fontSize: '1.6rem', fontWeight: '600' }}>Məhsullar</h2>
-          <p style={{ color: 'var(--admin-text-sub)', fontSize: '0.9rem' }}>Saytdakı bütün mebel məhsullarını idarə edin</p>
+          <h2 style={{ fontSize: '1.6rem', fontWeight: '600' }}>Məhsulların İdarə Olunması</h2>
+          <p style={{ color: 'var(--admin-text-sub)', fontSize: '0.9rem' }}>Saytdakı bütün mebel məhsullarını əlavə edin, yeniləyin və redaktə edin</p>
         </div>
         <button className="btn btn-primary" onClick={handleOpenAddModal} style={{ padding: '12px 24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Plus size={18} /> Yeni Məhsul Əlavə Et
@@ -144,11 +232,11 @@ export default function AdminProductsPage() {
       </div>
 
       {/* Filtr & Axtarış Paneli */}
-      <div style={{ backgroundColor: 'var(--admin-card-bg)', padding: '20px', borderRadius: 'var(--admin-radius)', border: '1px solid var(--admin-border)', marginBottom: '24px', display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+      <div style={{ backgroundColor: 'var(--admin-card-bg)', padding: '18px 20px', borderRadius: 'var(--admin-radius)', border: '1px solid var(--admin-border)', marginBottom: '24px', display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
         <div style={{ position: 'relative', flex: '1', minWidth: '240px' }}>
           <input
             type="text"
-            placeholder="Məhsul adı üzrə axtar..."
+            placeholder="Məhsul adı və ya SKU ilə axtar..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             style={{ width: '100%', padding: '10px 14px 10px 36px', borderRadius: 'var(--admin-radius)', border: '1px solid var(--admin-border)', fontSize: '0.9rem', outline: 'none' }}
@@ -159,12 +247,12 @@ export default function AdminProductsPage() {
         <select
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
-          style={{ padding: '10px 14px', borderRadius: 'var(--admin-radius)', border: '1px solid var(--admin-border)', fontSize: '0.9rem', outline: 'none', backgroundColor: 'white' }}
+          style={{ padding: '10px 14px', borderRadius: 'var(--admin-radius)', border: '1px solid var(--admin-border)', fontSize: '0.9rem', outline: 'none', backgroundColor: 'white', cursor: 'pointer' }}
         >
           <option value="">Bütün Kateqoriyalar</option>
-          <option value="Qonaq Otağı">Qonaq Otağı</option>
-          <option value="Yataq Otağı">Yataq Otağı</option>
-          <option value="Mətbəx">Mətbəx</option>
+          {CATEGORIES.map((cat) => (
+            <option key={cat} value={cat}>{cat}</option>
+          ))}
         </select>
       </div>
 
@@ -174,47 +262,56 @@ export default function AdminProductsPage() {
           <thead>
             <tr>
               <th>Şəkil</th>
+              <th>SKU</th>
               <th>Məhsul Adı</th>
               <th>Kateqoriya</th>
+              <th>Material / Ölçü</th>
               <th>Qiymət</th>
               <th>Stok</th>
-              <th>Reytinq</th>
-              <th>Status</th>
               <th style={{ textAlign: 'right' }}>Əməliyyatlar</th>
             </tr>
           </thead>
           <tbody>
-            {filteredProducts.map((prod) => (
-              <tr key={prod.id}>
-                <td>
-                  <img src={prod.image_url} alt={prod.name} style={{ width: '48px', height: '48px', borderRadius: 'var(--admin-radius)', objectFit: 'cover' }} />
-                </td>
-                <td style={{ fontWeight: '600' }}>{prod.name}</td>
-                <td>{prod.category}</td>
-                <td style={{ fontWeight: '600', color: 'var(--admin-accent)' }}>
-                  {prod.price} ₼ {prod.old_price && <span style={{ textDecoration: 'line-through', color: 'var(--admin-text-sub)', fontSize: '0.8rem', marginLeft: '4px' }}>{prod.old_price} ₼</span>}
-                </td>
-                <td>12 ədəd</td>
-                <td>★ {prod.rating}</td>
-                <td>
-                  <span className="status-badge status-success">Aktiv</span>
-                </td>
-                <td style={{ textAlign: 'right' }}>
-                  <button className="admin-action-btn" onClick={() => handleOpenEditModal(prod)} title="Redaktə Et"><Edit size={16} /></button>
-                  <button className="admin-action-btn delete" onClick={() => setDeleteConfirmId(prod.id)} title="Sil"><Trash2 size={16} /></button>
+            {filteredProducts.length === 0 ? (
+              <tr>
+                <td colSpan={8} style={{ textAlign: 'center', padding: '30px', color: 'var(--admin-text-sub)' }}>
+                  Heç bir məhsul tapılmadı.
                 </td>
               </tr>
-            ))}
+            ) : (
+              filteredProducts.map((prod) => (
+                <tr key={prod.id}>
+                  <td>
+                    <img src={prod.image_url} alt={prod.name} style={{ width: '48px', height: '48px', borderRadius: 'var(--admin-radius)', objectFit: 'cover' }} />
+                  </td>
+                  <td style={{ fontSize: '0.85rem', color: 'var(--admin-text-sub)', fontWeight: '600' }}>{prod.sku || '—'}</td>
+                  <td style={{ fontWeight: '600' }}>{prod.name}</td>
+                  <td>{prod.category}</td>
+                  <td style={{ fontSize: '0.85rem', color: 'var(--admin-text-sub)' }}>
+                    <div>{prod.material || 'Göstərilməyib'}</div>
+                    {prod.dimensions && <div style={{ fontSize: '0.75rem', color: '#8A6822' }}>{prod.dimensions}</div>}
+                  </td>
+                  <td style={{ fontWeight: '600', color: 'var(--admin-accent)' }}>
+                    {prod.price} ₼ {prod.old_price && <span style={{ textDecoration: 'line-through', color: 'var(--admin-text-sub)', fontSize: '0.8rem', marginLeft: '4px' }}>{prod.old_price} ₼</span>}
+                  </td>
+                  <td>{prod.stock ?? 10} ədəd</td>
+                  <td style={{ textAlign: 'right' }}>
+                    <button className="admin-action-btn" onClick={() => handleOpenEditModal(prod)} title="Redaktə Et"><Edit size={16} /></button>
+                    <button className="admin-action-btn delete" onClick={() => setDeleteConfirmId(prod.id)} title="Sil"><Trash2 size={16} /></button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
 
-      {/* SİLİNMSƏ TƏSDİQ MODALI */}
+      {/* SİLİNMƏ TƏSDİQ MODALI */}
       {deleteConfirmId && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ backgroundColor: 'white', padding: '28px', borderRadius: 'var(--admin-radius)', maxWidth: '400px', textAlign: 'center' }}>
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '16px' }}>
+          <div style={{ backgroundColor: 'white', padding: '28px', borderRadius: 'var(--admin-radius)', maxWidth: '400px', width: '100%', textAlign: 'center' }}>
             <AlertTriangle size={48} color="var(--admin-danger)" style={{ marginBottom: '16px' }} />
-            <h3 style={{ fontSize: '1.2rem', marginBottom: '8px' }}>Məhsulu Silmək İstedinizə Əminsiniz?</h3>
+            <h3 style={{ fontSize: '1.2rem', marginBottom: '8px' }}>Məhsulu Silmək İstədiyinizə Əminsiniz?</h3>
             <p style={{ color: 'var(--admin-text-sub)', fontSize: '0.9rem', marginBottom: '24px' }}>Bu əməliyyat geri qaytarıla bilməz.</p>
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
               <button className="btn btn-outline" onClick={() => setDeleteConfirmId(null)}>Ləğv Et</button>
@@ -224,79 +321,190 @@ export default function AdminProductsPage() {
         </div>
       )}
 
-      {/* YENİ / REDAKTƏ MODALI */}
+      {/* PEŞƏKAR E-COMMERCE MƏHSUL ƏLAVƏ / REDAKTƏ MODALI */}
       {isModalOpen && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
-          <div style={{ backgroundColor: 'white', padding: '32px', borderRadius: 'var(--admin-radius)', maxWidth: '600px', width: '100%', maxHeight: '90vh', overflowY: 'auto' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', borderBottom: '1px solid var(--admin-border)', paddingBottom: '12px' }}>
-              <h3 style={{ fontSize: '1.4rem', fontWeight: '600' }}>{editingProduct ? 'Məhsulu Redaktə Et' : 'Yeni Məhsul Əlavə Et'}</h3>
-              <button onClick={() => setIsModalOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={20} /></button>
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '16px' }}>
+          <div style={{ backgroundColor: 'white', padding: '28px', borderRadius: 'var(--admin-radius)', maxWidth: '680px', width: '100%', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 10px 30px rgba(0,0,0,0.2)' }}>
+            
+            {/* Modal Başlığı */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid var(--admin-border)', paddingBottom: '14px' }}>
+              <div>
+                <h3 style={{ fontSize: '1.3rem', fontWeight: '700', color: 'var(--admin-text-main)' }}>
+                  {editingProduct ? 'Məhsul Məlumatlarını Redaktə Et' : 'Yeni Məhsul Əlavə Et'}
+                </h3>
+                <span style={{ fontSize: '0.8rem', color: 'var(--admin-text-sub)' }}>Real e-commerce kataloq idarəetməsi</span>
+              </div>
+              <button onClick={() => setIsModalOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--admin-text-sub)' }}><X size={22} /></button>
             </div>
 
             <form onSubmit={handleSaveProduct}>
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', marginBottom: '6px' }}>Məhsul Adı</label>
-                <input type="text" value={name} onChange={(e) => setName(e.target.value)} required style={{ width: '100%', padding: '10px', borderRadius: 'var(--admin-radius)', border: '1px solid var(--admin-border)' }} />
+              {/* 1. Məhsul Kodu (SKU) & Məhsul Adı */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '14px', marginBottom: '16px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '600', marginBottom: '6px' }}>Məhsul Kodu (SKU)</label>
+                  <input
+                    type="text"
+                    value={sku}
+                    onChange={(e) => setSku(e.target.value)}
+                    placeholder="MBL-10293"
+                    style={{ width: '100%', padding: '10px', borderRadius: 'var(--admin-radius)', border: '1px solid var(--admin-border)', fontSize: '0.88rem' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '600', marginBottom: '6px' }}>Məhsul Adı *</label>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => { setName(e.target.value); if (formErrors.name) setFormErrors((prev) => ({ ...prev, name: '' })); }}
+                    placeholder="məs: Velvet Lüks Künc Divanı"
+                    style={{ width: '100%', padding: '10px', borderRadius: 'var(--admin-radius)', border: formErrors.name ? '1px solid var(--admin-danger)' : '1px solid var(--admin-border)', fontSize: '0.88rem' }}
+                  />
+                  {formErrors.name && <span style={{ fontSize: '0.75rem', color: 'var(--admin-danger)', marginTop: '4px', display: 'block' }}>{formErrors.name}</span>}
+                </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+              {/* 2. Kateqoriya & Stok Sayı */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '16px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', marginBottom: '6px' }}>Kateqoriya</label>
-                  <select value={category} onChange={(e) => setCategory(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: 'var(--admin-radius)', border: '1px solid var(--admin-border)' }}>
-                    <option value="Qonaq Otağı">Qonaq Otağı</option>
-                    <option value="Yataq Otağı">Yataq Otağı</option>
-                    <option value="Mətbəx">Mətbəx</option>
-                    <option value="Ofis">Ofis</option>
+                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '600', marginBottom: '6px' }}>Kateqoriya *</label>
+                  <select
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    style={{ width: '100%', padding: '10px', borderRadius: 'var(--admin-radius)', border: '1px solid var(--admin-border)', fontSize: '0.88rem', backgroundColor: 'white' }}
+                  >
+                    {CATEGORIES.map((cat) => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', marginBottom: '6px' }}>Stok Sayı</label>
-                  <input type="number" value={stock} onChange={(e) => setStock(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: 'var(--admin-radius)', border: '1px solid var(--admin-border)' }} />
+                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '600', marginBottom: '6px' }}>Stok Sayı (Ədəd)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={stock}
+                    onChange={(e) => setStock(e.target.value)}
+                    placeholder="10"
+                    style={{ width: '100%', padding: '10px', borderRadius: 'var(--admin-radius)', border: '1px solid var(--admin-border)', fontSize: '0.88rem' }}
+                  />
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+              {/* 3. Qiymət (Məcburi) & Endirimli Qiymət (Optional) */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '16px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', marginBottom: '6px' }}>Qiymət (₼)</label>
-                  <input type="number" value={price} onChange={(e) => setPrice(e.target.value)} required style={{ width: '100%', padding: '10px', borderRadius: 'var(--admin-radius)', border: '1px solid var(--admin-border)' }} />
+                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '600', marginBottom: '6px' }}>Qiymət (₼) *</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={price}
+                    onChange={(e) => { setPrice(e.target.value); if (formErrors.price) setFormErrors((prev) => ({ ...prev, price: '' })); }}
+                    placeholder="məs: 1450"
+                    style={{ width: '100%', padding: '10px', borderRadius: 'var(--admin-radius)', border: formErrors.price ? '1px solid var(--admin-danger)' : '1px solid var(--admin-border)', fontSize: '0.88rem' }}
+                  />
+                  {formErrors.price && <span style={{ fontSize: '0.75rem', color: 'var(--admin-danger)', marginTop: '4px', display: 'block' }}>{formErrors.price}</span>}
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', marginBottom: '6px' }}>Endirimli Qiymət (Opsional)</label>
-                  <input type="number" value={oldPrice} onChange={(e) => setOldPrice(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: 'var(--admin-radius)', border: '1px solid var(--admin-border)' }} />
+                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '600', marginBottom: '6px' }}>Endirimli Qiymət (Əvvəlki) — Opsional</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={oldPrice}
+                    onChange={(e) => { setOldPrice(e.target.value); if (formErrors.oldPrice) setFormErrors((prev) => ({ ...prev, oldPrice: '' })); }}
+                    placeholder="məs: 1650"
+                    style={{ width: '100%', padding: '10px', borderRadius: 'var(--admin-radius)', border: formErrors.oldPrice ? '1px solid var(--admin-danger)' : '1px solid var(--admin-border)', fontSize: '0.88rem' }}
+                  />
+                  {formErrors.oldPrice && <span style={{ fontSize: '0.75rem', color: 'var(--admin-danger)', marginTop: '4px', display: 'block' }}>{formErrors.oldPrice}</span>}
                 </div>
               </div>
 
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', marginBottom: '6px' }}>Material & Ölçü Xüsusiyyəti</label>
-                <input type="text" value={material} onChange={(e) => setMaterial(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: 'var(--admin-radius)', border: '1px solid var(--admin-border)' }} />
+              {/* 4. Material (Dropdown) & Ölçü & Rəng */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '14px', marginBottom: '16px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '600', marginBottom: '6px' }}>Material</label>
+                  <select
+                    value={material}
+                    onChange={(e) => setMaterial(e.target.value)}
+                    style={{ width: '100%', padding: '10px', borderRadius: 'var(--admin-radius)', border: '1px solid var(--admin-border)', fontSize: '0.88rem', backgroundColor: 'white' }}
+                  >
+                    {MATERIALS.map((mat) => (
+                      <option key={mat} value={mat}>{mat}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '600', marginBottom: '6px' }}>Ölçü (Ö/E/H sm)</label>
+                  <input
+                    type="text"
+                    value={dimensions}
+                    onChange={(e) => setDimensions(e.target.value)}
+                    placeholder="məs: 180 × 90 × 75 sm"
+                    style={{ width: '100%', padding: '10px', borderRadius: 'var(--admin-radius)', border: '1px solid var(--admin-border)', fontSize: '0.88rem' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '600', marginBottom: '6px' }}>Rəng Seçimi</label>
+                  <input
+                    type="text"
+                    value={color}
+                    onChange={(e) => setColor(e.target.value)}
+                    placeholder="məs: Qoz, Zümrüd Yaşılı"
+                    style={{ width: '100%', padding: '10px', borderRadius: 'var(--admin-radius)', border: '1px solid var(--admin-border)', fontSize: '0.88rem' }}
+                  />
+                </div>
               </div>
 
-              <div style={{ marginBottom: '24px' }}>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', marginBottom: '6px' }}>Şəkil (URL və ya Qalereyadan Yüklə)</label>
-                
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  {/* URL Input */}
+              {/* 5. Məhsul Təsviri (Textarea) */}
+              <div style={{ marginBottom: '18px' }}>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '600', marginBottom: '6px' }}>Məhsulun Ətraflı Təsviri</label>
+                <textarea
+                  rows={3}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Məhsulun rahatlığı, parça xüsusiyyətləri və dizayn detalları haqqında məlumat yazın..."
+                  style={{ width: '100%', padding: '10px', borderRadius: 'var(--admin-radius)', border: '1px solid var(--admin-border)', fontSize: '0.88rem', resize: 'vertical' }}
+                />
+              </div>
+
+              {/* 6. Şəkil Yükləmə (Multiple Images + URL) */}
+              <div style={{ marginBottom: '24px', backgroundColor: 'var(--admin-bg)', padding: '16px', borderRadius: 'var(--admin-radius)', border: formErrors.images ? '1px solid var(--admin-danger)' : '1px solid var(--admin-border)' }}>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', marginBottom: '8px' }}>
+                  Məhsul Şəkilləri (Kompüterdən və ya URL) *
+                </label>
+
+                {/* Input row */}
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
                   <input
                     type="url"
                     placeholder="https://... şəkil linki daxil edin"
-                    value={imageUrl}
-                    onChange={(e) => setImageUrl(e.target.value)}
-                    style={{ flex: 1, padding: '9px 12px', borderRadius: 'var(--admin-radius)', border: '1px solid var(--admin-border)', fontSize: '0.88rem' }}
+                    value={newImageUrlInput}
+                    onChange={(e) => setNewImageUrlInput(e.target.value)}
+                    style={{ flex: 1, padding: '8px 12px', borderRadius: 'var(--admin-radius)', border: '1px solid var(--admin-border)', fontSize: '0.85rem', backgroundColor: 'white' }}
                   />
+                  <button
+                    type="button"
+                    onClick={handleAddUrlImage}
+                    className="btn btn-outline"
+                    style={{ padding: '8px 14px', fontSize: '0.82rem', whiteSpace: 'nowrap' }}
+                  >
+                    Link Əlavə Et
+                  </button>
 
-                  {/* Balaca Düymə Şəklində Fayl Seçimi */}
                   <div style={{ position: 'relative', display: 'inline-block' }}>
                     <input
                       type="file"
                       accept="image/*"
-                      onChange={handleFileChange}
+                      multiple
+                      onChange={handleFileUpload}
                       style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%', height: '100%', zIndex: 5 }}
                     />
                     <button
                       type="button"
                       disabled={uploadingImage}
-                      className="btn btn-outline"
-                      style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '9px 14px', fontSize: '0.85rem', whiteSpace: 'nowrap' }}
+                      className="btn btn-primary"
+                      style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', fontSize: '0.82rem', whiteSpace: 'nowrap' }}
                     >
                       {uploadingImage ? (
                         <>
@@ -304,27 +512,45 @@ export default function AdminProductsPage() {
                         </>
                       ) : (
                         <>
-                          <Upload size={15} /> Əlavə et
+                          <Upload size={15} /> Qalereyadan Əlavə Et
                         </>
                       )}
                     </button>
                   </div>
                 </div>
 
-                {/* Əgər şəkil seçilibsə preview göstəririk */}
-                {imageUrl && (
-                  <div style={{ marginTop: '10px', display: 'flex', alignItems: 'center', gap: '10px', background: 'var(--admin-bg)', padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--admin-border)' }}>
-                    <img src={imageUrl} alt="Ön baxış" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '6px' }} />
-                    <span style={{ fontSize: '0.75rem', color: 'var(--admin-text-sub)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {imageUrl}
-                    </span>
+                {formErrors.images && <span style={{ fontSize: '0.75rem', color: 'var(--admin-danger)', marginBottom: '10px', display: 'block' }}>{formErrors.images}</span>}
+
+                {/* Yüklənmiş Şəkillər Şəbəkəsi (Thumbnails) */}
+                {images.length > 0 && (
+                  <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '10px' }}>
+                    {images.map((imgUrl, idx) => (
+                      <div key={idx} style={{ position: 'relative', width: '70px', height: '70px', borderRadius: '8px', overflow: 'hidden', border: idx === 0 ? '2px solid var(--admin-accent)' : '1px solid var(--admin-border)', backgroundColor: 'white' }}>
+                        <img src={imgUrl} alt={`Şəkil ${idx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        {idx === 0 && (
+                          <span style={{ position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: 'var(--admin-accent)', color: 'white', fontSize: '0.6rem', textAlign: 'center', padding: '2px 0', fontWeight: '600' }}>
+                            Əsas Şəkil
+                          </span>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveImage(idx)}
+                          style={{ position: 'absolute', top: '2px', right: '2px', backgroundColor: 'rgba(0,0,0,0.6)', color: 'white', border: 'none', borderRadius: '50%', width: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                        >
+                          <X size={12} />
+                        </button>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
 
-              <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+              {/* Düymələr */}
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', borderTop: '1px solid var(--admin-border)', paddingTop: '16px' }}>
                 <button type="button" className="btn btn-outline" onClick={() => setIsModalOpen(false)}>Ləğv Et</button>
-                <button type="submit" className="btn btn-primary">Yadda Saxla</button>
+                <button type="submit" className="btn btn-primary" disabled={uploadingImage}>
+                  {uploadingImage ? 'Şəkil Yüklənir...' : 'Yadda Saxla'}
+                </button>
               </div>
             </form>
           </div>
