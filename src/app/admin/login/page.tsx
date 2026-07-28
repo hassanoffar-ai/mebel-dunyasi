@@ -58,8 +58,11 @@ export default function AdminLoginPage() {
         return;
       }
 
-      // 3. Successful Admin Auth -> Redirect to /admin
-      router.push('/admin');
+      // Set session cookie for Middleware auth guard
+      document.cookie = 'admin_session=authenticated; path=/; max-age=86400;';
+
+      // 3. Successful Admin Auth -> Redirect to /admin/dashboard
+      router.push('/admin/dashboard');
     } catch (err: any) {
       setErrorMsg(err.message || 'Daxilolma zamanı sistem xətası baş verdi.');
       setLoading(false);
