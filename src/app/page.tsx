@@ -63,7 +63,7 @@ export default function HomePage() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       {/* Header */}
-      <Header cartCount={cartCount} />
+      <Header />
 
       <main style={{ flexGrow: 1 }}>
         {/* 1. HERO BÖLMƏSİ (Slayder) */}

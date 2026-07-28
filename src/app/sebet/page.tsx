@@ -15,36 +15,6 @@ interface CartItem {
   image_url: string;
 }
 
-const INITIAL_CART: CartItem[] = [
-  {
-    id: '1',
-    name: 'Minimalist Velvet Divan',
-    category: 'Qonaq Otağı',
-    variant: 'İsti Bej',
-    price: 1450,
-    quantity: 1,
-    image_url: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80',
-  },
-  {
-    id: '2',
-    name: 'Təbii Palıd Yemək Masası',
-    category: 'Mətbəx',
-    variant: 'Təbii Palıd',
-    price: 980,
-    quantity: 1,
-    image_url: 'https://images.unsplash.com/photo-1615066390971-03e4e1c36ddf?auto=format&fit=crop&w=800&q=80',
-  },
-  {
-    id: '4',
-    name: 'Qəhvəyi Dəri Aksent Kreslo',
-    category: 'Qonaq Otağı',
-    variant: 'Tünd Qəhvəyi',
-    price: 750,
-    quantity: 2,
-    image_url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=800&q=80',
-  },
-];
-
 import { useCart } from '@/context/CartContext';
 
 export default function CartPage() {

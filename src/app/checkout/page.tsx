@@ -15,25 +15,6 @@ interface CartItem {
   image_url: string;
 }
 
-const CHECKOUT_CART: CartItem[] = [
-  {
-    id: '1',
-    name: 'Minimalist Velvet Divan',
-    variant: 'İsti Bej',
-    price: 1450,
-    quantity: 1,
-    image_url: 'C:\\Users\\User\\.gemini\\antigravity\\brain\\60ddce65-7740-47cc-a2af-78899d3729b9\\sofa_product_1785206074780.jpg',
-  },
-  {
-    id: '2',
-    name: 'Təbii Palıd Yemək Masası',
-    variant: 'Təbii Ağac',
-    price: 980,
-    quantity: 1,
-    image_url: 'C:\\Users\\User\\.gemini\\antigravity\\brain\\60ddce65-7740-47cc-a2af-78899d3729b9\\table_product_1785206085165.jpg',
-  },
-];
-
 import { useCart } from '@/context/CartContext';
 
 function CheckoutContent() {

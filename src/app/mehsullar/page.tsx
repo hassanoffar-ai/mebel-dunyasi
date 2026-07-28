@@ -38,7 +38,7 @@ export default function ProductsPage() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      <Header cartCount={cartCount} />
+      <Header />
 
       <main style={{ flexGrow: 1, padding: '40px 0 80px 0', backgroundColor: 'var(--bg-main)' }}>
         <div className="container">

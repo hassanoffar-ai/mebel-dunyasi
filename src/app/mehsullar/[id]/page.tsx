@@ -96,7 +96,7 @@ export default function ProductDetailPage() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: 'var(--bg-main)' }}>
-      <Header cartCount={cartCount} />
+      <Header />
 
       <main style={{ flexGrow: 1, padding: '40px 0 80px 0' }}>
         <div className="container">
@@ -467,7 +467,7 @@ export default function ProductDetailPage() {
             </h2>
             <div className="product-grid">
               {relatedProducts.map((prod) => (
-                <ProductCard key={prod.id} product={prod} onAddToCart={(p) => setCartCount((c) => c + 1)} />
+                <ProductCard key={prod.id} product={prod} onAddToCart={(p) => addToCart(p)} />
               ))}
             </div>
           </div>
