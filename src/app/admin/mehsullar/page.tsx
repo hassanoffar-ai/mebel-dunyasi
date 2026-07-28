@@ -298,8 +298,8 @@ export default function AdminProductsPage() {
                   ) : (
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                       <Upload size={18} color="var(--admin-accent)" />
-                      <span style={{ fontSize: '0.85rem', color: 'var(--admin-accent)', fontWeight: '600', textDecoration: 'underline' }}>
-                        və ya kompüterdən şəkil seçin
+                      <span style={{ fontSize: '0.85rem', color: 'var(--admin-accent)', fontWeight: '600' }}>
+                        Əlavə et
                       </span>
                     </div>
                   )}
