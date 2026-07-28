@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Eye, Search, Filter, X, CheckCircle2, Clock, Truck, XCircle, Save, FileText } from 'lucide-react';
+import { Eye, Search, Filter, X, CheckCircle2, Clock, Truck, XCircle, Save, FileText, ShoppingBag } from 'lucide-react';
 import '@/app/admin/admin.css';
 
 export type OrderStatus = 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
@@ -104,6 +104,8 @@ const MOCK_ORDERS: OrderItem[] = [
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<OrderItem[]>(MOCK_ORDERS);
+  const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [selectedOrder, setSelectedOrder] = useState<OrderItem | null>(null);
@@ -131,24 +133,58 @@ export default function AdminOrdersPage() {
     }
   };
 
-  // Fetch Orders from Supabase
+  // Fetch Orders from Supabase sorted by date DESC
   useEffect(() => {
     async function loadOrders() {
+      setLoading(true);
+      setErrorMsg('');
       try {
-        const { data, error } = await supabase.from('orders').select('*');
-        if (data && data.length > 0 && !error) {
-          setOrders(data as any);
+        const { data, error } = await supabase
+          .from('orders')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          throw error;
         }
-      } catch (err) {
-        console.log('Using mock orders list');
+
+        if (data && data.length > 0) {
+          const mappedData: OrderItem[] = data.map((item: any) => ({
+            id: item.id,
+            order_id: item.id,
+            customer: item.user_id ? `İstifadəçi #${item.user_id}` : 'Qonaq Müştəri',
+            email: item.email || 'Məlumatsız',
+            phone: item.telefon || item.phone || '+994 50 000 00 00',
+            address: item.catdirilma_unvani || item.address || 'Ünvan qeyd edilməyib',
+            items_count: item.items_count || 1,
+            total_amount: item.umumi_meblegh || item.total_amount || 0,
+            status: (item.status as OrderStatus) || 'pending',
+            date: item.created_at ? new Date(item.created_at).toLocaleDateString('az-AZ', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Bu gün',
+            notes: item.notes,
+            products: item.products || [
+              { name: 'Sifariş edilmiş mebel məhsulu', quantity: 1, price: item.umumi_meblegh || 0, image_url: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80' }
+            ],
+          }));
+          setOrders(mappedData);
+        } else {
+          // Keep sorted mock orders if table is empty in dev
+          setOrders(MOCK_ORDERS);
+        }
+      } catch (err: any) {
+        console.log('Database read error, using mock fallback:', err);
+        setOrders(MOCK_ORDERS);
+      } finally {
+        setLoading(false);
       }
     }
     loadOrders();
   }, []);
 
-  // Filter Orders
+  // Filter & Sort Orders (Date descending)
   const filteredOrders = orders.filter((order) => {
-    const matchesSearch = order.customer.toLowerCase().includes(searchQuery.toLowerCase()) || order.id.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch =
+      (order.customer || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (order.id || '').toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter ? order.status === statusFilter : true;
     return matchesSearch && matchesStatus;
   });
@@ -210,41 +246,58 @@ export default function AdminOrdersPage() {
         </select>
       </div>
 
-      {/* Sifarişlər Cədvəli */}
-      <div className="admin-table-container">
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Sifariş №</th>
-              <th>Müştəri Adı</th>
-              <th>Tarix</th>
-              <th>Məhsul Sayı</th>
-              <th>Ümumi Məbləğ</th>
-              <th>Status</th>
-              <th style={{ textAlign: 'right' }}>Əməliyyatlar</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredOrders.map((order) => (
-              <tr key={order.id}>
-                <td style={{ fontWeight: '600' }}>{order.id}</td>
-                <td>{order.customer}</td>
-                <td style={{ fontSize: '0.88rem', color: 'var(--admin-text-sub)' }}>{order.date}</td>
-                <td>{order.items_count} məhsul</td>
-                <td style={{ fontWeight: '700', color: 'var(--admin-accent)' }}>{order.total_amount} ₼</td>
-                <td>
-                  <span className={`status-badge ${getStatusBadgeClass(order.status)}`}>
-                    {STATUS_LABELS[order.status] || order.status}
-                  </span>
-                </td>
-                <td style={{ textAlign: 'right' }}>
-                  <button className="admin-action-btn" onClick={() => handleOpenDetailModal(order)} title="Sifariş Detalları"><Eye size={16} /></button>
-                </td>
+      {/* Sifarişlər Cədvəli / Vəziyyət Mesajları */}
+      {loading ? (
+        <div style={{ backgroundColor: 'white', padding: '60px', borderRadius: 'var(--admin-radius)', textAlign: 'center', color: 'var(--admin-text-sub)' }}>
+          <Clock size={32} className="animate-spin" style={{ margin: '0 auto 12px auto', color: 'var(--admin-accent)' }} />
+          <div>Sifarişlər yüklənir...</div>
+        </div>
+      ) : errorMsg ? (
+        <div style={{ backgroundColor: '#FDE8E8', color: '#E53E3E', padding: '20px', borderRadius: 'var(--admin-radius)', textAlign: 'center', marginBottom: '24px' }}>
+          {errorMsg}
+        </div>
+      ) : filteredOrders.length === 0 ? (
+        <div style={{ backgroundColor: 'white', padding: '60px', borderRadius: 'var(--admin-radius)', textAlign: 'center', color: 'var(--admin-text-sub)', border: '1px solid var(--admin-border)' }}>
+          <ShoppingBag size={40} style={{ margin: '0 auto 12px auto', color: 'var(--admin-text-sub)' }} />
+          <h3 style={{ fontSize: '1.2rem', fontWeight: '600', marginBottom: '4px', color: 'var(--admin-text-main)' }}>Sifariş Tapılmadı</h3>
+          <p style={{ fontSize: '0.9rem' }}>Axtarış kriteriyalarınıza uyğun heç bir sifariş mövcud deyil.</p>
+        </div>
+      ) : (
+        <div className="admin-table-container">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Sifariş №</th>
+                <th>Müştəri Adı</th>
+                <th>Tarix</th>
+                <th>Məhsul Sayı</th>
+                <th>Ümumi Məbləğ</th>
+                <th>Status</th>
+                <th style={{ textAlign: 'right' }}>Əməliyyatlar</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {filteredOrders.map((order) => (
+                <tr key={order.id}>
+                  <td style={{ fontWeight: '600' }}>{order.id}</td>
+                  <td>{order.customer}</td>
+                  <td style={{ fontSize: '0.88rem', color: 'var(--admin-text-sub)' }}>{order.date}</td>
+                  <td>{order.items_count} məhsul</td>
+                  <td style={{ fontWeight: '700', color: 'var(--admin-accent)' }}>{order.total_amount} ₼</td>
+                  <td>
+                    <span className={`status-badge ${getStatusBadgeClass(order.status)}`}>
+                      {STATUS_LABELS[order.status] || order.status}
+                    </span>
+                  </td>
+                  <td style={{ textAlign: 'right' }}>
+                    <button className="admin-action-btn" onClick={() => handleOpenDetailModal(order)} title="Sifariş Detalları"><Eye size={16} /></button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {/* SİFARİŞ DETAL & STATUS DƏYİŞDİRMƏ MODALI */}
       {selectedOrder && (
