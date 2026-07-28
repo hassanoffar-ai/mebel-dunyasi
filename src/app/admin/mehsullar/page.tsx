@@ -272,37 +272,43 @@ export default function AdminProductsPage() {
               </div>
 
               <div style={{ marginBottom: '24px' }}>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', marginBottom: '6px' }}>Şəkil (URL və ya Kompüterdən Seçim)</label>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', marginBottom: '6px' }}>Şəkil (URL və ya Qalereyadan Yüklə)</label>
                 
-                {/* 1. Doğrudan URL daxil etmək üçün input */}
-                <input
-                  type="url"
-                  placeholder="https://... şəkil linki daxil edin"
-                  value={imageUrl}
-                  onChange={(e) => setImageUrl(e.target.value)}
-                  style={{ width: '100%', padding: '10px', borderRadius: 'var(--admin-radius)', border: '1px solid var(--admin-border)', marginBottom: '10px' }}
-                />
-
-                {/* 2. Kompüterdən fayl seçmək üçün buton və ya sürüşdürmə sahəsi */}
-                <div style={{ position: 'relative', border: '1px dashed var(--admin-border)', padding: '12px', textAlign: 'center', borderRadius: 'var(--admin-radius)', backgroundColor: 'var(--admin-bg)', cursor: 'pointer' }}>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  {/* URL Input */}
                   <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%', height: '100%', zIndex: 5 }}
+                    type="url"
+                    placeholder="https://... şəkil linki daxil edin"
+                    value={imageUrl}
+                    onChange={(e) => setImageUrl(e.target.value)}
+                    style={{ flex: 1, padding: '9px 12px', borderRadius: 'var(--admin-radius)', border: '1px solid var(--admin-border)', fontSize: '0.88rem' }}
                   />
-                  {uploadingImage ? (
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: 'var(--admin-accent)', fontSize: '0.85rem' }}>
-                      <Loader2 className="animate-spin" size={18} /> Supabase-ə yüklənir...
-                    </div>
-                  ) : (
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                      <Upload size={18} color="var(--admin-accent)" />
-                      <span style={{ fontSize: '0.85rem', color: 'var(--admin-accent)', fontWeight: '600' }}>
-                        Əlavə et
-                      </span>
-                    </div>
-                  )}
+
+                  {/* Balaca Düymə Şəklində Fayl Seçimi */}
+                  <div style={{ position: 'relative', display: 'inline-block' }}>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%', height: '100%', zIndex: 5 }}
+                    />
+                    <button
+                      type="button"
+                      disabled={uploadingImage}
+                      className="btn btn-outline"
+                      style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '9px 14px', fontSize: '0.85rem', whiteSpace: 'nowrap' }}
+                    >
+                      {uploadingImage ? (
+                        <>
+                          <Loader2 className="animate-spin" size={15} /> Yüklənir...
+                        </>
+                      ) : (
+                        <>
+                          <Upload size={15} /> Əlavə et
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
 
                 {/* Əgər şəkil seçilibsə preview göstəririk */}
