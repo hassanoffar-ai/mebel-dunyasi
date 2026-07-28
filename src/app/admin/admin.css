@@ -1,0 +1,319 @@
+/* Mebel Dünyası Admin Panel CSS Framework */
+
+:root {
+  --admin-bg: #F7F5F2;          /* Açıq bej-boz fon */
+  --admin-sidebar-bg: #2B1D14;  /* Tünd qəhvəyi brend sidebar */
+  --admin-card-bg: #FFFFFF;     /* Ağ kartlar */
+  --admin-accent: #8B5E34;      /* Əsas qəhvəyi */
+  --admin-accent-gold: #C9A15D; /* Qızılı */
+  
+  --admin-success: #4C7A5A;     /* Yaşıl (Təsdiqləndi) */
+  --admin-success-bg: #EAF3EC;
+  
+  --admin-warning: #C9A15D;     /* Qızılı (Gözləmədə) */
+  --admin-warning-bg: #FAF3E6;
+  
+  --admin-danger: #B3413A;      /* Qırmızı (Rədd edildi/Sil) */
+  --admin-danger-bg: #FDF0ED;
+  
+  --admin-text-main: #2B1D14;
+  --admin-text-sub: #6B5D4F;
+  --admin-border: #E5D9C7;
+
+  --admin-radius: 8px;
+  --admin-shadow: 0 2px 10px rgba(43, 29, 20, 0.05);
+}
+
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--admin-bg);
+  font-family: var(--font-sans);
+  color: var(--admin-text-main);
+}
+
+/* Sidebar (240px Fixed) */
+.admin-sidebar {
+  width: 240px;
+  background-color: var(--admin-sidebar-bg);
+  color: #FAF7F2;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  transition: width 300ms ease;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  z-index: 100;
+}
+
+.admin-sidebar-logo {
+  padding: 24px 20px;
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  font-weight: 700;
+  border-bottom: 1px solid rgba(229, 217, 199, 0.12);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-sidebar-logo span {
+  color: var(--admin-accent-gold);
+}
+
+.admin-nav {
+  padding: 20px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-grow: 1;
+}
+
+.admin-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: var(--admin-radius);
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: #D4C9BF;
+  transition: all 200ms ease;
+  text-decoration: none;
+}
+
+.admin-nav-item:hover,
+.admin-nav-item.active {
+  background-color: var(--admin-accent);
+  color: #FFFFFF;
+}
+
+.admin-logout-btn {
+  margin: 16px 12px;
+  padding: 12px 16px;
+  border-radius: var(--admin-radius);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: transparent;
+  color: #D4C9BF;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+
+.admin-logout-btn:hover {
+  background-color: var(--admin-danger);
+  color: #FFFFFF;
+  border-color: var(--admin-danger);
+}
+
+/* Main Content Side */
+.admin-main {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* Header Bar */
+.admin-header {
+  height: 70px;
+  background-color: var(--admin-card-bg);
+  border-bottom: 1px solid var(--admin-border);
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 90;
+}
+
+.admin-header-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--admin-text-main);
+}
+
+.admin-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--admin-accent);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+/* Dashboard Body Container */
+.admin-body {
+  padding: 32px;
+  flex-grow: 1;
+}
+
+/* Summary Metric Cards */
+.admin-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.admin-metric-card {
+  background-color: var(--admin-card-bg);
+  border-radius: var(--admin-radius);
+  border: 1px solid var(--admin-border);
+  padding: 24px;
+  box-shadow: var(--admin-shadow);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.admin-metric-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--admin-text-main);
+  margin-top: 4px;
+}
+
+.admin-metric-label {
+  font-size: 0.88rem;
+  color: var(--admin-text-sub);
+}
+
+.admin-metric-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--admin-radius);
+  background-color: var(--admin-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--admin-accent);
+}
+
+/* Tables with Zebra-striping */
+.admin-table-container {
+  background-color: var(--admin-card-bg);
+  border-radius: var(--admin-radius);
+  border: 1px solid var(--admin-border);
+  box-shadow: var(--admin-shadow);
+  overflow: hidden;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.92rem;
+}
+
+.admin-table th {
+  background-color: #FAF7F2;
+  padding: 16px 20px;
+  font-weight: 600;
+  color: var(--admin-text-main);
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.admin-table td {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--admin-border);
+  color: var(--admin-text-main);
+}
+
+/* Zebra striping */
+.admin-table tbody tr:nth-child(even) {
+  background-color: #FCFBF9;
+}
+
+/* Hover line highlight */
+.admin-table tbody tr:hover {
+  background-color: #F5EFE6;
+}
+
+/* Status Badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.status-success {
+  background-color: var(--admin-success-bg);
+  color: var(--admin-success);
+}
+
+.status-warning {
+  background-color: var(--admin-warning-bg);
+  color: var(--admin-warning);
+}
+
+.status-danger {
+  background-color: var(--admin-danger-bg);
+  color: var(--admin-danger);
+}
+
+/* Action Buttons */
+.admin-action-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--admin-radius);
+  border: 1px solid var(--admin-border);
+  background: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--admin-text-main);
+  transition: all 200ms ease;
+  margin-right: 6px;
+}
+
+.admin-action-btn:hover {
+  background-color: var(--admin-accent);
+  color: white;
+  border-color: var(--admin-accent);
+}
+
+.admin-action-btn.delete:hover {
+  background-color: var(--admin-danger);
+  color: white;
+  border-color: var(--admin-danger);
+}
+
+/* Responsive Table & Sidebar Collapse */
+@media (max-width: 1024px) {
+  .admin-sidebar {
+    width: 70px;
+  }
+  .admin-sidebar-logo span,
+  .admin-nav-item span,
+  .admin-logout-btn span {
+    display: none;
+  }
+  .admin-sidebar-logo {
+    justify-content: center;
+    padding: 20px 0;
+  }
+  .admin-nav-item {
+    justify-content: center;
+    padding: 14px;
+  }
+}
