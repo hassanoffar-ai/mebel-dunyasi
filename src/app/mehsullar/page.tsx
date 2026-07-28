@@ -1,22 +1,42 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Header, Footer } from '@/components/Navigation';
 import { ProductCard } from '@/components/ProductCard';
-import { MOCK_PRODUCTS, Product } from '@/lib/mockData';
-import { Search, Filter, SlidersHorizontal } from 'lucide-react';
+import { Product } from '@/lib/mockData';
+import { supabase } from '@/lib/supabase';
+import { Search, Filter, SlidersHorizontal, Clock, AlertTriangle, PackageX } from 'lucide-react';
 
 import { useCart } from '@/context/CartContext';
 
 export default function ProductsPage() {
   const { addToCart } = useCart();
-  const [products, setProducts] = useState<Product[]>(MOCK_PRODUCTS);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [errorMsg, setErrorMsg] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('Bütün');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [sortBy, setSortBy] = useState<'default' | 'price-low' | 'price-high' | 'rating'>('default');
 
   const categories = ['Bütün', 'Qonaq Otağı', 'Yataq Otağı', 'Mətbəx'];
+
+  useEffect(() => {
+    async function loadProducts() {
+      setLoading(true);
+      setErrorMsg('');
+      try {
+        const { data, error } = await supabase.from('products').select('*');
+        if (error) throw error;
+        setProducts(data as Product[]);
+      } catch (err: any) {
+        setErrorMsg('Məhsullar yüklənərkən xəta baş verdi: ' + (err.message || 'Serverlə əlaqə kəsildi'));
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadProducts();
+  }, []);
 
   const handleAddToCart = (product: Product) => {
     addToCart(product);
@@ -117,8 +137,18 @@ export default function ProductsPage() {
             </div>
           </div>
 
-          {/* Product Grid / Row Layout */}
-          {filteredProducts.length > 0 ? (
+          {/* Loading / Error / Empty / Grid States */}
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)' }}>
+              <Clock size={40} className="animate-spin" style={{ margin: '0 auto 12px auto', color: 'var(--accent-primary)' }} />
+              <h3>Məhsullar yüklənir...</h3>
+            </div>
+          ) : errorMsg ? (
+            <div style={{ backgroundColor: '#FDE8E8', color: '#E53E3E', padding: '20px', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
+              <AlertTriangle size={32} style={{ margin: '0 auto 8px auto' }} />
+              <p style={{ fontWeight: '600' }}>{errorMsg}</p>
+            </div>
+          ) : filteredProducts.length > 0 ? (
             <div className="grid-responsive-products">
               {filteredProducts.map((prod) => (
                 <ProductCard key={prod.id} product={prod} onAddToCart={handleAddToCart} />
@@ -126,6 +156,7 @@ export default function ProductsPage() {
             </div>
           ) : (
             <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)' }}>
+              <PackageX size={48} style={{ margin: '0 auto 12px auto', opacity: 0.5 }} />
               <h3>Axtarışa uyğun məhsul tapılmadı.</h3>
               <p style={{ marginTop: '8px' }}>Filtri dəyişərək yenidən cəhd edin.</p>
             </div>
