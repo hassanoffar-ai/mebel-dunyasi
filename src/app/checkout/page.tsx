@@ -133,8 +133,8 @@ function CheckoutContent() {
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-main)', display: 'flex', flexDirection: 'column' }}>
       {/* SIMPLIFIED HEADER */}
       <header style={{ backgroundColor: 'var(--white)', borderBottom: '1px solid var(--border-color)', padding: '16px 0', position: 'sticky', top: 0, zIndex: 100 }}>
-        <div class="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Link href="/" class="logo">
+        <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Link href="/" className="logo">
             Mebel <span>Dünyası</span>
           </Link>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--success-color)', fontSize: '0.9rem', fontWeight: '600' }}>
@@ -145,9 +145,9 @@ function CheckoutContent() {
       </header>
 
       <main style={{ flexGrow: 1, padding: '40px 0 80px 0' }}>
-        <div class="container">
+        <div className="container">
           {errorMsg && (
-            <div class="alert alert-error" style={{ maxWidth: '900px', margin: '0 auto 24px auto' }}>
+            <div className="alert alert-error" style={{ maxWidth: '900px', margin: '0 auto 24px auto' }}>
               <AlertCircle size={18} />
               <span>{errorMsg}</span>
             </div>
@@ -162,37 +162,37 @@ function CheckoutContent() {
                     1. Çatdırılma Məlumatları
                   </h2>
 
-                  <div class="form-group">
-                    <label class="form-label">Ad və Soyad</label>
-                    <input type="text" class="form-input" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+                  <div className="form-group">
+                    <label className="form-label">Ad və Soyad</label>
+                    <input type="text" className="form-input" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                    <div class="form-group">
-                      <label class="form-label">Telefon Nömrəsi</label>
-                      <input type="tel" class="form-input" value={phone} onChange={(e) => setPhone(e.target.value)} required />
+                    <div className="form-group">
+                      <label className="form-label">Telefon Nömrəsi</label>
+                      <input type="tel" className="form-input" value={phone} onChange={(e) => setPhone(e.target.value)} required />
                     </div>
-                    <div class="form-group">
-                      <label class="form-label">Email Ünvanı</label>
-                      <input type="email" class="form-input" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                    <div className="form-group">
+                      <label className="form-label">Email Ünvanı</label>
+                      <input type="email" className="form-input" value={email} onChange={(e) => setEmail(e.target.value)} required />
                     </div>
                   </div>
 
-                  <div class="form-group">
-                    <label class="form-label">Şəhər</label>
-                    <select class="form-input" value={city} onChange={(e) => setCity(e.target.value)}>
+                  <div className="form-group">
+                    <label className="form-label">Şəhər</label>
+                    <select className="form-input" value={city} onChange={(e) => setCity(e.target.value)}>
                       <option value="Bakı">Bakı</option>
                       <option value="Sumqayıt">Sumqayıt</option>
                       <option value="Gəncə">Gəncə</option>
                     </select>
                   </div>
 
-                  <div class="form-group">
-                    <label class="form-label">Tam Ünvan</label>
-                    <textarea class="form-input" rows={3} value={address} onChange={(e) => setAddress(e.target.value)} required />
+                  <div className="form-group">
+                    <label className="form-label">Tam Ünvan</label>
+                    <textarea className="form-input" rows={3} value={address} onChange={(e) => setAddress(e.target.value)} required />
                   </div>
 
-                  <button type="submit" class="btn btn-primary" style={{ width: '100%', padding: '14px', marginTop: '12px' }}>
+                  <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '14px', marginTop: '12px' }}>
                     Növbəti Addım: Ödəniş <ArrowRight size={18} />
                   </button>
                 </form>
@@ -259,10 +259,10 @@ function CheckoutContent() {
                   </div>
 
                   <div style={{ display: 'flex', gap: '14px' }}>
-                    <button type="button" class="btn btn-outline" onClick={() => setStep(1)} style={{ padding: '14px 20px' }}>
+                    <button type="button" className="btn btn-outline" onClick={() => setStep(1)} style={{ padding: '14px 20px' }}>
                       <ArrowLeft size={16} /> Geri
                     </button>
-                    <button type="submit" class="btn btn-primary" style={{ flex: 1, padding: '14px' }} disabled={loading}>
+                    <button type="submit" className="btn btn-primary" style={{ flex: 1, padding: '14px' }} disabled={loading}>
                       {loading
                         ? 'Ödəniş səhifəsinə yönləndirilir...'
                         : paymentMethod === 'stripe'
@@ -311,7 +311,7 @@ function CheckoutContent() {
       </main>
 
       <footer style={{ backgroundColor: '#23160F', color: '#9C8E82', padding: '20px 0', textAlign: 'center', fontSize: '0.85rem' }}>
-        <div class="container">
+        <div className="container">
           <p>&copy; 2026 Mebel Dünyası. Stripe & Supabase Integrated Checkout.</p>
         </div>
       </footer>

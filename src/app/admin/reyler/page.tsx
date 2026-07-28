@@ -259,8 +259,8 @@ export default function AdminReviewsPage() {
                         style={{ width: '100%', padding: '8px 12px', borderRadius: 'var(--admin-radius)', border: '1px solid var(--admin-border)', marginBottom: '12px' }}
                       />
                       <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                        <button class="btn btn-outline" onClick={() => setRejectingId(null)}>Ləğv Et</button>
-                        <button class="btn" style={{ backgroundColor: 'var(--admin-danger)', color: 'white' }} onClick={() => handleRejectSubmit(rev.id)}>
+                        <button className="btn btn-outline" onClick={() => setRejectingId(null)}>Ləğv Et</button>
+                        <button className="btn" style={{ backgroundColor: 'var(--admin-danger)', color: 'white' }} onClick={() => handleRejectSubmit(rev.id)}>
                           Rədd Etməni Təsdiqlə
                         </button>
                       </div>
@@ -269,14 +269,14 @@ export default function AdminReviewsPage() {
                     /* Təsdiqlə / Rədd Et Düymələri */
                     <div style={{ display: 'flex', gap: '12px' }}>
                       <button
-                        class="btn"
+                        className="btn"
                         style={{ backgroundColor: 'var(--admin-success)', color: 'white', padding: '10px 20px', fontSize: '0.88rem' }}
                         onClick={() => handleApprove(rev.id)}
                       >
                         <Check size={16} /> Təsdiqlə (Saytda Dərc Et)
                       </button>
                       <button
-                        class="btn"
+                        className="btn"
                         style={{ backgroundColor: 'var(--admin-danger)', color: 'white', padding: '10px 20px', fontSize: '0.88rem' }}
                         onClick={() => setRejectingId(rev.id)}
                       >

@@ -170,7 +170,7 @@ export default function AdminMessagesPage() {
                   <span style={{ fontSize: '0.85rem', color: 'var(--admin-text-sub)' }}>Tarix: {selectedMessage.date}</span>
                 </div>
                 <div style={{ display: 'flex', gap: '8px' }}>
-                  <button class="admin-action-btn delete" onClick={() => handleDeleteMessage(selectedMessage.id)} title="Mesajı Sil">
+                  <button className="admin-action-btn delete" onClick={() => handleDeleteMessage(selectedMessage.id)} title="Mesajı Sil">
                     <Trash2 size={16} />
                   </button>
                 </div>
@@ -200,7 +200,7 @@ export default function AdminMessagesPage() {
               <div style={{ borderTop: '1px solid var(--admin-border)', paddingTop: '20px', display: 'flex', gap: '12px' }}>
                 <a
                   href={`mailto:${selectedMessage.email}?subject=Re: ${encodeURIComponent(selectedMessage.subject)}`}
-                  class="btn btn-primary"
+                  className="btn btn-primary"
                   style={{ textDecoration: 'none', padding: '12px 24px', fontSize: '0.9rem' }}
                 >
                   <Send size={16} /> Email ilə Cavab Yaz
@@ -211,7 +211,7 @@ export default function AdminMessagesPage() {
                     href={`https://wa.me/${selectedMessage.phone.replace(/[^0-9]/g, '')}`}
                     target="_blank"
                     rel="noreferrer"
-                    class="btn"
+                    className="btn"
                     style={{ backgroundColor: '#25D366', color: 'white', textDecoration: 'none', padding: '12px 24px', fontSize: '0.9rem' }}
                   >
                     <MessageCircle size={16} /> WhatsApp ilə Yaz

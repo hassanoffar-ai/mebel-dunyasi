@@ -99,7 +99,7 @@ function SuccessContent() {
             </div>
           </div>
 
-          <Link href="/" class="btn btn-primary" style={{ padding: '14px 36px', fontSize: '1rem' }}>
+          <Link href="/" className="btn btn-primary" style={{ padding: '14px 36px', fontSize: '1rem' }}>
             Ana Səhifəyə Qayıt
           </Link>
         </div>

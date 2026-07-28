@@ -189,8 +189,8 @@ export default function AdminOrdersPage() {
       </div>
 
       {/* Sifarişlər Cədvəli */}
-      <div class="admin-table-container">
-        <table class="admin-table">
+      <div className="admin-table-container">
+        <table className="admin-table">
           <thead>
             <tr>
               <th>Sifariş №</th>
@@ -224,7 +224,7 @@ export default function AdminOrdersPage() {
                   </span>
                 </td>
                 <td style={{ textAlign: 'right' }}>
-                  <button class="admin-action-btn" onClick={() => handleOpenDetailModal(order)} title="Sifariş Detalları"><Eye size={16} /></button>
+                  <button className="admin-action-btn" onClick={() => handleOpenDetailModal(order)} title="Sifariş Detalları"><Eye size={16} /></button>
                 </td>
               </tr>
             ))}
@@ -299,8 +299,8 @@ export default function AdminOrdersPage() {
               </div>
 
               <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-                <button type="button" class="btn btn-outline" onClick={() => setSelectedOrder(null)}>Bağla</button>
-                <button type="submit" class="btn btn-primary">
+                <button type="button" className="btn btn-outline" onClick={() => setSelectedOrder(null)}>Bağla</button>
+                <button type="submit" className="btn btn-primary">
                   <Save size={16} /> Statusu Yadda Saxla
                 </button>
               </div>

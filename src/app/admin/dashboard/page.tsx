@@ -59,31 +59,31 @@ export default function AdminDashboardPage() {
   return (
     <div>
       {/* 1. 4 STATİSTİKA KARTI (Grid, 4 sütun desktop / 2 sütun tablet) */}
-      <div class="admin-metrics-grid">
+      <div className="admin-metrics-grid">
         {/* Kart 1: Ümumi Sifarişlər */}
-        <div class="admin-metric-card">
+        <div className="admin-metric-card">
           <div>
-            <div class="admin-metric-label">Ümumi Sifarişlər</div>
-            <div class="admin-metric-value">{stats.totalOrders}</div>
+            <div className="admin-metric-label">Ümumi Sifarişlər</div>
+            <div className="admin-metric-value">{stats.totalOrders}</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', color: 'var(--admin-success)', marginTop: '4px' }}>
               <TrendingUp size={14} /> +12% son 7 gün
             </div>
           </div>
-          <div class="admin-metric-icon">
+          <div className="admin-metric-icon">
             <ShoppingCart size={24} />
           </div>
         </div>
 
         {/* Kart 2: Ümumi Gəlir */}
-        <div class="admin-metric-card">
+        <div className="admin-metric-card">
           <div>
-            <div class="admin-metric-label">Ümumi Gəlir</div>
-            <div class="admin-metric-value">{stats.totalRevenue.toLocaleString()} ₼</div>
+            <div className="admin-metric-label">Ümumi Gəlir</div>
+            <div className="admin-metric-value">{stats.totalRevenue.toLocaleString()} ₼</div>
             <div style={{ fontSize: '0.8rem', color: 'var(--admin-text-sub)', marginTop: '4px' }}>
               Ödənilmiş təsdiqlənmiş sifarişlər
             </div>
           </div>
-          <div class="admin-metric-icon">
+          <div className="admin-metric-icon">
             <DollarSign size={24} />
           </div>
         </div>
@@ -91,7 +91,7 @@ export default function AdminDashboardPage() {
         {/* Kart 3: Gözləyən Rəylər (Qızılı rəngdə vurğulanır, klikdə /admin/reviews-ə keçir) */}
         <Link href="/admin/reviews" style={{ textDecoration: 'none' }}>
           <div
-            class="admin-metric-card"
+            className="admin-metric-card"
             style={{
               borderColor: 'var(--admin-warning)',
               backgroundColor: 'var(--admin-warning-bg)',
@@ -99,28 +99,28 @@ export default function AdminDashboardPage() {
             }}
           >
             <div>
-              <div class="admin-metric-label" style={{ color: '#8A6822', fontWeight: '600' }}>Gözləyən Rəylər</div>
-              <div class="admin-metric-value" style={{ color: 'var(--admin-warning)' }}>{stats.pendingReviewsCount}</div>
+              <div className="admin-metric-label" style={{ color: '#8A6822', fontWeight: '600' }}>Gözləyən Rəylər</div>
+              <div className="admin-metric-value" style={{ color: 'var(--admin-warning)' }}>{stats.pendingReviewsCount}</div>
               <div style={{ fontSize: '0.8rem', color: '#8A6822', marginTop: '4px', fontWeight: '500' }}>
                 Moderasiya tələb olunur →
               </div>
             </div>
-            <div class="admin-metric-icon" style={{ backgroundColor: '#FFF5E5', color: 'var(--admin-warning)' }}>
+            <div className="admin-metric-icon" style={{ backgroundColor: '#FFF5E5', color: 'var(--admin-warning)' }}>
               <MessageSquare size={24} />
             </div>
           </div>
         </Link>
 
         {/* Kart 4: Aktiv Məhsullar */}
-        <div class="admin-metric-card">
+        <div className="admin-metric-card">
           <div>
-            <div class="admin-metric-label">Aktiv Məhsullar</div>
-            <div class="admin-metric-value">{stats.activeProductsCount}</div>
+            <div className="admin-metric-label">Aktiv Məhsullar</div>
+            <div className="admin-metric-value">{stats.activeProductsCount}</div>
             <div style={{ fontSize: '0.8rem', color: 'var(--admin-text-sub)', marginTop: '4px' }}>
               Kataloqda satışda olan
             </div>
           </div>
-          <div class="admin-metric-icon">
+          <div className="admin-metric-icon">
             <Package size={24} />
           </div>
         </div>
@@ -164,7 +164,7 @@ export default function AdminDashboardPage() {
       {/* 3. CƏDVƏL & WIDGET GRID (Son Sifarişlər + Gözləyən Rəylər) */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '32px' }}>
         {/* Son Sifarişlər Cədvəli (8 Sütun) */}
-        <div style={{ gridColumn: 'span 8' }} class="admin-table-container">
+        <div style={{ gridColumn: 'span 8' }} className="admin-table-container">
           <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--admin-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h2 style={{ fontSize: '1.2rem', fontWeight: '600' }}>Son Sifarişlər</h2>
             <Link href="/admin/orders" style={{ fontSize: '0.88rem', color: 'var(--admin-accent)', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -172,7 +172,7 @@ export default function AdminDashboardPage() {
             </Link>
           </div>
 
-          <table class="admin-table">
+          <table className="admin-table">
             <thead>
               <tr>
                 <th>Sifariş ID</th>

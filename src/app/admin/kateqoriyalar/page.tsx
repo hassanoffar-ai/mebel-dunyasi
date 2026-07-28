@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { CategoryItem, FULL_CATEGORIES } from '@/app/kateqoriyalar/page';
 import { Plus, Edit, Trash2, X, Upload, GripVertical, AlertTriangle } from 'lucide-react';
 import '@/app/admin/admin.css';
 
@@ -103,14 +102,14 @@ export default function AdminCategoriesPage() {
           <h2 style={{ fontSize: '1.6rem', fontWeight: '600' }}>Kateqoriyalar</h2>
           <p style={{ color: 'var(--admin-text-sub)', fontSize: '0.9rem' }}>Mebel kateqoriyalarını və onların sırasını idarə edin</p>
         </div>
-        <button class="btn btn-primary" onClick={handleOpenAddModal} style={{ padding: '12px 24px' }}>
+        <button className="btn btn-primary" onClick={handleOpenAddModal} style={{ padding: '12px 24px' }}>
           <Plus size={18} /> Yeni Kateqoriya Əlavə Et
         </button>
       </div>
 
       {/* Cədvəl */}
-      <div class="admin-table-container">
-        <table class="admin-table">
+      <div className="admin-table-container">
+        <table className="admin-table">
           <thead>
             <tr>
               <th style={{ width: '40px' }}>Sıra</th>
@@ -134,8 +133,8 @@ export default function AdminCategoriesPage() {
                   <span style={{ fontWeight: '600', color: 'var(--admin-accent)' }}>{cat.product_count} məhsul</span>
                 </td>
                 <td style={{ textAlign: 'right' }}>
-                  <button class="admin-action-btn" onClick={() => handleOpenEditModal(cat)} title="Redaktə Et"><Edit size={16} /></button>
-                  <button class="admin-action-btn delete" onClick={() => handleDeleteClick(cat)} title="Sil"><Trash2 size={16} /></button>
+                  <button className="admin-action-btn" onClick={() => handleOpenEditModal(cat)} title="Redaktə Et"><Edit size={16} /></button>
+                  <button className="admin-action-btn delete" onClick={() => handleDeleteClick(cat)} title="Sil"><Trash2 size={16} /></button>
                 </td>
               </tr>
             ))}
@@ -152,7 +151,7 @@ export default function AdminCategoriesPage() {
             <p style={{ color: 'var(--admin-text-sub)', fontSize: '0.92rem', lineHeight: 1.6, marginBottom: '24px' }}>
               Bu kateqoriyada <strong>{deleteWarningCat.product_count} məhsul</strong> var. Silinməzdən əvvəl məhsulları başqa kateqoriyaya köçürün və ya onları silin.
             </p>
-            <button class="btn btn-primary" onClick={() => setDeleteWarningCat(null)} style={{ padding: '10px 24px' }}>
+            <button className="btn btn-primary" onClick={() => setDeleteWarningCat(null)} style={{ padding: '10px 24px' }}>
               Başa Düşdüm
             </button>
           </div>
@@ -188,8 +187,8 @@ export default function AdminCategoriesPage() {
               </div>
 
               <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-                <button type="button" class="btn btn-outline" onClick={() => setIsModalOpen(false)}>Ləğv Et</button>
-                <button type="submit" class="btn btn-primary">Yadda Saxla</button>
+                <button type="button" className="btn btn-outline" onClick={() => setIsModalOpen(false)}>Ləğv Et</button>
+                <button type="submit" className="btn btn-primary">Yadda Saxla</button>
               </div>
             </form>
           </div>

@@ -115,7 +115,7 @@ export default function AdminProductsPage() {
           <h2 style={{ fontSize: '1.6rem', fontWeight: '600' }}>Məhsullar</h2>
           <p style={{ color: 'var(--admin-text-sub)', fontSize: '0.9rem' }}>Saytdakı bütün mebel məhsullarını idarə edin</p>
         </div>
-        <button class="btn btn-primary" onClick={handleOpenAddModal} style={{ padding: '12px 24px' }}>
+        <button className="btn btn-primary" onClick={handleOpenAddModal} style={{ padding: '12px 24px' }}>
           <Plus size={18} /> Yeni Məhsul Əlavə Et
         </button>
       </div>
@@ -146,8 +146,8 @@ export default function AdminProductsPage() {
       </div>
 
       {/* Cədvəl */}
-      <div class="admin-table-container">
-        <table class="admin-table">
+      <div className="admin-table-container">
+        <table className="admin-table">
           <thead>
             <tr>
               <th>Şəkil</th>
@@ -174,11 +174,11 @@ export default function AdminProductsPage() {
                 <td>12 ədəd</td>
                 <td>★ {prod.rating}</td>
                 <td>
-                  <span class="status-badge status-success">Aktiv</span>
+                  <span className="status-badge status-success">Aktiv</span>
                 </td>
                 <td style={{ textAlign: 'right' }}>
-                  <button class="admin-action-btn" onClick={() => handleOpenEditModal(prod)} title="Redaktə Et"><Edit size={16} /></button>
-                  <button class="admin-action-btn delete" onClick={() => setDeleteConfirmId(prod.id)} title="Sil"><Trash2 size={16} /></button>
+                  <button className="admin-action-btn" onClick={() => handleOpenEditModal(prod)} title="Redaktə Et"><Edit size={16} /></button>
+                  <button className="admin-action-btn delete" onClick={() => setDeleteConfirmId(prod.id)} title="Sil"><Trash2 size={16} /></button>
                 </td>
               </tr>
             ))}
@@ -194,8 +194,8 @@ export default function AdminProductsPage() {
             <h3 style={{ fontSize: '1.2rem', marginBottom: '8px' }}>Məhsulu Silmək İstedinizə Əminsiniz?</h3>
             <p style={{ color: 'var(--admin-text-sub)', fontSize: '0.9rem', marginBottom: '24px' }}>Bu əməliyyat geri qaytarıla bilməz.</p>
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-              <button class="btn btn-outline" onClick={() => setDeleteConfirmId(null)}>Ləğv Et</button>
-              <button class="btn" style={{ backgroundColor: 'var(--admin-danger)', color: 'white' }} onClick={() => handleDeleteProduct(deleteConfirmId)}>Bəli, Sil</button>
+              <button className="btn btn-outline" onClick={() => setDeleteConfirmId(null)}>Ləğv Et</button>
+              <button className="btn" style={{ backgroundColor: 'var(--admin-danger)', color: 'white' }} onClick={() => handleDeleteProduct(deleteConfirmId)}>Bəli, Sil</button>
             </div>
           </div>
         </div>
@@ -257,8 +257,8 @@ export default function AdminProductsPage() {
               </div>
 
               <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-                <button type="button" class="btn btn-outline" onClick={() => setIsModalOpen(false)}>Ləğv Et</button>
-                <button type="submit" class="btn btn-primary">Yadda Saxla</button>
+                <button type="button" className="btn btn-outline" onClick={() => setIsModalOpen(false)}>Ləğv Et</button>
+                <button type="submit" className="btn btn-primary">Yadda Saxla</button>
               </div>
             </form>
           </div>
