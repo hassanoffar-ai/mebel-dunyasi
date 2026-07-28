@@ -100,7 +100,7 @@ function CheckoutContent() {
           {
             id: generatedOrderId,
             umumi_meblegh: total,
-            status: 'yeni',
+            status: 'pending',
             catdirilma_unvani: `${city}, ${address}`,
             telefon: phone,
             odenis_usulu: 'Nağd (Kuryerə)',

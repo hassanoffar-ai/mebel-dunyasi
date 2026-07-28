@@ -26,7 +26,7 @@ export async function POST(req: Request) {
         {
           user_id: user_id || null,
           umumi_meblegh,
-          status: 'gozleyir_odenis',
+          status: 'pending',
           catdirilma_unvani: catdirilma_unvani || 'Baku, Azerbaijan',
           telefon: telefon || '+994 50 000 00 00',
           odenis_usulu: 'Stripe Card',
