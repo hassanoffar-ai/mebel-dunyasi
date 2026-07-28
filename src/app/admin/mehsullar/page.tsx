@@ -522,7 +522,7 @@ export default function AdminProductsPage() {
               <div style={{ marginBottom: '24px', backgroundColor: 'var(--admin-bg)', padding: '18px', borderRadius: 'var(--admin-radius)', border: formErrors.images ? '1px solid var(--admin-danger)' : '1px solid var(--admin-border)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                   <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600' }}>
-                    Məhsul Şəkilləri (Max 5 ədəd) *
+                    Məhsul Şəkilləri *
                   </label>
                   <span style={{ fontSize: '0.75rem', color: 'var(--admin-text-sub)' }}>
                     {images.length}/5 şəkil əlavə edilib
@@ -533,28 +533,31 @@ export default function AdminProductsPage() {
                   İcazə verilən formatlar: <strong>JPG, PNG, WEBP</strong> (Hər fayl maksimum 5 MB)
                 </p>
 
-                {/* Input Controls */}
-                <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
-                  {/* Option 1: URL input */}
+                {/* Full-width URL input (Enter / onBlur auto-add) */}
+                <div style={{ marginBottom: '10px' }}>
                   <input
                     type="url"
-                    placeholder="https://... şəkil URL-i daxil edin"
+                    placeholder="https://example.com/image.jpg"
                     value={newImageUrlInput}
                     disabled={images.length >= 5}
                     onChange={(e) => setNewImageUrlInput(e.target.value)}
-                    style={{ flex: 1, minWidth: '200px', padding: '8px 12px', borderRadius: 'var(--admin-radius)', border: '1px solid var(--admin-border)', fontSize: '0.85rem', backgroundColor: 'white' }}
+                    onBlur={() => {
+                      if (newImageUrlInput.trim()) {
+                        handleAddUrlImage();
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleAddUrlImage();
+                      }
+                    }}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: 'var(--admin-radius)', border: '1px solid var(--admin-border)', fontSize: '0.88rem', backgroundColor: 'white', boxSizing: 'border-box' }}
                   />
-                  <button
-                    type="button"
-                    disabled={images.length >= 5 || !newImageUrlInput.trim()}
-                    onClick={handleAddUrlImage}
-                    className="btn btn-outline"
-                    style={{ padding: '8px 14px', fontSize: '0.82rem', whiteSpace: 'nowrap' }}
-                  >
-                    Link Əlavə Et
-                  </button>
+                </div>
 
-                  {/* Option 2: Kompüterdən yüklə */}
+                {/* Kompüterdən Yüklə button directly below input, left-aligned */}
+                <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '12px' }}>
                   <div style={{ position: 'relative', display: 'inline-block' }}>
                     <input
                       type="file"
@@ -568,15 +571,15 @@ export default function AdminProductsPage() {
                       type="button"
                       disabled={images.length >= 5 || uploadingImage}
                       className="btn btn-primary"
-                      style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', fontSize: '0.82rem', whiteSpace: 'nowrap' }}
+                      style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '9px 18px', fontSize: '0.85rem', whiteSpace: 'nowrap' }}
                     >
                       {uploadingImage ? (
                         <>
-                          <Loader2 className="animate-spin" size={15} /> Yüklənir...
+                          <Loader2 className="animate-spin" size={16} /> Yüklənir...
                         </>
                       ) : (
                         <>
-                          <Upload size={15} /> Kompüterdən Yüklə
+                          <Upload size={16} /> 📁 Kompüterdən Yüklə
                         </>
                       )}
                     </button>
