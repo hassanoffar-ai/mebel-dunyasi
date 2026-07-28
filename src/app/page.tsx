@@ -4,9 +4,19 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Header, Footer } from '@/components/Navigation';
 import { ProductCard } from '@/components/ProductCard';
-import { MOCK_PRODUCTS, CATEGORIES, REVIEWS, Product } from '@/lib/mockData';
+import { MOCK_PRODUCTS, CATEGORIES, Product } from '@/lib/mockData';
 import { supabase } from '@/lib/supabase';
 import { Truck, ShieldCheck, Headphones, RotateCcw, Star, ChevronLeft, ChevronRight } from 'lucide-react';
+
+export interface Testimonial {
+  id: string;
+  name: string;
+  role?: string;
+  avatar_url?: string;
+  comment: string;
+  rating: number;
+  is_active: boolean;
+}
 
 const HERO_SLIDES = [
   {
@@ -31,6 +41,7 @@ import { useCart } from '@/context/CartContext';
 export default function HomePage() {
   const { addToCart } = useCart();
   const [products, setProducts] = useState<Product[]>(MOCK_PRODUCTS);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
 
   // Auto Slider for Hero
@@ -41,19 +52,31 @@ export default function HomePage() {
     return () => clearInterval(timer);
   }, []);
 
-  // Supabase Fetch (Fallback to Mock if table is empty or error)
+  // Supabase Fetch for Products and Active Testimonials
   useEffect(() => {
-    async function fetchProducts() {
+    async function fetchData() {
       try {
-        const { data, error } = await supabase.from('products').select('*');
-        if (data && data.length > 0 && !error) {
-          setProducts(data as Product[]);
+        const { data: prodData } = await supabase.from('products').select('*');
+        if (prodData && prodData.length > 0) {
+          setProducts(prodData as Product[]);
+        }
+      } catch (err) {}
+
+      try {
+        const { data: testData } = await supabase
+          .from('testimonials')
+          .select('*')
+          .eq('is_active', true)
+          .order('created_at', { ascending: false });
+
+        if (testData) {
+          setTestimonials(testData as Testimonial[]);
         }
       } catch (err) {
-        console.log('Supabase fetch fallback to mock data');
+        console.log('Failed to fetch active testimonials');
       }
     }
-    fetchProducts();
+    fetchData();
   }, []);
 
   const handleAddToCart = (product: Product) => {
@@ -182,42 +205,54 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* 5. MÜŞTƏRİ RƏYLƏRİ BÖLMƏSİ */}
-        <section style={{ padding: '80px 0', backgroundColor: 'var(--bg-main)' }}>
-          <div className="container">
-            <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-              <h2 style={{ fontSize: '2.2rem', marginBottom: '10px' }}>Müştərilərimizin Rəyləri</h2>
-              <p style={{ color: 'var(--text-muted)' }}>Mebel Dünyasını seçən müştərilərimizin fikirləri</p>
-            </div>
+        {/* 5. MÜŞTƏRİ RƏYLƏRİ BÖLMƏSİ (Testimonials) */}
+        {testimonials.length > 0 && (
+          <section style={{ padding: '80px 0', backgroundColor: 'var(--bg-main)' }}>
+            <div className="container">
+              <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+                <h2 style={{ fontSize: '2.2rem', marginBottom: '10px' }}>Müştərilərimizin Rəyləri</h2>
+                <p style={{ color: 'var(--text-muted)' }}>Mebel Dünyasını seçən müştərilərimizin fikirləri</p>
+              </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
-              {REVIEWS.map((rev) => (
-                <div
-                  key={rev.id}
-                  style={{
-                    backgroundColor: 'var(--white)',
-                    padding: '28px',
-                    borderRadius: 'var(--radius-md)',
-                    border: '1px solid var(--border-color)',
-                    boxShadow: 'var(--shadow-diffuse)',
-                  }}
-                >
-                  <div style={{ display: 'flex', gap: '4px', color: '#C9A15D', marginBottom: '14px' }}>
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} size={16} fill="#C9A15D" />
-                    ))}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
+                {testimonials.map((rev) => (
+                  <div
+                    key={rev.id}
+                    style={{
+                      backgroundColor: 'var(--white)',
+                      padding: '28px',
+                      borderRadius: 'var(--radius-md)',
+                      border: '1px solid var(--border-color)',
+                      boxShadow: 'var(--shadow-diffuse)',
+                    }}
+                  >
+                    <div style={{ display: 'flex', gap: '4px', color: '#C9A15D', marginBottom: '14px' }}>
+                      {[...Array(rev.rating || 5)].map((_, i) => (
+                        <Star key={i} size={16} fill="#C9A15D" />
+                      ))}
+                    </div>
+                    <p style={{ fontStyle: 'italic', fontSize: '0.95rem', marginBottom: '20px', color: 'var(--text-main)' }}>
+                      "{rev.comment}"
+                    </p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      {rev.avatar_url && (
+                        <img src={rev.avatar_url} alt={rev.name} style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} />
+                      )}
+                      <div>
+                        <h4 style={{ fontSize: '1rem', fontFamily: 'var(--font-sans)', fontWeight: '600', color: 'var(--accent-primary)' }}>
+                          {rev.name}
+                        </h4>
+                        {rev.role && (
+                          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{rev.role}</span>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                  <p style={{ fontStyle: 'italic', fontSize: '0.95rem', marginBottom: '20px', color: 'var(--text-main)' }}>
-                    "{rev.comment}"
-                  </p>
-                  <h4 style={{ fontSize: '1rem', fontFamily: 'var(--font-sans)', fontWeight: '600', color: 'var(--accent-primary)' }}>
-                    {rev.name}
-                  </h4>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         {/* 6. CTA BÖLMƏSİ */}
         <section style={{ padding: '90px 20px', backgroundColor: '#23160F', color: 'var(--white)', textAlign: 'center' }}>

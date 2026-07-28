@@ -3,14 +3,15 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Package, Grid, ShoppingCart, MessageSquare, Mail, Settings, LogOut, User } from 'lucide-react';
+import { LayoutDashboard, Package, Grid, ShoppingCart, MessageSquare, Mail, Settings, LogOut, User, Quote } from 'lucide-react';
 import '@/app/admin/admin.css';
 
 const NAV_ITEMS = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/admin/sifarisler', label: 'Sifarişlər', icon: ShoppingCart },
+  { href: '/admin/testimonials', label: 'Testimonials', icon: Quote },
   { href: '/admin/mehsullar', label: 'Məhsullar', icon: Package },
   { href: '/admin/kateqoriyalar', label: 'Kateqoriyalar', icon: Grid },
-  { href: '/admin/sifarisler', label: 'Sifarişlər', icon: ShoppingCart },
   { href: '/admin/reyler', label: 'Rəylər', icon: MessageSquare },
   { href: '/admin/mesajlar', label: 'Mesajlar', icon: Mail },
 ];

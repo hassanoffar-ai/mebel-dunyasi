@@ -56,24 +56,3 @@ export const CATEGORIES = [
   { id: '3', title: 'Mətbəx & Yemək', image: 'https://images.unsplash.com/photo-1615066390971-03e4e1c36ddf?auto=format&fit=crop&w=800&q=80' },
   { id: '4', title: 'İş və Ofis', image: 'https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=800&q=80' },
 ];
-
-export const REVIEWS = [
-  {
-    id: '1',
-    name: 'Anar Qasımov',
-    rating: 5,
-    comment: 'Mebel Dünyasından aldığımız divan dəsti evimizin interyerini tamamilə dəyişdi. Keyfiyyət və dizayn mükəmməldir!',
-  },
-  {
-    id: '2',
-    name: 'Nərgiz Məmmədova',
-    rating: 5,
-    comment: 'Çatdırılma çox sürətli oldu və quraşdırma komandası peşəkar iş gördü. Şübhəsiz ki, yenidən sifariş edəcəyəm.',
-  },
-  {
-    id: '3',
-    name: 'Elvin Əliyev',
-    rating: 4.5,
-    comment: 'Yemək masasının təbii ağac materialı və minimalist stili çox zərif görünür. Təşəkkürlər!',
-  },
-];
