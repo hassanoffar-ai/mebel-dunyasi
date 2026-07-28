@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Search, Heart, ShoppingBag, User, Menu, X, MessageCircle } from 'lucide-react';
 
 import { useCart } from '@/context/CartContext';
@@ -13,10 +13,22 @@ interface HeaderProps {
 
 export function Header({ cartCount: propCartCount }: HeaderProps) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const pathname = usePathname();
+  const router = useRouter();
   const { cartCount: contextCartCount } = useCart();
 
   const cartCount = propCartCount !== undefined ? propCartCount : contextCartCount;
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/mehsullar?search=${encodeURIComponent(searchQuery.trim())}`);
+      setIsSearchOpen(false);
+      setSearchQuery('');
+    }
+  };
 
   const navItems = [
     { name: 'Ana Səhifə', href: '/' },
@@ -27,7 +39,7 @@ export function Header({ cartCount: propCartCount }: HeaderProps) {
   ];
 
   return (
-    <header className="header">
+    <header className="header" style={{ position: 'relative' }}>
       <div className="container">
         <div className="header-wrapper">
           {/* Logo */}
@@ -53,8 +65,10 @@ export function Header({ cartCount: propCartCount }: HeaderProps) {
 
           {/* Header Actions */}
           <div className="header-actions">
-            <button className="icon-btn" title="Axtarış"><Search size={20} /></button>
-            <button className="icon-btn" title="Sevimlilər"><Heart size={20} /></button>
+            <button className="icon-btn" title="Axtarış" onClick={() => setIsSearchOpen(!isSearchOpen)}>
+              <Search size={20} />
+            </button>
+            <Link href="/sevimliler" className="icon-btn" title="Sevimlilər"><Heart size={20} /></Link>
             <Link href="/sebet" className="icon-btn" title="Səbət">
               <ShoppingBag size={20} />
               <span className="icon-badge">{cartCount}</span>
@@ -72,6 +86,54 @@ export function Header({ cartCount: propCartCount }: HeaderProps) {
           </div>
         </div>
       </div>
+
+      {/* Dynamic Search Modal Bar */}
+      {isSearchOpen && (
+        <div
+          style={{
+            backgroundColor: 'var(--white)',
+            borderBottom: '1px solid var(--border-color)',
+            padding: '16px 0',
+            boxShadow: 'var(--shadow-hover)',
+            position: 'absolute',
+            top: '100%',
+            left: 0,
+            right: 0,
+            zIndex: 99,
+          }}
+        >
+          <div className="container">
+            <form onSubmit={handleSearchSubmit} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <Search size={20} style={{ color: 'var(--text-muted)' }} />
+              <input
+                type="text"
+                placeholder="Axtarmaq istədiyiniz mebelin adını yazın və Enter sıxın..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                autoFocus
+                style={{
+                  flex: 1,
+                  border: 'none',
+                  outline: 'none',
+                  fontSize: '1rem',
+                  fontFamily: 'var(--font-sans)',
+                  backgroundColor: 'transparent',
+                }}
+              />
+              <button type="submit" className="btn btn-gold" style={{ padding: '8px 20px', fontSize: '0.9rem' }}>
+                Axtar
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsSearchOpen(false)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}
+              >
+                <X size={22} />
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Mobile Drawer */}
       {isMobileOpen && (

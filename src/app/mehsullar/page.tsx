@@ -8,16 +8,27 @@ import { Product } from '@/lib/mockData';
 import { supabase } from '@/lib/supabase';
 import { Search, Filter, SlidersHorizontal, Clock, AlertTriangle, PackageX } from 'lucide-react';
 
+import { useSearchParams } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
 
-export default function ProductsPage() {
+function ProductsContent() {
+  const searchParams = useSearchParams();
+  const initialSearch = searchParams.get('search') || '';
+
   const { addToCart } = useCart();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [errorMsg, setErrorMsg] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('Bütün');
-  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState<string>(initialSearch);
   const [sortBy, setSortBy] = useState<'default' | 'price-low' | 'price-high' | 'rating'>('default');
+
+  useEffect(() => {
+    const q = searchParams.get('search');
+    if (q !== null) {
+      setSearchQuery(q);
+    }
+  }, [searchParams]);
 
   const categories = ['Bütün', 'Qonaq Otağı', 'Yataq Otağı', 'Mətbəx'];
 
@@ -166,5 +177,18 @@ export default function ProductsPage() {
 
       <Footer />
     </div>
+  );
+}
+
+export default function ProductsPage() {
+  return (
+    <React.Suspense fallback={
+      <div style={{ textAlign: 'center', padding: '80px 20px', color: 'var(--text-muted)' }}>
+        <Clock size={40} className="animate-spin" style={{ margin: '0 auto 12px auto', color: 'var(--accent-primary)' }} />
+        <h3>Səhifə yüklənir...</h3>
+      </div>
+    }>
+      <ProductsContent />
+    </React.Suspense>
   );
 }
