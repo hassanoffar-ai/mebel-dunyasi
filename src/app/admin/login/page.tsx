@@ -47,18 +47,18 @@ export default function AdminLoginPage() {
         return;
       }
 
-      // 2. Admin Role Verification
+      // 2. Strict Admin Role Verification from Supabase DB
       const { data: profileData } = await supabase
         .from('profiles')
         .select('role')
         .eq('id', user.id)
         .single();
 
-      const isAdmin = profileData?.role === 'admin' || email.includes('admin');
+      const isAdmin = profileData?.role === 'admin';
 
       if (!isAdmin) {
         await supabase.auth.signOut();
-        setErrorMsg('Bu hesabın admin icazəsi yoxdur.');
+        setErrorMsg('Bu hesabın admin icazəsi yoxdur. Yalnız təsdiqlənmiş adminlər daxil ola bilər.');
         setLoading(false);
         return;
       }
