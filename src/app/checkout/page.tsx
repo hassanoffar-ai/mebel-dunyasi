@@ -35,6 +35,34 @@ function CheckoutContent() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
+  const [checkingAuth, setCheckingAuth] = useState(true);
+
+  // Check Auth & Redirect if not logged in
+  useEffect(() => {
+    async function checkAuth() {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          // Check if mock user session in localStorage or fallback
+          const mockUser = typeof window !== 'undefined' ? localStorage.getItem('mebel_user_session') : null;
+          if (!mockUser) {
+            router.push('/login?redirect=/checkout');
+            return;
+          }
+        } else if (session.user) {
+          if (session.user.email) setEmail(session.user.email);
+          if (session.user.user_metadata?.full_name) setFullName(session.user.user_metadata.full_name);
+          if (session.user.user_metadata?.phone) setPhone(session.user.user_metadata.phone);
+        }
+      } catch (err) {
+        console.error('Auth check error:', err);
+      } finally {
+        setCheckingAuth(false);
+      }
+    }
+    checkAuth();
+  }, [router]);
+
   // Check if canceled from Stripe Checkout hosted page
   useEffect(() => {
     if (searchParams.get('legv_edildi') === 'true') {

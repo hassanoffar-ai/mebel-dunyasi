@@ -1,13 +1,15 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { Eye, EyeOff, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Eye, EyeOff, AlertCircle } from 'lucide-react';
 
-export default function RegisterPage() {
+function RegisterContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTarget = searchParams.get('redirect') || '';
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -25,7 +27,6 @@ export default function RegisterPage() {
     e.preventDefault();
     setErrorMsg('');
 
-    // Validations
     if (!fullName.trim()) {
       setErrorMsg('Lütfən ad və soyadınızı daxil edin.');
       return;
@@ -54,8 +55,9 @@ export default function RegisterPage() {
 
     setLoading(true);
 
+    const redirectQuery = redirectTarget ? `&redirect=${encodeURIComponent(redirectTarget)}` : '';
+
     try {
-      // Supabase Auth SignUp
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -66,15 +68,13 @@ export default function RegisterPage() {
           },
         },
       }).catch((err) => {
-        // Direct promise catch for network error when URL is placeholder
         return { data: null, error: err };
       });
 
       if (error) {
         const errStr = (error.message || '').toLowerCase();
         if (errStr.includes('fetch') || errStr.includes('failed') || errStr.includes('network')) {
-          // In test mode without live Supabase credentials, proceed smoothly to login
-          router.push(`/login?email=${encodeURIComponent(email)}&registered=true`);
+          router.push(`/login?email=${encodeURIComponent(email)}&registered=true${redirectQuery}`);
           return;
         }
         setErrorMsg(error.message || 'Qeydiyyat zamanı xəta baş verdi.');
@@ -82,69 +82,57 @@ export default function RegisterPage() {
         return;
       }
 
-      // Successful registration -> Navigate to /login
-      router.push(`/login?email=${encodeURIComponent(email)}&registered=true`);
+      router.push(`/login?email=${encodeURIComponent(email)}&registered=true${redirectQuery}`);
     } catch (err: any) {
-      // General error catch for demo fallback
-      router.push(`/login?email=${encodeURIComponent(email)}&registered=true`);
+      router.push(`/login?email=${encodeURIComponent(email)}&registered=true${redirectQuery}`);
     }
   };
 
   return (
     <div className="auth-container">
-      {/* Sol tərəf - Şəkil və Breand brending (Header/Footer yoxdur) */}
       <div className="auth-sidebar">
         <img
           src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1600&q=80"
           alt="Mebel Dünyası Qeydiyyat"
           className="auth-sidebar-img"
-          onError={(e) => { e.currentTarget.src = 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80'; }}
         />
         <div className="auth-sidebar-overlay">
-          <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '2.4rem', color: '#FAF7F2', marginBottom: '12px' }}>
-            Mebel <span style={{ color: 'var(--accent-gold)' }}>Dünyası</span>
-          </h1>
-          <p style={{ color: '#E5D9C7', fontSize: '1.05rem', maxWidth: '400px' }}>
-            Minimalist və zərif dizayn dünyasına xoş gəlmisiniz. Şəxsi kabinetinizi yaradın və xüsusi fürsətlərdən yararlanın.
+          <Link href="/" className="auth-sidebar-logo">
+            MEBEL DÜNYASI
+          </Link>
+          <p className="auth-sidebar-text">
+            Müasir mebel dünyasına qoşulun. Özəl təkliflərdən yararlanın və sifarişlərinizi rahatlıqla izləyin.
           </p>
         </div>
       </div>
 
-      {/* Sağ tərəf - Qeydiyyat Forması */}
-      <div className="auth-content-side">
-        <div className="auth-card animate-fade-in-up">
-          <div style={{ marginBottom: '32px' }}>
-            <h2 style={{ fontSize: '2rem', fontFamily: 'var(--font-serif)', marginBottom: '8px', color: 'var(--text-main)' }}>
-              Yeni Hesab Yaradın
-            </h2>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>
-              Qeydiyyatdan keçmək üçün məlumatlarınızı daxil edin
-            </p>
+      <div className="auth-form-wrapper">
+        <div className="auth-form-box">
+          <div className="auth-header">
+            <h1 className="auth-title">Hesab Yaradın</h1>
+            <p className="auth-subtitle">Məlumatlarınızı daxil edərək yeni hesab açın</p>
           </div>
 
-          {/* Xəta Mesajı */}
           {errorMsg && (
-            <div className="alert alert-error">
+            <div className="auth-alert alert-danger">
               <AlertCircle size={18} />
               <span>{errorMsg}</span>
             </div>
           )}
 
           <form onSubmit={handleRegister}>
-            {/* Ad Soyad */}
             <div className="form-group">
               <label className="form-label">Ad və Soyad</label>
               <input
                 type="text"
                 className="form-input"
-                placeholder="Nümunə: Əli Əliyev"
+                placeholder="Anar Məmmədov"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 required
               />
             </div>
 
-            {/* Email */}
             <div className="form-group">
               <label className="form-label">Email Ünvanı</label>
               <input
@@ -157,26 +145,25 @@ export default function RegisterPage() {
               />
             </div>
 
-            {/* Telefon */}
             <div className="form-group">
               <label className="form-label">Telefon Nömrəsi</label>
               <input
                 type="tel"
                 className="form-input"
-                placeholder="+994 50 000 00 00"
+                placeholder="+994 50 123 45 67"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
+                required
               />
             </div>
 
-            {/* Parol */}
             <div className="form-group">
-              <label className="form-label">Parol (Min. 6 simvol)</label>
+              <label className="form-label">Parol</label>
               <div className="input-wrapper">
                 <input
                   type={showPassword ? 'text' : 'password'}
                   className="form-input"
-                  placeholder="••••••••"
+                  placeholder="Minimum 6 simvol"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -191,9 +178,8 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {/* Parolu təkrarla */}
             <div className="form-group">
-              <label className="form-label">Parolu Təkrarlayın</label>
+              <label className="form-label">Parolu Təkrar Edin</label>
               <div className="input-wrapper">
                 <input
                   type={showConfirmPassword ? 'text' : 'password'}
@@ -213,38 +199,43 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {/* Şərtlərlə razıyam Checkbox */}
-            <div className="form-group" style={{ flexDirection: 'row', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px' }}>
               <input
                 type="checkbox"
                 id="terms"
                 checked={agreeTerms}
                 onChange={(e) => setAgreeTerms(e.target.checked)}
-                style={{ width: '16px', height: '16px', accentColor: 'var(--accent-primary)', cursor: 'pointer' }}
+                style={{ cursor: 'pointer' }}
               />
               <label htmlFor="terms" style={{ fontSize: '0.85rem', color: 'var(--text-muted)', cursor: 'pointer' }}>
-                <Link href="#" style={{ color: 'var(--accent-primary)', textDecoration: 'underline' }}>
-                  İstifadəçi şərtləri
-                </Link>{' '}
-                və məxfilik siyasəti ilə razıyam.
+                İstifadəçi şərtləri ilə razıyam.
               </label>
             </div>
 
-            {/* Düymə */}
             <button type="submit" className="btn-full" disabled={loading}>
-              {loading ? 'Qeydiyyat aparılır...' : 'Qeydiyyatdan Keç'}
+              {loading ? 'Yüklənir...' : 'Qeydiyyatdan Keç'}
             </button>
           </form>
 
-          {/* Login Linki */}
           <div style={{ marginTop: '28px', textAlign: 'center', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
             Artıq hesabınız var?{' '}
-            <Link href="/login" style={{ color: 'var(--accent-primary)', fontWeight: '600' }}>
+            <Link
+              href={redirectTarget ? `/login?redirect=${encodeURIComponent(redirectTarget)}` : '/login'}
+              style={{ color: 'var(--accent-primary)', fontWeight: '600' }}
+            >
               Daxil olun
             </Link>
           </div>
         </div>
       </div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div>Yüklənir...</div>}>
+      <RegisterContent />
+    </Suspense>
   );
 }
