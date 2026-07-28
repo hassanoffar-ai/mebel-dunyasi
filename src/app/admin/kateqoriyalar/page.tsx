@@ -7,7 +7,7 @@ import '@/app/admin/admin.css';
 
 export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState<any[]>([
-    { id: '1', name: 'Oturma Otağı', product_count: 124, order: 1, image_url: 'C:\\Users\\User\\.gemini\\antigravity\\brain\\60ddce65-7740-47cc-a2af-78899d3729b9\\sofa_product_1785206074780.jpg' },
+    { id: '1', name: 'Qonaq Otağı', product_count: 124, order: 1, image_url: 'C:\\Users\\User\\.gemini\\antigravity\\brain\\60ddce65-7740-47cc-a2af-78899d3729b9\\sofa_product_1785206074780.jpg' },
     { id: '2', name: 'Yataq Otağı', product_count: 86, order: 2, image_url: 'C:\\Users\\User\\.gemini\\antigravity\\brain\\60ddce65-7740-47cc-a2af-78899d3729b9\\bed_product_1785206094275.jpg' },
     { id: '3', name: 'Mətbəx & Yemək', product_count: 95, order: 3, image_url: 'C:\\Users\\User\\.gemini\\antigravity\\brain\\60ddce65-7740-47cc-a2af-78899d3729b9\\table_product_1785206085165.jpg' },
     { id: '4', name: 'Ofis və İş Otağı', product_count: 42, order: 4, image_url: 'C:\\Users\\User\\.gemini\\antigravity\\brain\\60ddce65-7740-47cc-a2af-78899d3729b9\\cat_office_1785207131276.jpg' },
