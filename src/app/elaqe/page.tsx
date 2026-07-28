@@ -175,18 +175,6 @@ export default function ContactPage() {
                   </div>
                 </div>
               </div>
-
-              {/* Google Maps Embed */}
-              <div style={{ borderRadius: 'var(--radius-md)', overflow: 'hidden', border: '1px solid var(--border-color)', height: '220px' }}>
-                <iframe
-                  title="Google Maps"
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3039.428612140656!2d49.851415!3d40.377195!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDDCsDIyJzM3LjkiTiA0OcKwNTEnMDUuMSJF!5e0!3m2!1sen!2saz!4v1625000000000!5m2!1sen!2saz"
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
-                  loading="lazy"
-                ></iframe>
-              </div>
             </div>
 
             {/* SAĞ SÜTUN (60%): Əlaqə Forması */}
