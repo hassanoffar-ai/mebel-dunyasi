@@ -137,9 +137,9 @@ function CheckoutContent() {
             </div>
           )}
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '36px' }}>
+          <div className="checkout-grid">
             {/* SOL SÜTUN (FORM) */}
-            <div style={{ gridColumn: 'span 7' }}>
+            <div className="checkout-col-left">
               {step === 1 ? (
                 <form onSubmit={handleNextToPayment} style={{ backgroundColor: 'var(--white)', padding: '32px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-diffuse)' }}>
                   <h2 style={{ fontSize: '1.6rem', fontFamily: 'var(--font-serif)', marginBottom: '24px' }}>
@@ -151,7 +151,7 @@ function CheckoutContent() {
                     <input type="text" className="form-input" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  <div className="form-row-2col">
                     <div className="form-group">
                       <label className="form-label">Telefon Nömrəsi</label>
                       <input type="tel" className="form-input" value={phone} onChange={(e) => setPhone(e.target.value)} required />
@@ -259,7 +259,7 @@ function CheckoutContent() {
             </div>
 
             {/* SAĞ SÜTUN (ORDER SUMMARY) */}
-            <div style={{ gridColumn: 'span 5' }}>
+            <div className="checkout-col-right">
               <div style={{ backgroundColor: 'var(--white)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', padding: '24px 28px', boxShadow: 'var(--shadow-diffuse)', position: 'sticky', top: '90px' }}>
                 <h3 style={{ fontSize: '1.2rem', fontFamily: 'var(--font-serif)', marginBottom: '20px', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px' }}>
                   Sifariş Xülasəsi

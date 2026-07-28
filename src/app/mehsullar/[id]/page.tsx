@@ -110,9 +110,9 @@ export default function ProductDetailPage() {
           </nav>
 
           {/* 2. ƏSAS BÖLMƏ (2 Sütun) */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '40px', marginBottom: '80px' }}>
+          <div className="product-detail-grid">
             {/* SOL: Şəkil Qalereyası */}
-            <div style={{ gridColumn: 'span 6' }}>
+            <div className="product-detail-col-left">
               <div
                 style={{
                   width: '100%',
@@ -156,7 +156,7 @@ export default function ProductDetailPage() {
             </div>
 
             {/* SAĞ: Məhsul Məlumatları */}
-            <div style={{ gridColumn: 'span 6', display: 'flex', flexDirection: 'column' }}>
+            <div className="product-detail-col-right" style={{ display: 'flex', flexDirection: 'column' }}>
               <h1 style={{ fontSize: '2.4rem', fontFamily: 'var(--font-serif)', marginBottom: '12px', lineHeight: 1.2 }}>
                 {product.name}
               </h1>

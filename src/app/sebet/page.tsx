@@ -95,9 +95,9 @@ export default function CartPage() {
             </div>
           ) : (
             /* SƏBƏT DOLU: 2 SÜTUNLU LAYOUT */
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '32px' }}>
+            <div className="cart-page-grid">
               {/* SOL SÜTUN (70%): Məhsullar Siyahısı */}
-              <div style={{ gridColumn: 'span 8', backgroundColor: 'var(--white)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', padding: '24px 28px', boxShadow: 'var(--shadow-diffuse)' }}>
+              <div className="cart-items-col" style={{ backgroundColor: 'var(--white)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', padding: '24px 28px', boxShadow: 'var(--shadow-diffuse)' }}>
                 {cartItems.map((item, index) => (
                   <div
                     key={item.id}
@@ -210,7 +210,7 @@ export default function CartPage() {
               </div>
 
               {/* SAĞ SÜTUN (30%): Sifariş Xülasəsi (Sticky) */}
-              <div style={{ gridColumn: 'span 4' }}>
+              <div className="cart-summary-col">
                 <div
                   style={{
                     backgroundColor: 'var(--white)',
