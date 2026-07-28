@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mebel Dünyası — Premium Mebel Kolleksiyaları</title>
+  <meta name="description" content="Mebel Dünyası — Eviniz üçün müasir, minimalist və premium mebellər. Qonaq otağı, yataq otağı və mətbəx mebelləri.">
+  <link rel="stylesheet" href="style.css">
+  <!-- Feather Icons for clean line icons -->
+  <script src="https://unpkg.com/feather-icons"></script>
+</head>
+<body>
+
+  <!-- Sticky Header -->
+  <header class="header" id="main-header">
+    <div class="container">
+      <div class="header-wrapper">
+        <!-- Logo -->
+        <a href="index.html" class="logo">
+          Mebel <span>Dünyası</span>
+        </a>
+
+        <!-- Desktop Navigation -->
+        <nav>
+          <ul class="nav-links">
+            <li><a href="index.html" class="nav-link active">Ana Səhifə</a></li>
+            <li><a href="#products" class="nav-link">Məhsullar</a></li>
+            <li><a href="#categories" class="nav-link">Kateqoriyalar</a></li>
+            <li><a href="#about" class="nav-link">Haqqımızda</a></li>
+            <li><a href="#contact" class="nav-link">Əlaqə</a></li>
+          </ul>
+        </nav>
+
+        <!-- Right Header Actions -->
+        <div class="header-actions">
+          <button class="icon-btn" title="Axtarış" id="search-btn">
+            <i data-feather="search"></i>
+          </button>
+          <button class="icon-btn" title="Sevimlilər" id="fav-btn">
+            <i data-feather="heart"></i>
+          </button>
+          <button class="icon-btn" title="Səbət" id="cart-btn">
+            <i data-feather="shopping-bag"></i>
+            <span class="icon-badge">3</span>
+          </button>
+          <button class="icon-btn" title="İstifadəçi Profili" id="profile-btn">
+            <i data-feather="user"></i>
+          </button>
+
+          <!-- Mobile Hamburger Menu Button -->
+          <button class="hamburger" id="hamburger-btn" aria-label="Menyu">
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Drawer -->
+    <div class="mobile-nav-drawer" id="mobile-drawer">
+      <a href="index.html" class="mobile-nav-link">Ana Səhifə</a>
+      <a href="#products" class="mobile-nav-link">Məhsullar</a>
+      <a href="#categories" class="mobile-nav-link">Kateqoriyalar</a>
+      <a href="#about" class="mobile-nav-link">Haqqımızda</a>
+      <a href="#contact" class="mobile-nav-link">Əlaqə</a>
+    </div>
+  </header>
+
+  <!-- Main Hero Section -->
+  <main>
+    <section class="hero-section" style="padding: 60px 0; background-color: var(--bg-secondary); border-bottom: 1px solid var(--border-color);">
+      <div class="container">
+        <div style="display: grid; grid-template-columns: repeat(12, 1fr); gap: 32px; align-items: center;">
+          <div style="grid-column: span 6;">
+            <span style="color: var(--accent-gold); font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.85rem;">Yeni Mövsüm Kolleksiyası</span>
+            <h1 style="font-size: 3rem; margin: 16px 0; line-height: 1.15;">Rahatlıq və Zərifliyin Mükəmməl Ahəngi</h1>
+            <p style="color: var(--text-muted); font-size: 1.05rem; margin-bottom: 28px; max-width: 500px;">
+              Evlərinizə estetik gözəllik və rahatlıq gətirən minimalist, premium mebel dizaynlarımızı kəşf edin.
+            </p>
+            <div style="display: flex; gap: 16px;">
+              <a href="#products" class="btn btn-primary">Kolleksiyaya Bax</a>
+              <a href="#about" class="btn btn-outline">Bizimlə Tanış Ol</a>
+            </div>
+          </div>
+          <div style="grid-column: span 6;">
+            <img src="C:\Users\User\.gemini\antigravity\brain\60ddce65-7740-47cc-a2af-78899d3729b9\hero_living_room_1785206065953.jpg" alt="Mebel Dünyası Hero" style="border-radius: var(--radius-md); box-shadow: var(--shadow-diffuse); width: 100%;">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section id="categories" style="padding: 80px 0;">
+      <div class="container">
+        <div style="text-align: center; margin-bottom: 48px;">
+          <h2 style="font-size: 2.2rem; margin-bottom: 12px;">Populyar Kateqoriyalar</h2>
+          <p style="color: var(--text-muted);">Evinizin hər guşəsi üçün fərdi mebel həlləri</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px;">
+          <div style="grid-column: span 4; background: var(--bg-secondary); border-radius: var(--radius-md); padding: 32px; text-align: center; border: 1px solid var(--border-color); transition: var(--transition);" class="category-card">
+            <i data-feather="box" style="width: 36px; height: 36px; color: var(--accent-primary); margin-bottom: 16px;"></i>
+            <h3 style="font-size: 1.4rem; margin-bottom: 8px;">Qonaq Otağı</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Divanlar, kreslolar və TV altlıqları</p>
+          </div>
+          <div style="grid-column: span 4; background: var(--bg-secondary); border-radius: var(--radius-md); padding: 32px; text-align: center; border: 1px solid var(--border-color); transition: var(--transition);" class="category-card">
+            <i data-feather="moon" style="width: 36px; height: 36px; color: var(--accent-primary); margin-bottom: 16px;"></i>
+            <h3 style="font-size: 1.4rem; margin-bottom: 8px;">Yataq Otağı</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Çarpayılar, dolablar və komodlar</p>
+          </div>
+          <div style="grid-column: span 4; background: var(--bg-secondary); border-radius: var(--radius-md); padding: 32px; text-align: center; border: 1px solid var(--border-color); transition: var(--transition);" class="category-card">
+            <i data-feather="coffee" style="width: 36px; height: 36px; color: var(--accent-primary); margin-bottom: 16px;"></i>
+            <h3 style="font-size: 1.4rem; margin-bottom: 8px;">Mətbəx & Dəhliz</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Yemək masaları, stullar və mebel dəstləri</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Product Showcase Grid Section -->
+    <section id="products" style="padding: 40px 0 80px 0;">
+      <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px;">
+          <div>
+            <h2 style="font-size: 2.2rem; margin-bottom: 8px;">Seçilmiş Məhsullar</h2>
+            <p style="color: var(--text-muted);">Dizayn və keyfiyyəti ilə fərqlənən mebellərimiz</p>
+          </div>
+          <button class="btn btn-outline">Hamısına Bax</button>
+        </div>
+
+        <div class="product-grid">
+          <!-- Card 1 -->
+          <div class="product-card">
+            <div class="product-img-wrapper">
+              <img src="C:\Users\User\.gemini\antigravity\brain\60ddce65-7740-47cc-a2af-78899d3729b9\sofa_product_1785206074780.jpg" alt="Velvet Minimalist Divan">
+              <button class="product-wishlist-btn"><i data-feather="heart"></i></button>
+            </div>
+            <div class="product-content">
+              <div class="product-category">Qonaq Otağı</div>
+              <h3 class="product-title">Minimalist Velvet Divan</h3>
+              <div class="product-price-row">
+                <div>
+                  <span class="product-price">1,450 ₼</span>
+                  <span class="product-old-price">1,650 ₼</span>
+                </div>
+                <button class="btn btn-gold" style="padding: 8px 14px; font-size: 0.85rem;"><i data-feather="shopping-cart"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="product-card">
+            <div class="product-img-wrapper">
+              <img src="C:\Users\User\.gemini\antigravity\brain\60ddce65-7740-47cc-a2af-78899d3729b9\table_product_1785206085165.jpg" alt="Palıd Yemək Masası">
+              <button class="product-wishlist-btn"><i data-feather="heart"></i></button>
+            </div>
+            <div class="product-content">
+              <div class="product-category">Mətbəx</div>
+              <h3 class="product-title">Təbii Palıd Yemək Masası</h3>
+              <div class="product-price-row">
+                <div>
+                  <span class="product-price">980 ₼</span>
+                </div>
+                <button class="btn btn-gold" style="padding: 8px 14px; font-size: 0.85rem;"><i data-feather="shopping-cart"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="product-card">
+            <div class="product-img-wrapper">
+              <img src="C:\Users\User\.gemini\antigravity\brain\60ddce65-7740-47cc-a2af-78899d3729b9\bed_product_1785206094275.jpg" alt="Premium Yataq Dəsti">
+              <button class="product-wishlist-btn"><i data-feather="heart"></i></button>
+            </div>
+            <div class="product-content">
+              <div class="product-category">Yataq Otağı</div>
+              <h3 class="product-title">Lüks Ketan Çarpayı Dəsti</h3>
+              <div class="product-price-row">
+                <div>
+                  <span class="product-price">2,100 ₼</span>
+                  <span class="product-old-price">2,350 ₼</span>
+                </div>
+                <button class="btn btn-gold" style="padding: 8px 14px; font-size: 0.85rem;"><i data-feather="shopping-cart"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 4 -->
+          <div class="product-card">
+            <div class="product-img-wrapper">
+              <img src="C:\Users\User\.gemini\antigravity\brain\60ddce65-7740-47cc-a2af-78899d3729b9\armchair_product_1785206104309.jpg" alt="Dəri Kreslo">
+              <button class="product-wishlist-btn"><i data-feather="heart"></i></button>
+            </div>
+            <div class="product-content">
+              <div class="product-category">Qonaq Otağı</div>
+              <h3 class="product-title">Qəhvəyi Dəri Aksent Kreslo</h3>
+              <div class="product-price-row">
+                <div>
+                  <span class="product-price">750 ₼</span>
+                </div>
+                <button class="btn btn-gold" style="padding: 8px 14px; font-size: 0.85rem;"><i data-feather="shopping-cart"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Sticky Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <!-- Column 1: Logo & Info -->
+        <div class="footer-col">
+          <div class="footer-logo">Mebel <span>Dünyası</span></div>
+          <p class="footer-desc">
+            Mebel Dünyası evinizin rahatlığı və estetik gözəlliyi üçün yüksək keyfiyyətli, modern və minimalist mebellər təqdim edir.
+          </p>
+        </div>
+
+        <!-- Column 2: Navigation Links -->
+        <div class="footer-col">
+          <h4 class="footer-title">Naviqasiya</h4>
+          <ul class="footer-links">
+            <li><a href="index.html">Ana Səhifə</a></li>
+            <li><a href="#products">Məhsullar</a></li>
+            <li><a href="#categories">Kateqoriyalar</a></li>
+            <li><a href="#about">Haqqımızda</a></li>
+            <li><a href="#contact">Əlaqə</a></li>
+          </ul>
+        </div>
+
+        <!-- Column 3: Customer Service -->
+        <div class="footer-col">
+          <h4 class="footer-title">Müştəri Xidməti</h4>
+          <ul class="footer-links">
+            <li><a href="#">Əlaqə & Dəstək</a></li>
+            <li><a href="#">Çatdırılma Şərtləri</a></li>
+            <li><a href="#">Qaytarma vı Dəyişdirilmə</a></li>
+            <li><a href="#">Zəmanət Öhdəlikləri</a></li>
+            <li><a href="#">Tez-Tez Verilən Suallar</a></li>
+          </ul>
+        </div>
+
+        <!-- Column 4: Social & WhatsApp -->
+        <div class="footer-col">
+          <h4 class="footer-title">Bizimlə Əlaqə</h4>
+          <p class="footer-desc" style="margin-bottom: 12px;">Ünvan: Bakı şəh., Həsən Əliyev küç. 45</p>
+          <p class="footer-desc" style="margin-bottom: 16px;">Tel: +994 12 555 00 11</p>
+          <div class="social-links">
+            <a href="#" class="social-icon" title="Instagram"><i data-feather="instagram"></i></a>
+            <a href="#" class="social-icon" title="Facebook"><i data-feather="facebook"></i></a>
+            <a href="https://wa.me/994500000000" target="_blank" class="social-icon" title="WhatsApp"><i data-feather="message-circle"></i></a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Copyright -->
+      <div class="footer-bottom">
+        <p>&copy; 2026 Mebel Dünyası. Bütün hüquqlar qorunur.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Floating WhatsApp Button -->
+  <a href="https://wa.me/994500000000" target="_blank" class="whatsapp-float" title="WhatsApp ilə əlaqə">
+    <i data-feather="message-circle" style="width: 28px; height: 28px;"></i>
+  </a>
+
+  <!-- Feather Icons Init & Mobile Drawer JS -->
+  <script>
+    feather.replace();
+
+    // Mobile Navigation Toggle
+    const hamburgerBtn = document.getElementById('hamburger-btn');
+    const mobileDrawer = document.getElementById('mobile-drawer');
+
+    hamburgerBtn.addEventListener('click', () => {
+      mobileDrawer.classList.toggle('open');
+    });
+
+    // Sticky Header Scroll Shadow Effect
+    const mainHeader = document.getElementById('main-header');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 20) {
+        mainHeader.classList.add('scrolled');
+      } else {
+        mainHeader.classList.remove('scrolled');
+      }
+    });
+  </script>
+</body>
+</html>
