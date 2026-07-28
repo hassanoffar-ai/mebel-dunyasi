@@ -4,10 +4,19 @@ import React from 'react';
 import { Package, ShoppingCart, MessageSquare, DollarSign, Eye, Edit, Trash2 } from 'lucide-react';
 
 const RECENT_ORDERS = [
-  { id: 'MD-584912', customer: 'Anar Məmmədov', amount: '2,430 ₼', status: 'Təsdiqləndi', date: '28 İyul 2026' },
-  { id: 'MD-391204', customer: 'Leyla Həsənova', amount: '980 ₼', status: 'Gözləmədə', date: '28 İyul 2026' },
-  { id: 'MD-109283', customer: 'Vüsal Qasımov', amount: '1,450 ₼', status: 'Rədd edildi', date: '27 İyul 2026' },
+  { id: 'MD-584912', customer: 'Anar Məmmədov', amount: '2,430 ₼', status: 'confirmed', date: '28 İyul 2026' },
+  { id: 'MD-391204', customer: 'Leyla Həsənova', amount: '980 ₼', status: 'pending', date: '28 İyul 2026' },
+  { id: 'MD-109283', customer: 'Vüsal Qasımov', amount: '1,450 ₼', status: 'cancelled', date: '27 İyul 2026' },
 ];
+
+const STATUS_LABELS: Record<string, string> = {
+  pending: 'Gözləmədə (pending)',
+  confirmed: 'Təsdiqləndi (confirmed)',
+  processing: 'Hazırlanır (processing)',
+  shipped: 'Göndərildi (shipped)',
+  delivered: 'Çatdırıldı (delivered)',
+  cancelled: 'Ləğv edildi (cancelled)',
+};
 
 export default function AdminDashboardPage() {
   return (
@@ -81,14 +90,14 @@ export default function AdminDashboardPage() {
                 <td>
                   <span
                     className={`status-badge ${
-                      order.status === 'Təsdiqləndi'
+                      order.status === 'confirmed' || order.status === 'delivered'
                         ? 'status-success'
-                        : order.status === 'Gözləmədə'
+                        : order.status === 'pending'
                         ? 'status-warning'
                         : 'status-danger'
                     }`}
                   >
-                    {order.status}
+                    {STATUS_LABELS[order.status] || order.status}
                   </span>
                 </td>
                 <td>{order.date}</td>

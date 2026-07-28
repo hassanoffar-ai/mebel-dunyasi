@@ -5,7 +5,9 @@ import { supabase } from '@/lib/supabase';
 import { Eye, Search, Filter, X, CheckCircle2, Clock, Truck, XCircle, Save, FileText } from 'lucide-react';
 import '@/app/admin/admin.css';
 
-interface OrderItem {
+export type OrderStatus = 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+
+export interface OrderItem {
   id: string;
   order_id: string;
   customer: string;
@@ -14,7 +16,7 @@ interface OrderItem {
   address: string;
   items_count: number;
   total_amount: number;
-  status: 'Yeni' | 'Hazırlanır' | 'Göndərildi' | 'Çatdırıldı' | 'Ləğv edildi';
+  status: OrderStatus;
   date: string;
   notes?: string;
   products: { name: string; quantity: number; price: number; image_url: string }[];
@@ -30,12 +32,12 @@ const MOCK_ORDERS: OrderItem[] = [
     address: 'Bakı şəh., Həsən Əliyev küç. 45, mənzil 12',
     items_count: 2,
     total_amount: 2430,
-    status: 'Yeni',
+    status: 'pending',
     date: '28 İyul 2026',
     notes: 'Kuryer gəlməzdən 1 saat əvvəl zəng etsin.',
     products: [
-      { name: 'Minimalist Velvet Divan', quantity: 1, price: 1450, image_url: 'C:\\Users\\User\\.gemini\\antigravity\\brain\\60ddce65-7740-47cc-a2af-78899d3729b9\\sofa_product_1785206074780.jpg' },
-      { name: 'Təbii Palıd Yemək Masası', quantity: 1, price: 980, image_url: 'C:\\Users\\User\\.gemini\\antigravity\\brain\\60ddce65-7740-47cc-a2af-78899d3729b9\\table_product_1785206085165.jpg' },
+      { name: 'Minimalist Velvet Divan', quantity: 1, price: 1450, image_url: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80' },
+      { name: 'Təbii Palıd Yemək Masası', quantity: 1, price: 980, image_url: 'https://images.unsplash.com/photo-1615066390971-03e4e1c36ddf?auto=format&fit=crop&w=800&q=80' },
     ],
   },
   {
@@ -47,10 +49,10 @@ const MOCK_ORDERS: OrderItem[] = [
     address: 'Sumqayıt şəh., 4-cü mkr. ev 12',
     items_count: 1,
     total_amount: 980,
-    status: 'Hazırlanır',
+    status: 'processing',
     date: '28 İyul 2026',
     products: [
-      { name: 'Təbii Palıd Yemək Masası', quantity: 1, price: 980, image_url: 'C:\\Users\\User\\.gemini\\antigravity\\brain\\60ddce65-7740-47cc-a2af-78899d3729b9\\table_product_1785206085165.jpg' },
+      { name: 'Təbii Palıd Yemək Masası', quantity: 1, price: 980, image_url: 'https://images.unsplash.com/photo-1615066390971-03e4e1c36ddf?auto=format&fit=crop&w=800&q=80' },
     ],
   },
   {
@@ -62,10 +64,10 @@ const MOCK_ORDERS: OrderItem[] = [
     address: 'Bakı şəh., Nizami küç. 102',
     items_count: 1,
     total_amount: 2100,
-    status: 'Göndərildi',
+    status: 'shipped',
     date: '26 İyul 2026',
     products: [
-      { name: 'Lüks Ketan Çarpayı Dəsti', quantity: 1, price: 2100, image_url: 'C:\\Users\\User\\.gemini\\antigravity\\brain\\60ddce65-7740-47cc-a2af-78899d3729b9\\bed_product_1785206094275.jpg' },
+      { name: 'Lüks Ketan Çarpayı Dəsti', quantity: 1, price: 2100, image_url: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=800&q=80' },
     ],
   },
   {
@@ -77,10 +79,10 @@ const MOCK_ORDERS: OrderItem[] = [
     address: 'Gəncə şəh., Atatürk pr. 15',
     items_count: 1,
     total_amount: 1450,
-    status: 'Çatdırıldı',
+    status: 'delivered',
     date: '25 İyul 2026',
     products: [
-      { name: 'Minimalist Velvet Divan', quantity: 1, price: 1450, image_url: 'C:\\Users\\User\\.gemini\\antigravity\\brain\\60ddce65-7740-47cc-a2af-78899d3729b9\\sofa_product_1785206074780.jpg' },
+      { name: 'Minimalist Velvet Divan', quantity: 1, price: 1450, image_url: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80' },
     ],
   },
   {
@@ -92,10 +94,10 @@ const MOCK_ORDERS: OrderItem[] = [
     address: 'Bakı şəh., Məti mütbuat pr. 8',
     items_count: 1,
     total_amount: 750,
-    status: 'Ləğv edildi',
+    status: 'cancelled',
     date: '24 İyul 2026',
     products: [
-      { name: 'Qəhvəyi Dəri Aksent Kreslo', quantity: 1, price: 750, image_url: 'C:\\Users\\User\\.gemini\\antigravity\\brain\\60ddce65-7740-47cc-a2af-78899d3729b9\\armchair_product_1785206104309.jpg' },
+      { name: 'Qəhvəyi Dəri Aksent Kreslo', quantity: 1, price: 750, image_url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=800&q=80' },
     ],
   },
 ];
@@ -105,10 +107,29 @@ export default function AdminOrdersPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [selectedOrder, setSelectedOrder] = useState<OrderItem | null>(null);
-
-  // Detail Modal Form States
-  const [newStatus, setNewStatus] = useState<'Yeni' | 'Hazırlanır' | 'Göndərildi' | 'Çatdırıldı' | 'Ləğv edildi'>('Yeni');
+  const [newStatus, setNewStatus] = useState<OrderStatus>('pending');
   const [adminNotes, setAdminNotes] = useState('');
+
+  const STATUS_LABELS: Record<OrderStatus, string> = {
+    pending: 'Gözləmədə (Pending)',
+    confirmed: 'Təsdiqləndi (Confirmed)',
+    processing: 'Hazırlanır (Processing)',
+    shipped: 'Göndərildi (Shipped)',
+    delivered: 'Çatdırıldı (Delivered)',
+    cancelled: 'Ləğv edildi (Cancelled)',
+  };
+
+  const getStatusBadgeClass = (status: OrderStatus) => {
+    switch (status) {
+      case 'delivered':
+      case 'confirmed':
+        return 'status-success';
+      case 'cancelled':
+        return 'status-danger';
+      default:
+        return 'status-warning';
+    }
+  };
 
   // Fetch Orders from Supabase
   useEffect(() => {
@@ -180,11 +201,12 @@ export default function AdminOrdersPage() {
           style={{ padding: '10px 14px', borderRadius: 'var(--admin-radius)', border: '1px solid var(--admin-border)', fontSize: '0.9rem', outline: 'none', backgroundColor: 'white' }}
         >
           <option value="">Bütün Statuslar</option>
-          <option value="Yeni">Yeni</option>
-          <option value="Hazırlanır">Hazırlanır</option>
-          <option value="Göndərildi">Göndərildi</option>
-          <option value="Çatdırıldı">Çatdırıldı</option>
-          <option value="Ləğv edildi">Ləğv edildi</option>
+          <option value="pending">Gözləmədə (pending)</option>
+          <option value="confirmed">Təsdiqləndi (confirmed)</option>
+          <option value="processing">Hazırlanır (processing)</option>
+          <option value="shipped">Göndərildi (shipped)</option>
+          <option value="delivered">Çatdırıldı (delivered)</option>
+          <option value="cancelled">Ləğv edildi (cancelled)</option>
         </select>
       </div>
 
@@ -211,16 +233,8 @@ export default function AdminOrdersPage() {
                 <td>{order.items_count} məhsul</td>
                 <td style={{ fontWeight: '700', color: 'var(--admin-accent)' }}>{order.total_amount} ₼</td>
                 <td>
-                  <span
-                    className={`status-badge ${
-                      order.status === 'Çatdırıldı'
-                        ? 'status-success'
-                        : order.status === 'Ləğv edildi'
-                        ? 'status-danger'
-                        : 'status-warning'
-                    }`}
-                  >
-                    {order.status}
+                  <span className={`status-badge ${getStatusBadgeClass(order.status)}`}>
+                    {STATUS_LABELS[order.status] || order.status}
                   </span>
                 </td>
                 <td style={{ textAlign: 'right' }}>
@@ -279,11 +293,12 @@ export default function AdminOrdersPage() {
                   onChange={(e: any) => setNewStatus(e.target.value)}
                   style={{ width: '100%', padding: '10px', borderRadius: 'var(--admin-radius)', border: '1px solid var(--admin-border)', backgroundColor: 'white' }}
                 >
-                  <option value="Yeni">Yeni</option>
-                  <option value="Hazırlanır">Hazırlanır</option>
-                  <option value="Göndərildi">Göndərildi</option>
-                  <option value="Çatdırıldı">Çatdırıldı</option>
-                  <option value="Ləğv edildi">Ləğv edildi</option>
+                  <option value="pending">Gözləmədə (pending)</option>
+                  <option value="confirmed">Təsdiqləndi (confirmed)</option>
+                  <option value="processing">Hazırlanır (processing)</option>
+                  <option value="shipped">Göndərildi (shipped)</option>
+                  <option value="delivered">Çatdırıldı (delivered)</option>
+                  <option value="cancelled">Ləğv edildi (cancelled)</option>
                 </select>
               </div>
 

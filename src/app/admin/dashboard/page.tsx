@@ -14,12 +14,21 @@ interface DashboardStats {
 }
 
 const MOCK_RECENT_ORDERS = [
-  { id: 'MD-584912', customer: 'Anar Məmmədov', amount: '2,430 ₼', status: 'Təsdiqləndi', date: '28 İyul 2026' },
-  { id: 'MD-391204', customer: 'Leyla Həsənova', amount: '980 ₼', status: 'Gözləmədə', date: '28 İyul 2026' },
-  { id: 'MD-109283', customer: 'Vüsal Qasımov', amount: '1,450 ₼', status: 'Rədd edildi', date: '27 İyul 2026' },
-  { id: 'MD-901244', customer: 'Nərgiz Əliyeva', amount: '2,100 ₼', status: 'Təsdiqləndi', date: '26 İyul 2026' },
-  { id: 'MD-748392', customer: 'Elvin Qasımov', amount: '750 ₼', status: 'Gözləmədə', date: '26 İyul 2026' },
+  { id: 'MD-584912', customer: 'Anar Məmmədov', amount: '2,430 ₼', status: 'confirmed', date: '28 İyul 2026' },
+  { id: 'MD-391204', customer: 'Leyla Həsənova', amount: '980 ₼', status: 'pending', date: '28 İyul 2026' },
+  { id: 'MD-109283', customer: 'Vüsal Qasımov', amount: '1,450 ₼', status: 'cancelled', date: '27 İyul 2026' },
+  { id: 'MD-901244', customer: 'Nərgiz Əliyeva', amount: '2,100 ₼', status: 'shipped', date: '26 İyul 2026' },
+  { id: 'MD-748392', customer: 'Elvin Qasımov', amount: '750 ₼', status: 'pending', date: '26 İyul 2026' },
 ];
+
+const STATUS_LABELS: Record<string, string> = {
+  pending: 'Gözləmədə (pending)',
+  confirmed: 'Təsdiqləndi (confirmed)',
+  processing: 'Hazırlanır (processing)',
+  shipped: 'Göndərildi (shipped)',
+  delivered: 'Çatdırıldı (delivered)',
+  cancelled: 'Ləğv edildi (cancelled)',
+};
 
 const MOCK_PENDING_REVIEWS = [
   { id: '1', user: 'Əli Həsənov', rating: 5, comment: 'Çox keyfiyyətli divandır, çatdırılma vaxtında oldu.', date: 'Bu gün' },
@@ -191,14 +200,14 @@ export default function AdminDashboardPage() {
                   <td>
                     <span
                       className={`status-badge ${
-                        order.status === 'Təsdiqləndi'
+                        order.status === 'confirmed' || order.status === 'delivered'
                           ? 'status-success'
-                          : order.status === 'Gözləmədə'
+                          : order.status === 'pending'
                           ? 'status-warning'
                           : 'status-danger'
                       }`}
                     >
-                      {order.status}
+                      {STATUS_LABELS[order.status] || order.status}
                     </span>
                   </td>
                   <td style={{ fontSize: '0.88rem', color: 'var(--admin-text-sub)' }}>{order.date}</td>

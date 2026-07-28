@@ -86,16 +86,18 @@ function SuccessContent() {
               <span style={{ color: 'var(--accent-primary)' }}>{orderId}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-              <span>Ödəniş Statusu:</span>
-              <span style={{ color: 'var(--success-color)', fontWeight: '600' }}>Ödənildi (Stripe Card)</span>
+              <span>Sifariş Statusu:</span>
+              <span style={{ color: 'var(--accent-gold)', fontWeight: '600', textTransform: 'capitalize' }}>
+                {order?.status || 'pending'} (Gözləmədə)
+              </span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
               <span>Çatdırılma:</span>
-              <span>Bakı şəhəri daxilində (Pulsuz)</span>
+              <span>{order?.catdirilma_unvani || 'Bakı şəhəri daxilində (Pulsuz)'}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: '700', fontSize: '1.15rem', marginTop: '14px', borderTop: '1px solid var(--border-color)', paddingTop: '12px' }}>
               <span>Məbləğ:</span>
-              <span style={{ color: 'var(--accent-gold)' }}>{order?.umumi_meblegh ? `${order.umumi_meblegh} ₼` : '2,430 ₼'}</span>
+              <span style={{ color: 'var(--accent-gold)' }}>{order?.umumi_meblegh ? `${order.umumi_meblegh} ₼` : '---'}</span>
             </div>
           </div>
 
