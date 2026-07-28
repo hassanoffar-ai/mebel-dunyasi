@@ -187,7 +187,7 @@ export default function HomePage() {
           <div className="container">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '40px' }}>
               <div>
-                <h2 style={{ fontSize: 'clamp(1.6rem, 4vw, 2.2rem)', marginBottom: '8px' }}>Öne Çıxan Məhsullar</h2>
+                <h2 style={{ fontSize: 'clamp(1.6rem, 4vw, 2.2rem)', marginBottom: '8px' }}>Önə Çıxan Məhsullar</h2>
                 <p style={{ color: 'var(--text-muted)' }}>Ən çox üstünlük verilən eksklüziv kolleksiya</p>
               </div>
               <Link href="#" className="btn btn-outline">Bütün Məhsullar</Link>
