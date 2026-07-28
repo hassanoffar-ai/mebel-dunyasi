@@ -45,8 +45,10 @@ const INITIAL_CART: CartItem[] = [
   },
 ];
 
+import { useCart } from '@/context/CartContext';
+
 export default function CartPage() {
-  const [cartItems, setCartItems] = useState<CartItem[]>(INITIAL_CART);
+  const { cartItems, updateQuantity, removeFromCart } = useCart();
   const [couponCode, setCouponCode] = useState('');
   const [discountApplied, setDiscountApplied] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
@@ -57,15 +59,8 @@ export default function CartPage() {
   const shippingFee = subtotal > 1500 || subtotal === 0 ? 0 : 30;
   const totalPrice = subtotal - discountAmount + shippingFee;
 
-  const updateQuantity = (id: string, newQty: number) => {
-    if (newQty < 1) return;
-    setCartItems((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, quantity: newQty } : item))
-    );
-  };
-
-  const removeItem = (id: string) => {
-    setCartItems((prev) => prev.filter((item) => item.id !== id));
+  const removeItem = (id: string, variant: string) => {
+    removeFromCart(id, variant);
     setConfirmDeleteId(null);
   };
 
@@ -185,7 +180,7 @@ export default function CartPage() {
                       }}
                     >
                       <button
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        onClick={() => updateQuantity(item.id, item.quantity - 1, item.variant)}
                         style={{ padding: '6px 10px', border: 'none', background: 'none', cursor: 'pointer' }}
                       >
                         <Minus size={14} />
@@ -194,7 +189,7 @@ export default function CartPage() {
                         {item.quantity}
                       </span>
                       <button
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        onClick={() => updateQuantity(item.id, item.quantity + 1, item.variant)}
                         style={{ padding: '6px 10px', border: 'none', background: 'none', cursor: 'pointer' }}
                       >
                         <Plus size={14} />
@@ -208,7 +203,7 @@ export default function CartPage() {
 
                     {/* Silmə Düyməsi & Tooltip Confirm */}
                     <div style={{ position: 'relative' }}>
-                      {confirmDeleteId === item.id ? (
+                      {confirmDeleteId === `${item.id}-${item.variant}` ? (
                         <div
                           style={{
                             position: 'absolute',
@@ -227,13 +222,13 @@ export default function CartPage() {
                           }}
                         >
                           <span>Silinsin?</span>
-                          <button onClick={() => removeItem(item.id)} style={{ color: '#FF6B6B', fontWeight: '700', background: 'none', border: 'none', cursor: 'pointer' }}>Bəli</button>
+                          <button onClick={() => removeItem(item.id, item.variant)} style={{ color: '#FF6B6B', fontWeight: '700', background: 'none', border: 'none', cursor: 'pointer' }}>Bəli</button>
                           <button onClick={() => setConfirmDeleteId(null)} style={{ color: 'white', background: 'none', border: 'none', cursor: 'pointer' }}>Xeyr</button>
                         </div>
                       ) : null}
 
                       <button
-                        onClick={() => setConfirmDeleteId(item.id)}
+                        onClick={() => setConfirmDeleteId(`${item.id}-${item.variant}`)}
                         style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '6px' }}
                         title="Səbətdən Sil"
                       >

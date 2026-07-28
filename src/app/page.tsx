@@ -26,8 +26,10 @@ const HERO_SLIDES = [
   },
 ];
 
+import { useCart } from '@/context/CartContext';
+
 export default function HomePage() {
-  const [cartCount, setCartCount] = useState(0);
+  const { addToCart } = useCart();
   const [products, setProducts] = useState<Product[]>(MOCK_PRODUCTS);
   const [currentSlide, setCurrentSlide] = useState(0);
 
@@ -55,7 +57,7 @@ export default function HomePage() {
   }, []);
 
   const handleAddToCart = (product: Product) => {
-    setCartCount((prev) => prev + 1);
+    addToCart(product);
   };
 
   return (
@@ -131,31 +133,6 @@ export default function HomePage() {
           >
             <ChevronRight size={24} />
           </button>
-        </section>
-
-        {/* 2. KATEQORİYALAR BÖLMƏSİ (Üfüqi Scroll) */}
-        <section id="categories" style={{ padding: '70px 0', backgroundColor: 'var(--bg-main)' }}>
-          <div className="container">
-            <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-              <h2 style={{ fontSize: '2.2rem', marginBottom: '10px' }}>Kateqoriyalara Görə Axtar</h2>
-              <p style={{ color: 'var(--text-muted)' }}>Məkanınıza uyğun mebelləri kəşf edin</p>
-            </div>
-
-            <div className="horizontal-categories-scroll">
-              {CATEGORIES.map((cat) => (
-                <Link key={cat.id} href={`/kateqoriyalar?cat=${encodeURIComponent(cat.title)}`} className="category-scroll-card">
-                  <img 
-                    src={cat.image} 
-                    alt={cat.title} 
-                    onError={(e) => { e.currentTarget.src = 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80'; }}
-                  />
-                  <div className="category-scroll-overlay">
-                    <h3 className="category-scroll-title">{cat.title}</h3>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
         </section>
 
         {/* 3. SEÇİLMİŞ MƏHSULLAR BÖLMƏSİ */}

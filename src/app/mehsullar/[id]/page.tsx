@@ -9,16 +9,18 @@ import { MOCK_PRODUCTS, Product } from '@/lib/mockData';
 import { supabase } from '@/lib/supabase';
 import { Star, Heart, ShoppingBag, Truck, ShieldCheck, RotateCcw, Check, Plus, Minus, Send, AlertCircle, CheckCircle2 } from 'lucide-react';
 
+import { useCart } from '@/context/CartContext';
+
 export default function ProductDetailPage() {
   const params = useParams();
   const productId = (params?.id as string) || '1';
 
+  const { addToCart } = useCart();
   const [product, setProduct] = useState<Product | null>(null);
   const [selectedImage, setSelectedImage] = useState<string>('');
   const [quantity, setQuantity] = useState(1);
   const [selectedColor, setSelectedColor] = useState('İsti Bej');
   const [activeTab, setActiveTab] = useState<'desc' | 'specs' | 'reviews'>('desc');
-  const [cartCount, setCartCount] = useState(0);
   const [isWishlisted, setIsWishlisted] = useState(false);
 
   // Form State for Review
@@ -253,7 +255,7 @@ export default function ProductDetailPage() {
                 <button
                   className="btn btn-primary"
                   style={{ flex: 1, padding: '14px 24px' }}
-                  onClick={() => setCartCount((prev) => prev + quantity)}
+                  onClick={() => addToCart(product, quantity, selectedColor)}
                 >
                   <ShoppingBag size={20} />
                   Səbətə Əlavə Et

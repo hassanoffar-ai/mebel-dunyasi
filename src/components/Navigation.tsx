@@ -5,13 +5,18 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Search, Heart, ShoppingBag, User, Menu, X, MessageCircle } from 'lucide-react';
 
+import { useCart } from '@/context/CartContext';
+
 interface HeaderProps {
-  cartCount: number;
+  cartCount?: number;
 }
 
-export function Header({ cartCount }: HeaderProps) {
+export function Header({ cartCount: propCartCount }: HeaderProps) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const pathname = usePathname();
+  const { cartCount: contextCartCount } = useCart();
+
+  const cartCount = propCartCount !== undefined ? propCartCount : contextCartCount;
 
   const navItems = [
     { name: 'Ana Səhifə', href: '/' },

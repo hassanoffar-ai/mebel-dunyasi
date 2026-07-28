@@ -34,9 +34,12 @@ const CHECKOUT_CART: CartItem[] = [
   },
 ];
 
+import { useCart } from '@/context/CartContext';
+
 function CheckoutContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { cartItems } = useCart();
 
   const [step, setStep] = useState<1 | 2>(1);
   const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'cash'>('stripe');
@@ -58,7 +61,7 @@ function CheckoutContent() {
     }
   }, [searchParams]);
 
-  const subtotal = CHECKOUT_CART.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const total = subtotal;
 
   const handleNextToPayment = (e: React.FormEvent) => {
@@ -84,7 +87,7 @@ function CheckoutContent() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            cartItems: CHECKOUT_CART.map((item) => ({
+            cartItems: cartItems.map((item) => ({
               product_id: item.id,
               ad: item.name,
               qiymet: item.price,
@@ -282,8 +285,8 @@ function CheckoutContent() {
                 </h3>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
-                  {CHECKOUT_CART.map((item) => (
-                    <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                  {cartItems.map((item) => (
+                    <div key={`${item.id}-${item.variant}`} style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                       <img src={item.image_url} alt={item.name} style={{ width: '60px', height: '60px', borderRadius: 'var(--radius-sm)', objectFit: 'cover' }} />
                       <div style={{ flexGrow: 1 }}>
                         <h4 style={{ fontSize: '0.9rem', fontFamily: 'var(--font-serif)', marginBottom: '2px' }}>{item.name}</h4>

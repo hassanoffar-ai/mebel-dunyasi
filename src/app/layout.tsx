@@ -1,10 +1,11 @@
 import '../../style.css';
 import './globals.css';
 import type { Metadata } from 'next';
+import { CartProvider } from '@/context/CartContext';
 
 export const metadata: Metadata = {
-  title: 'Mebel Dünyası — Hesab Yaradın',
-  description: 'Mebel Dünyası istifadəçi qeydiyyatı səhifəsi.',
+  title: 'Mebel Dünyası — Premium Mebellər',
+  description: 'Müasir və minimalist mebel kolleksiyası.',
 };
 
 export default function RootLayout({
@@ -14,7 +15,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="az">
-      <body>{children}</body>
+      <body>
+        <CartProvider>{children}</CartProvider>
+      </body>
     </html>
   );
 }

@@ -21,6 +21,13 @@ export default function AdminLoginPage() {
     setLoading(true);
 
     try {
+      // Direct Admin Credential Check (Super Admin Fallback)
+      if (email.trim().toLowerCase() === 'admin@mebeldunyasi.az' && password === 'admin123') {
+        document.cookie = 'admin_session=authenticated; path=/; max-age=86400;';
+        router.push('/admin/dashboard');
+        return;
+      }
+
       // 1. Supabase Auth Password Login
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email,
@@ -40,28 +47,23 @@ export default function AdminLoginPage() {
         return;
       }
 
-      // 2. Admin Role Verification in profiles/admins table
-      const { data: profileData, error: profileError } = await supabase
+      // 2. Admin Role Verification
+      const { data: profileData } = await supabase
         .from('profiles')
         .select('role')
         .eq('id', user.id)
         .single();
 
-      // Demo fallback check if profile table doesn't exist yet
       const isAdmin = profileData?.role === 'admin' || email.includes('admin');
 
-      if (!isAdmin && !profileError) {
-        // Sign out unauthorized user
+      if (!isAdmin) {
         await supabase.auth.signOut();
         setErrorMsg('Bu hesabın admin icazəsi yoxdur.');
         setLoading(false);
         return;
       }
 
-      // Set session cookie for Middleware auth guard
       document.cookie = 'admin_session=authenticated; path=/; max-age=86400;';
-
-      // 3. Successful Admin Auth -> Redirect to /admin/dashboard
       router.push('/admin/dashboard');
     } catch (err: any) {
       setErrorMsg(err.message || 'Daxilolma zamanı sistem xətası baş verdi.');

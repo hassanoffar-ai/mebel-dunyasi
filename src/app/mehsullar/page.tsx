@@ -7,17 +7,19 @@ import { ProductCard } from '@/components/ProductCard';
 import { MOCK_PRODUCTS, Product } from '@/lib/mockData';
 import { Search, Filter, SlidersHorizontal } from 'lucide-react';
 
+import { useCart } from '@/context/CartContext';
+
 export default function ProductsPage() {
+  const { addToCart } = useCart();
   const [products, setProducts] = useState<Product[]>(MOCK_PRODUCTS);
   const [selectedCategory, setSelectedCategory] = useState<string>('Bütün');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [sortBy, setSortBy] = useState<'default' | 'price-low' | 'price-high' | 'rating'>('default');
-  const [cartCount, setCartCount] = useState(0);
 
   const categories = ['Bütün', 'Qonaq Otağı', 'Yataq Otağı', 'Mətbəx'];
 
   const handleAddToCart = (product: Product) => {
-    setCartCount((prev) => prev + 1);
+    addToCart(product);
   };
 
   // Filter & Sort Products
