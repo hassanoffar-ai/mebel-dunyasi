@@ -110,7 +110,7 @@ export default function HomePage() {
                   <p style={{ fontSize: 'clamp(1rem, 2vw, 1.2rem)', color: '#E5D9C7', marginBottom: '32px' }}>
                     {slide.subtitle}
                   </p>
-                  <Link href="#products" className="btn btn-gold" style={{ padding: '14px 36px', fontSize: '1rem' }}>
+                  <Link href="/kateqoriyalar" className="btn btn-gold" style={{ padding: '14px 36px', fontSize: '1rem' }}>
                     Kolleksiyaya Bax
                   </Link>
                 </div>
@@ -138,45 +138,21 @@ export default function HomePage() {
           <div className="container">
             <div style={{ textAlign: 'center', marginBottom: '40px' }}>
               <h2 style={{ fontSize: '2.2rem', marginBottom: '10px' }}>Kateqoriyalara Görə Axtar</h2>
-              <p style={{ color: 'var(--text-muted)' }}>Eviniz üçün ehtiyac duyduğunuz hər bir mebel kateqoriyası</p>
+              <p style={{ color: 'var(--text-muted)' }}>Məkanınıza uyğun mebelləri kəşf edin</p>
             </div>
 
-            <div
-              style={{
-                display: 'flex',
-                gap: '20px',
-                overflowX: 'auto',
-                paddingBottom: '16px',
-                scrollbarWidth: 'thin',
-              }}
-            >
+            <div className="horizontal-categories-scroll">
               {CATEGORIES.map((cat) => (
-                <div
-                  key={cat.id}
-                  style={{
-                    minWidth: '240px',
-                    flex: '0 0 auto',
-                    background: 'var(--bg-secondary)',
-                    borderRadius: 'var(--radius-md)',
-                    overflow: 'hidden',
-                    border: '1px solid var(--border-color)',
-                    cursor: 'pointer',
-                    transition: 'var(--transition)',
-                  }}
-                  className="category-hover-card"
-                >
-                  <div style={{ height: '180px', overflow: 'hidden' }}>
-                    <img 
-                      src={cat.image} 
-                      alt={cat.title} 
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                      onError={(e) => { e.currentTarget.src = 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80'; }}
-                    />
+                <Link key={cat.id} href={`/kateqoriyalar?cat=${encodeURIComponent(cat.title)}`} className="category-scroll-card">
+                  <img 
+                    src={cat.image} 
+                    alt={cat.title} 
+                    onError={(e) => { e.currentTarget.src = 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80'; }}
+                  />
+                  <div className="category-scroll-overlay">
+                    <h3 className="category-scroll-title">{cat.title}</h3>
                   </div>
-                  <div style={{ padding: '16px', textAlign: 'center' }}>
-                    <h3 style={{ fontSize: '1.1rem', fontFamily: 'var(--font-serif)' }}>{cat.title}</h3>
-                  </div>
-                </div>
+                </Link>
               ))}
             </div>
           </div>
@@ -190,7 +166,7 @@ export default function HomePage() {
                 <h2 style={{ fontSize: 'clamp(1.6rem, 4vw, 2.2rem)', marginBottom: '8px' }}>Önə Çıxan Məhsullar</h2>
                 <p style={{ color: 'var(--text-muted)' }}>Ən çox üstünlük verilən eksklüziv kolleksiya</p>
               </div>
-              <Link href="#" className="btn btn-outline">Bütün Məhsullar</Link>
+              <Link href="/mehsullar" className="btn btn-outline">Bütün Məhsullar</Link>
             </div>
 
             <div className="grid-responsive-products">

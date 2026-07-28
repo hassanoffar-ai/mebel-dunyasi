@@ -27,7 +27,7 @@ export function ProductCard({ product, onAddToCart, onToggleWishlist }: ProductC
     <div className="product-card">
       {/* Şəkil və Wishlist İkonu */}
       <div className="product-img-wrapper">
-        <Link href={`/products/${product.id}`}>
+        <Link href={`/mehsullar/${product.id}`}>
           <img 
             src={product.image_url || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80'} 
             alt={product.name} 
@@ -50,7 +50,7 @@ export function ProductCard({ product, onAddToCart, onToggleWishlist }: ProductC
       <div className="product-content">
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
           <div className="product-category" style={{ fontSize: '0.75rem' }}>{product.category}</div>
-          <Link href={`/products/${product.id}`}>
+          <Link href={`/mehsullar/${product.id}`}>
             <h3 className="product-title" style={{ fontSize: '1rem', margin: 0 }}>{product.name}</h3>
           </Link>
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px', fontSize: '0.8rem', color: 'var(--text-muted)' }}>

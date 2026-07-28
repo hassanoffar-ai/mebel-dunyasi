@@ -18,6 +18,10 @@ const NAV_ITEMS = [
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
+  if (pathname === '/admin/login') {
+    return <>{children}</>;
+  }
+
   return (
     <div className="admin-layout">
       {/* Sol Sidebar (240px Fixed) */}

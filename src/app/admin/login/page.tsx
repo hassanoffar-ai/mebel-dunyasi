@@ -158,11 +158,12 @@ export default function AdminLoginPage() {
                 required
                 style={{
                   width: '100%',
-                  padding: '12px 14px',
+                  padding: '12px 42px 12px 14px',
                   borderRadius: 'var(--admin-radius)',
                   border: '1px solid var(--admin-border)',
                   fontSize: '0.92rem',
                   outline: 'none',
+                  boxSizing: 'border-box',
                 }}
               />
               <button
@@ -171,10 +172,15 @@ export default function AdminLoginPage() {
                 style={{
                   position: 'absolute',
                   right: '12px',
-                  background: 'none',
+                  background: 'transparent',
                   border: 'none',
                   cursor: 'pointer',
                   color: '#6B5D4F',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '4px',
+                  zIndex: 2,
                 }}
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
