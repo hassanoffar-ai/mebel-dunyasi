@@ -126,13 +126,39 @@ export default function AdminProductsPage() {
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
     const fileList = Array.from(e.target.files);
+
+    if (images.length + fileList.length > 5) {
+      alert('Maksimum 5 ədəd şəkil yükləyə bilərsiniz.');
+      e.target.value = '';
+      return;
+    }
+
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    const maxSizeBytes = 5 * 1024 * 1024; // 5 MB
+
     setUploadingImage(true);
 
     try {
       for (const file of fileList) {
+        if (!allowedTypes.includes(file.type.toLowerCase())) {
+          alert(`"${file.name}" faylının formatı düzgün deyil. Yalnız JPG, PNG və WEBP formatları qəbul olunur.`);
+          continue;
+        }
+
+        if (file.size > maxSizeBytes) {
+          alert(`"${file.name}" faylının həcmi 5 MB-dan böyükdür (Həcmi: ${(file.size / (1024 * 1024)).toFixed(2)} MB).`);
+          continue;
+        }
+
         const publicUrl = await uploadImage(file);
         if (publicUrl) {
-          setImages((prev) => [...prev, publicUrl]);
+          setImages((prev) => {
+            if (prev.includes(publicUrl)) {
+              alert('Bu şəkil artıq əlavə edilib.');
+              return prev;
+            }
+            return [...prev, publicUrl];
+          });
         }
       }
     } catch (err) {
@@ -144,17 +170,41 @@ export default function AdminProductsPage() {
   };
 
   const handleAddUrlImage = () => {
-    if (!newImageUrlInput.trim()) return;
-    if (!newImageUrlInput.startsWith('http')) {
+    const url = newImageUrlInput.trim();
+    if (!url) return;
+
+    if (images.length >= 5) {
+      alert('Maksimum 5 ədəd şəkil əlavə edilə bilər.');
+      return;
+    }
+
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
       alert('Zəhmət olmasa düzgün şəkil URL ünvanı daxil edin (http:// və ya https://)');
       return;
     }
-    setImages((prev) => [...prev, newImageUrlInput.trim()]);
+
+    if (images.includes(url)) {
+      alert('Bu şəkil URL-i artıq siyahıda var.');
+      return;
+    }
+
+    setImages((prev) => [...prev, url]);
     setNewImageUrlInput('');
+    if (formErrors.images) setFormErrors((prev) => ({ ...prev, images: '' }));
   };
 
   const handleRemoveImage = (index: number) => {
     setImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSetPrimaryImage = (index: number) => {
+    if (index === 0) return;
+    setImages((prev) => {
+      const updated = [...prev];
+      const selected = updated.splice(index, 1)[0];
+      updated.unshift(selected);
+      return updated;
+    });
   };
 
   // Validation Check
@@ -469,22 +519,34 @@ export default function AdminProductsPage() {
               </div>
 
               {/* 6. Şəkil Yükləmə (Multiple Images + URL) */}
-              <div style={{ marginBottom: '24px', backgroundColor: 'var(--admin-bg)', padding: '16px', borderRadius: 'var(--admin-radius)', border: formErrors.images ? '1px solid var(--admin-danger)' : '1px solid var(--admin-border)' }}>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', marginBottom: '8px' }}>
-                  Məhsul Şəkilləri (Kompüterdən və ya URL) *
-                </label>
+              <div style={{ marginBottom: '24px', backgroundColor: 'var(--admin-bg)', padding: '18px', borderRadius: 'var(--admin-radius)', border: formErrors.images ? '1px solid var(--admin-danger)' : '1px solid var(--admin-border)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600' }}>
+                    Məhsul Şəkilləri (Max 5 ədəd) *
+                  </label>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--admin-text-sub)' }}>
+                    {images.length}/5 şəkil əlavə edilib
+                  </span>
+                </div>
 
-                {/* Input row */}
-                <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+                <p style={{ fontSize: '0.75rem', color: 'var(--admin-text-sub)', marginBottom: '12px' }}>
+                  İcazə verilən formatlar: <strong>JPG, PNG, WEBP</strong> (Hər fayl maksimum 5 MB)
+                </p>
+
+                {/* Input Controls */}
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
+                  {/* Option 1: URL input */}
                   <input
                     type="url"
-                    placeholder="https://... şəkil linki daxil edin"
+                    placeholder="https://... şəkil URL-i daxil edin"
                     value={newImageUrlInput}
+                    disabled={images.length >= 5}
                     onChange={(e) => setNewImageUrlInput(e.target.value)}
-                    style={{ flex: 1, padding: '8px 12px', borderRadius: 'var(--admin-radius)', border: '1px solid var(--admin-border)', fontSize: '0.85rem', backgroundColor: 'white' }}
+                    style={{ flex: 1, minWidth: '200px', padding: '8px 12px', borderRadius: 'var(--admin-radius)', border: '1px solid var(--admin-border)', fontSize: '0.85rem', backgroundColor: 'white' }}
                   />
                   <button
                     type="button"
+                    disabled={images.length >= 5 || !newImageUrlInput.trim()}
                     onClick={handleAddUrlImage}
                     className="btn btn-outline"
                     style={{ padding: '8px 14px', fontSize: '0.82rem', whiteSpace: 'nowrap' }}
@@ -492,17 +554,19 @@ export default function AdminProductsPage() {
                     Link Əlavə Et
                   </button>
 
+                  {/* Option 2: Kompüterdən yüklə */}
                   <div style={{ position: 'relative', display: 'inline-block' }}>
                     <input
                       type="file"
-                      accept="image/*"
+                      accept="image/jpeg,image/png,image/webp"
                       multiple
+                      disabled={images.length >= 5 || uploadingImage}
                       onChange={handleFileUpload}
-                      style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%', height: '100%', zIndex: 5 }}
+                      style={{ position: 'absolute', inset: 0, opacity: 0, cursor: images.length >= 5 ? 'not-allowed' : 'pointer', width: '100%', height: '100%', zIndex: 5 }}
                     />
                     <button
                       type="button"
-                      disabled={uploadingImage}
+                      disabled={images.length >= 5 || uploadingImage}
                       className="btn btn-primary"
                       style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', fontSize: '0.82rem', whiteSpace: 'nowrap' }}
                     >
@@ -512,7 +576,7 @@ export default function AdminProductsPage() {
                         </>
                       ) : (
                         <>
-                          <Upload size={15} /> Qalereyadan Əlavə Et
+                          <Upload size={15} /> Kompüterdən Yüklə
                         </>
                       )}
                     </button>
@@ -523,19 +587,41 @@ export default function AdminProductsPage() {
 
                 {/* Yüklənmiş Şəkillər Şəbəkəsi (Thumbnails) */}
                 {images.length > 0 && (
-                  <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '10px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '12px', marginTop: '14px' }}>
                     {images.map((imgUrl, idx) => (
-                      <div key={idx} style={{ position: 'relative', width: '70px', height: '70px', borderRadius: '8px', overflow: 'hidden', border: idx === 0 ? '2px solid var(--admin-accent)' : '1px solid var(--admin-border)', backgroundColor: 'white' }}>
-                        <img src={imgUrl} alt={`Şəkil ${idx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                        {idx === 0 && (
-                          <span style={{ position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: 'var(--admin-accent)', color: 'white', fontSize: '0.6rem', textAlign: 'center', padding: '2px 0', fontWeight: '600' }}>
-                            Əsas Şəkil
+                      <div
+                        key={idx}
+                        style={{
+                          position: 'relative',
+                          height: '90px',
+                          borderRadius: '8px',
+                          overflow: 'hidden',
+                          border: idx === 0 ? '2px solid var(--admin-accent)' : '1px solid var(--admin-border)',
+                          backgroundColor: 'white',
+                          boxShadow: 'var(--admin-shadow)',
+                        }}
+                      >
+                        <img src={imgUrl} alt={`Məhsul şəkli ${idx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        
+                        {idx === 0 ? (
+                          <span style={{ position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: 'var(--admin-accent)', color: 'white', fontSize: '0.65rem', textAlign: 'center', padding: '3px 0', fontWeight: '600' }}>
+                            ★ Əsas Şəkil
                           </span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => handleSetPrimaryImage(idx)}
+                            style={{ position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: 'rgba(43,29,20,0.75)', color: '#FAF7F2', border: 'none', fontSize: '0.62rem', textAlign: 'center', padding: '3px 0', cursor: 'pointer', fontWeight: '500' }}
+                          >
+                            Əsas Şəkil Et
+                          </button>
                         )}
+
                         <button
                           type="button"
                           onClick={() => handleRemoveImage(idx)}
-                          style={{ position: 'absolute', top: '2px', right: '2px', backgroundColor: 'rgba(0,0,0,0.6)', color: 'white', border: 'none', borderRadius: '50%', width: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                          title="Şəkli Sil"
+                          style={{ position: 'absolute', top: '4px', right: '4px', backgroundColor: 'rgba(179,65,58,0.85)', color: 'white', border: 'none', borderRadius: '50%', width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10 }}
                         >
                           <X size={12} />
                         </button>
