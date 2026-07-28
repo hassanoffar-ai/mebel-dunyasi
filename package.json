@@ -16,9 +16,9 @@
     "stripe": "^22.3.2"
   },
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 5500",
     "build": "next build",
-    "start": "next start"
+    "start": "next start -p 5500"
   },
   "keywords": [],
   "author": "",

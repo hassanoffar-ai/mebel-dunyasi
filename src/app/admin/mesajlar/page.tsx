@@ -16,54 +16,21 @@ interface ContactMessage {
   date: string;
 }
 
-const MOCK_MESSAGES: ContactMessage[] = [
-  {
-    id: '1',
-    full_name: 'Kamran Məmmədov',
-    email: 'kamran@example.com',
-    phone: '+994 50 111 22 33',
-    subject: 'Xüsusi Mebel Sifarişi',
-    message: 'Salam, 3 metrlik xüsusi ölçülü palıd yemək masası sifariş etmək istəyirik. Mağazanızda nümunəyə baxmaq mümkündür?',
-    is_read: false,
-    date: '10:45',
-  },
-  {
-    id: '2',
-    full_name: 'Sevinc Əliyeva',
-    email: 'sevinc@example.com',
-    phone: '+994 55 444 55 66',
-    subject: 'Məhsul haqqında sual',
-    message: 'Minimalist Velvet divanın digər rəng seçimləri (məsələn, boz və ya göy) mövcuddurmu?',
-    is_read: false,
-    date: 'Dünən',
-  },
-  {
-    id: '3',
-    full_name: 'Elnur Qasımov',
-    email: 'elnur@example.com',
-    phone: '+994 70 888 99 00',
-    subject: 'Təklif və əməkdaşlıq',
-    message: 'Salam, biz tikinti və interyer dizayn studiyasıyıq. Korporativ əməkdaşlıq şərtlərinizlə tanış olmaq istərdik.',
-    is_read: true,
-    date: '26 İyul',
-  },
-];
-
 export default function AdminMessagesPage() {
-  const [messages, setMessages] = useState<ContactMessage[]>(MOCK_MESSAGES);
-  const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(MOCK_MESSAGES[0]);
+  const [messages, setMessages] = useState<ContactMessage[]>([]);
+  const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
 
   // Supabase Fetch
   useEffect(() => {
     async function loadMessages() {
       try {
         const { data, error } = await supabase.from('contact_messages').select('*');
-        if (data && data.length > 0 && !error) {
+        if (data && !error) {
           setMessages(data as any);
-          setSelectedMessage(data[0] as any);
+          if (data.length > 0) setSelectedMessage(data[0] as any);
         }
       } catch (err) {
-        console.log('Using mock messages data');
+        console.log('Error fetching contact messages from DB');
       }
     }
     loadMessages();

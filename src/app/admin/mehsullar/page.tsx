@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase, uploadImage } from '@/lib/supabase';
 import { MOCK_PRODUCTS, Product } from '@/lib/mockData';
-import { Plus, Search, Filter, Edit, Trash2, X, Upload, Check, AlertTriangle, Image as ImageIcon } from 'lucide-react';
+import { Plus, Search, Filter, Edit, Trash2, X, Upload, Check, AlertTriangle, Image as ImageIcon, Loader2 } from 'lucide-react';
 import '@/app/admin/admin.css';
 
 export default function AdminProductsPage() {
@@ -14,6 +14,7 @@ export default function AdminProductsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   // Form State
   const [name, setName] = useState('');
@@ -58,7 +59,7 @@ export default function AdminProductsPage() {
     setOldPrice('');
     setStock('15');
     setDescription('');
-    setImageUrl('C:\\Users\\User\\.gemini\\antigravity\\brain\\60ddce65-7740-47cc-a2af-78899d3729b9\\sofa_product_1785206074780.jpg');
+    setImageUrl('');
     setIsModalOpen(true);
   };
 
@@ -74,6 +75,24 @@ export default function AdminProductsPage() {
     setIsModalOpen(true);
   };
 
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+    setUploadingImage(true);
+    try {
+      const publicUrl = await uploadImage(file);
+      if (publicUrl) {
+        setImageUrl(publicUrl);
+      } else {
+        alert('Şəkil yüklənərkən xəta baş verdi. Zəhmət olmasa Supabase Storage "images" bucket-inin yaradıldığından əmin olun.');
+      }
+    } catch (err) {
+      console.error('File upload error:', err);
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -85,7 +104,7 @@ export default function AdminProductsPage() {
       old_price: oldPrice ? parseFloat(oldPrice) : undefined,
       rating: editingProduct ? editingProduct.rating : 5.0,
       reviews_count: editingProduct ? editingProduct.reviews_count : 0,
-      image_url: imageUrl || 'C:\\Users\\User\\.gemini\\antigravity\\brain\\60ddce65-7740-47cc-a2af-78899d3729b9\\sofa_product_1785206074780.jpg',
+      image_url: imageUrl || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&auto=format&fit=crop&q=60',
     };
 
     if (editingProduct) {
@@ -112,14 +131,14 @@ export default function AdminProductsPage() {
   };
 
   return (
-    <div>
+    <div className="admin-page">
       {/* Üst Bar & Düymə */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px' }}>
+      <div className="admin-header-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px' }}>
         <div>
           <h2 style={{ fontSize: '1.6rem', fontWeight: '600' }}>Məhsullar</h2>
           <p style={{ color: 'var(--admin-text-sub)', fontSize: '0.9rem' }}>Saytdakı bütün mebel məhsullarını idarə edin</p>
         </div>
-        <button className="btn btn-primary" onClick={handleOpenAddModal} style={{ padding: '12px 24px' }}>
+        <button className="btn btn-primary" onClick={handleOpenAddModal} style={{ padding: '12px 24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Plus size={18} /> Yeni Məhsul Əlavə Et
         </button>
       </div>
@@ -253,11 +272,48 @@ export default function AdminProductsPage() {
               </div>
 
               <div style={{ marginBottom: '24px' }}>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', marginBottom: '6px' }}>Şəkil Yükləmə (Supabase Storage)</label>
-                <div style={{ border: '2px dashed var(--admin-border)', padding: '20px', textAlign: 'center', borderRadius: 'var(--admin-radius)', backgroundColor: 'var(--admin-bg)', cursor: 'pointer' }}>
-                  <Upload size={28} color="var(--admin-accent)" style={{ marginBottom: '8px' }} />
-                  <p style={{ fontSize: '0.85rem', color: 'var(--admin-text-sub)' }}>Şəkli bura sürüşdürün və ya Supabase Storage-ə yükləmək üçün klikləyin</p>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', marginBottom: '6px' }}>Şəkil (URL və ya Kompüterdən Seçim)</label>
+                
+                {/* 1. Doğrudan URL daxil etmək üçün input */}
+                <input
+                  type="url"
+                  placeholder="https://... şəkil linki daxil edin"
+                  value={imageUrl}
+                  onChange={(e) => setImageUrl(e.target.value)}
+                  style={{ width: '100%', padding: '10px', borderRadius: 'var(--admin-radius)', border: '1px solid var(--admin-border)', marginBottom: '10px' }}
+                />
+
+                {/* 2. Kompüterdən fayl seçmək üçün buton və ya sürüşdürmə sahəsi */}
+                <div style={{ position: 'relative', border: '1px dashed var(--admin-border)', padding: '12px', textAlign: 'center', borderRadius: 'var(--admin-radius)', backgroundColor: 'var(--admin-bg)', cursor: 'pointer' }}>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%', height: '100%', zIndex: 5 }}
+                  />
+                  {uploadingImage ? (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: 'var(--admin-accent)', fontSize: '0.85rem' }}>
+                      <Loader2 className="animate-spin" size={18} /> Supabase-ə yüklənir...
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                      <Upload size={18} color="var(--admin-accent)" />
+                      <span style={{ fontSize: '0.85rem', color: 'var(--admin-accent)', fontWeight: '600', textDecoration: 'underline' }}>
+                        və ya kompüterdən şəkil seçin
+                      </span>
+                    </div>
+                  )}
                 </div>
+
+                {/* Əgər şəkil seçilibsə preview göstəririk */}
+                {imageUrl && (
+                  <div style={{ marginTop: '10px', display: 'flex', alignItems: 'center', gap: '10px', background: 'var(--admin-bg)', padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--admin-border)' }}>
+                    <img src={imageUrl} alt="Ön baxış" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '6px' }} />
+                    <span style={{ fontSize: '0.75rem', color: 'var(--admin-text-sub)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {imageUrl}
+                    </span>
+                  </div>
+                )}
               </div>
 
               <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
@@ -271,3 +327,5 @@ export default function AdminProductsPage() {
     </div>
   );
 }
+
+

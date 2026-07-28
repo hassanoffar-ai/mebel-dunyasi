@@ -18,56 +18,8 @@ interface ReviewItem {
   rejection_reason?: string;
 }
 
-const MOCK_REVIEWS: ReviewItem[] = [
-  {
-    id: '1',
-    user_name: 'Əli Həsənov',
-    user_email: 'ali@example.com',
-    product_name: 'Minimalist Velvet Divan',
-    product_image: 'C:\\Users\\User\\.gemini\\antigravity\\brain\\60ddce65-7740-47cc-a2af-78899d3729b9\\sofa_product_1785206074780.jpg',
-    rating: 5,
-    comment: 'Çox keyfiyyətli divandır, materialı yumşaqdır və çatdırılma vaxtında oldu. Təşəkkürlər!',
-    status: 'gozlemede',
-    date: '28 İyul 2026',
-  },
-  {
-    id: '2',
-    user_name: 'Günel Quliyeva',
-    user_email: 'gunel@example.com',
-    product_name: 'Təbii Palıd Yemək Masası',
-    product_image: 'C:\\Users\\User\\.gemini\\antigravity\\brain\\60ddce65-7740-47cc-a2af-78899d3729b9\\table_product_1785206085165.jpg',
-    rating: 4,
-    comment: 'Palıd masa çox zərifdir, evimizə xüsusi abu-hava verdi. Amma quraşdırılması bir az vaxt aldı.',
-    status: 'gozlemede',
-    date: '27 İyul 2026',
-  },
-  {
-    id: '3',
-    user_name: 'Rəşad Nəsirov',
-    user_email: 'resad@example.com',
-    product_name: 'Lüks Ketan Çarpayı Dəsti',
-    product_image: 'C:\\Users\\User\\.gemini\\antigravity\\brain\\60ddce65-7740-47cc-a2af-78899d3729b9\\bed_product_1785206094275.jpg',
-    rating: 5,
-    comment: 'Mükəmməl sənətkarlıq işidir! Ketan örtük çox rahatdır.',
-    status: 'tesdiqlendi',
-    date: '26 İyul 2026',
-  },
-  {
-    id: '4',
-    user_name: 'Vüsal Qasımov',
-    user_email: 'vusal@example.com',
-    product_name: 'Qəhvəyi Dəri Aksent Kreslo',
-    product_image: 'C:\\Users\\User\\.gemini\\antigravity\\brain\\60ddce65-7740-47cc-a2af-78899d3729b9\\armchair_product_1785206104309.jpg',
-    rating: 1,
-    comment: 'Gözlədiyim kimi olmadı, çatdırılma gecikdi.',
-    status: 'reddedildi',
-    date: '25 İyul 2026',
-    rejection_reason: 'Qeyri-etik və əsassız ifadələr',
-  },
-];
-
 export default function AdminReviewsPage() {
-  const [reviews, setReviews] = useState<ReviewItem[]>(MOCK_REVIEWS);
+  const [reviews, setReviews] = useState<ReviewItem[]>([]);
   const [activeTab, setActiveTab] = useState<'gozlemede' | 'tesdiqlendi' | 'reddedildi'>('gozlemede');
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [rejectReasonInput, setRejectReasonInput] = useState('');
@@ -77,11 +29,11 @@ export default function AdminReviewsPage() {
     async function loadReviews() {
       try {
         const { data, error } = await supabase.from('reviews').select('*');
-        if (data && data.length > 0 && !error) {
+        if (data && !error) {
           setReviews(data as any);
         }
       } catch (err) {
-        console.log('Using mock reviews data');
+        console.log('Error loading reviews from DB');
       }
     }
     loadReviews();
