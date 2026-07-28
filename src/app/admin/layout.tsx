@@ -68,10 +68,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Üst Bar */}
         <header className="admin-header">
           <h1 className="admin-header-title">Admin İdarəetmə Paneli</h1>
-          <div className="admin-profile">
-            <div className="admin-avatar">AD</div>
-            <span style={{ fontSize: '0.9rem', fontWeight: '600' }}>Admin İstifadəçi</span>
-          </div>
         </header>
 
         {/* Dynamic Body Content */}
