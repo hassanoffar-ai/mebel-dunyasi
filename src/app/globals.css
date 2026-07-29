@@ -644,22 +644,25 @@ a {
   }
 }
 
-.grid-responsive-products {
+.grid-responsive-products,
+.product-grid {
   display: grid;
   grid-template-columns: repeat(1, 1fr);
   gap: 16px;
 }
 
 @media (min-width: 540px) {
-  .grid-responsive-products {
+  .grid-responsive-products,
+  .product-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 18px;
   }
 }
 
 @media (min-width: 880px) {
-  .grid-responsive-products {
-    grid-template-columns: repeat(3, 1fr);
+  .grid-responsive-products,
+  .product-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
     gap: 24px;
   }
 }
