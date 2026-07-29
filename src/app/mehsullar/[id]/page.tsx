@@ -224,9 +224,11 @@ export default function ProductDetailPage() {
               <div
                 style={{
                   width: '100%',
+                  aspectRatio: '1 / 1',
+                  maxHeight: '480px',
                   borderRadius: 'var(--radius-md)',
                   overflow: 'hidden',
-                  backgroundColor: 'transparent',
+                  backgroundColor: 'var(--bg-secondary)',
                   marginBottom: '16px',
                   display: 'flex',
                   alignItems: 'center',
@@ -239,8 +241,8 @@ export default function ProductDetailPage() {
                   alt={product.name}
                   style={{
                     width: '100%',
-                    maxHeight: '480px',
-                    objectFit: 'contain',
+                    height: '100%',
+                    objectFit: 'cover',
                     borderRadius: 'var(--radius-md)',
                     transition: 'transform 400ms ease',
                   }}
