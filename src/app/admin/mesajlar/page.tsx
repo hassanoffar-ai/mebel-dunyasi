@@ -19,18 +19,25 @@ interface ContactMessage {
 export default function AdminMessagesPage() {
   const [messages, setMessages] = useState<ContactMessage[]>([]);
   const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
   // Supabase Fetch
   useEffect(() => {
     async function loadMessages() {
+      setLoading(true);
       try {
-        const { data, error } = await supabase.from('contact_messages').select('*');
+        const { data, error } = await supabase.from('contact_messages').select('*').order('created_at', { ascending: false });
         if (data && !error) {
           setMessages(data as any);
           if (data.length > 0) setSelectedMessage(data[0] as any);
+        } else {
+          setMessages([]);
         }
       } catch (err) {
         console.log('Error fetching contact messages from DB');
+        setMessages([]);
+      } finally {
+        setLoading(false);
       }
     }
     loadMessages();
@@ -69,131 +76,171 @@ export default function AdminMessagesPage() {
         <p style={{ color: 'var(--admin-text-sub)', fontSize: '0.9rem' }}>Müştərilərdən gələn sual və təklifləri oxuyun və cavablandırın</p>
       </div>
 
-      {/* INBOX 2 SÜTUNLU LAYOUT (Sol siyahı, Sağ mesaj detalı) */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '24px', minHeight: '600px' }}>
-        {/* SOL SÜTUN (5 Sütun): Mesaj Siyahısı */}
-        <div style={{ gridColumn: 'span 5', backgroundColor: 'white', borderRadius: 'var(--admin-radius)', border: '1px solid var(--admin-border)', overflow: 'hidden', boxShadow: 'var(--admin-shadow)' }}>
-          <div style={{ padding: '16px 20px', backgroundColor: '#FAF7F2', borderBottom: '1px solid var(--admin-border)', fontWeight: '600', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span>Gələn Mesajlar</span>
-            {unreadCount > 0 && (
-              <span style={{ backgroundColor: 'var(--admin-warning)', color: 'white', fontSize: '0.75rem', padding: '2px 8px', borderRadius: '999px' }}>
-                {unreadCount} oxunmamış
-              </span>
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: '80px 20px', color: 'var(--admin-text-sub)', fontSize: '0.95rem' }}>
+          Mesajlar yüklənir...
+        </div>
+      ) : messages.length === 0 ? (
+        <div
+          style={{
+            textAlign: 'center',
+            padding: '70px 24px',
+            backgroundColor: 'white',
+            borderRadius: 'var(--admin-radius)',
+            border: '1px solid var(--admin-border)',
+            boxShadow: 'var(--admin-shadow)',
+            maxWidth: '560px',
+            margin: '40px auto',
+          }}
+        >
+          <div
+            style={{
+              width: '72px',
+              height: '72px',
+              borderRadius: '50%',
+              backgroundColor: 'var(--admin-bg)',
+              color: 'var(--admin-accent)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 20px auto',
+            }}
+          >
+            <MailOpen size={36} />
+          </div>
+          <h3 style={{ fontSize: '1.4rem', fontWeight: '600', marginBottom: '8px', color: 'var(--admin-text-main)' }}>
+            Hələ ki heç bir mesaj yoxdur
+          </h3>
+          <p style={{ color: 'var(--admin-text-sub)', fontSize: '0.92rem' }}>
+            Müştərilər tərəfindən göndərilən əlaqə mesajları burada görünəcəkdir.
+          </p>
+        </div>
+      ) : (
+        /* INBOX 2 SÜTUNLU LAYOUT (Sol siyahı, Sağ mesaj detalı) */
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '24px', minHeight: '600px' }}>
+          {/* SOL SÜTUN (5 Sütun): Mesaj Siyahısı */}
+          <div style={{ gridColumn: 'span 5', backgroundColor: 'white', borderRadius: 'var(--admin-radius)', border: '1px solid var(--admin-border)', overflow: 'hidden', boxShadow: 'var(--admin-shadow)' }}>
+            <div style={{ padding: '16px 20px', backgroundColor: '#FAF7F2', borderBottom: '1px solid var(--admin-border)', fontWeight: '600', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span>Gələn Mesajlar</span>
+              {unreadCount > 0 && (
+                <span style={{ backgroundColor: 'var(--admin-warning)', color: 'white', fontSize: '0.75rem', padding: '2px 8px', borderRadius: '999px' }}>
+                  {unreadCount} oxunmamış
+                </span>
+              )}
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              {messages.map((msg) => (
+                <div
+                  key={msg.id}
+                  onClick={() => handleSelectMessage(msg)}
+                  style={{
+                    padding: '16px 20px',
+                    borderBottom: '1px solid var(--admin-border)',
+                    cursor: 'pointer',
+                    backgroundColor: selectedMessage?.id === msg.id ? '#F5EFE6' : msg.is_read ? 'white' : '#FCFBF9',
+                    transition: 'background-color 150ms ease',
+                    position: 'relative',
+                  }}
+                >
+                  {!msg.is_read && (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        left: '8px',
+                        top: '22px',
+                        width: '8px',
+                        height: '8px',
+                        borderRadius: '50%',
+                        backgroundColor: 'var(--admin-warning)',
+                      }}
+                    />
+                  )}
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                    <strong style={{ fontSize: '0.92rem', fontWeight: msg.is_read ? '500' : '700' }}>{msg.full_name}</strong>
+                    <span style={{ fontSize: '0.78rem', color: 'var(--admin-text-sub)' }}>{msg.date}</span>
+                  </div>
+                  <div style={{ fontSize: '0.85rem', fontWeight: msg.is_read ? '500' : '600', color: 'var(--admin-accent)', marginBottom: '4px' }}>
+                    {msg.subject}
+                  </div>
+                  <p style={{ fontSize: '0.82rem', color: 'var(--admin-text-sub)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {msg.message}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* SAĞ SÜTUN (7 Sütun): Seçilmiş Mesajın Tam Detalı */}
+          <div style={{ gridColumn: 'span 7', backgroundColor: 'white', borderRadius: 'var(--admin-radius)', border: '1px solid var(--admin-border)', padding: '28px', boxShadow: 'var(--admin-shadow)', display: 'flex', flexDirection: 'column' }}>
+            {selectedMessage ? (
+              <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                {/* Header Actions */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--admin-border)', paddingBottom: '16px', marginBottom: '20px' }}>
+                  <div>
+                    <h3 style={{ fontSize: '1.3rem', fontWeight: '600', marginBottom: '2px' }}>{selectedMessage.subject}</h3>
+                    <span style={{ fontSize: '0.85rem', color: 'var(--admin-text-sub)' }}>Tarix: {selectedMessage.date}</span>
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button className="admin-action-btn delete" onClick={() => handleDeleteMessage(selectedMessage.id)} title="Mesajı Sil">
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Göndərən Məlumatı */}
+                <div style={{ backgroundColor: 'var(--admin-bg)', padding: '16px', borderRadius: 'var(--admin-radius)', marginBottom: '24px', fontSize: '0.9rem' }}>
+                  <div style={{ marginBottom: '4px' }}>
+                    <strong>Göndərən:</strong> {selectedMessage.full_name}
+                  </div>
+                  <div style={{ marginBottom: '4px' }}>
+                    <strong>Email:</strong> <a href={`mailto:${selectedMessage.email}`} style={{ color: 'var(--admin-accent)' }}>{selectedMessage.email}</a>
+                  </div>
+                  {selectedMessage.phone && (
+                    <div>
+                      <strong>Tel:</strong> <a href={`tel:${selectedMessage.phone}`} style={{ color: 'var(--admin-accent)' }}>{selectedMessage.phone}</a>
+                    </div>
+                  )}
+                </div>
+
+                {/* Tam Mesaj Mətni */}
+                <div style={{ fontSize: '1rem', lineHeight: 1.8, color: 'var(--admin-text-main)', flexGrow: 1, marginBottom: '28px' }}>
+                  {selectedMessage.message}
+                </div>
+
+                {/* Cavab Yaz Düymələri */}
+                <div style={{ borderTop: '1px solid var(--admin-border)', paddingTop: '20px', display: 'flex', gap: '12px' }}>
+                  <a
+                    href={`mailto:${selectedMessage.email}?subject=Re: ${encodeURIComponent(selectedMessage.subject)}`}
+                    className="btn btn-primary"
+                    style={{ textDecoration: 'none', padding: '12px 24px', fontSize: '0.9rem' }}
+                  >
+                    <Send size={16} /> Email ilə Cavab Yaz
+                  </a>
+
+                  {selectedMessage.phone && (
+                    <a
+                      href={`https://wa.me/${selectedMessage.phone.replace(/[^0-9]/g, '')}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="btn"
+                      style={{ backgroundColor: '#25D366', color: 'white', textDecoration: 'none', padding: '12px 24px', fontSize: '0.9rem' }}
+                    >
+                      <MessageCircle size={16} /> WhatsApp ilə Yaz
+                    </a>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div style={{ margin: 'auto', textAlign: 'center', color: 'var(--admin-text-sub)' }}>
+                <Mail size={48} style={{ marginBottom: '12px' }} />
+                <p>Baxmaq üçün soldan bir mesaj seçin</p>
+              </div>
             )}
           </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            {messages.map((msg) => (
-              <div
-                key={msg.id}
-                onClick={() => handleSelectMessage(msg)}
-                style={{
-                  padding: '16px 20px',
-                  borderBottom: '1px solid var(--admin-border)',
-                  cursor: 'pointer',
-                  backgroundColor: selectedMessage?.id === msg.id ? '#F5EFE6' : msg.is_read ? 'white' : '#FCFBF9',
-                  transition: 'background-color 150ms ease',
-                  position: 'relative',
-                }}
-              >
-                {/* Oxunmamış Qızılı Nöqtə Indicator */}
-                {!msg.is_read && (
-                  <div
-                    style={{
-                      position: 'absolute',
-                      left: '8px',
-                      top: '22px',
-                      width: '8px',
-                      height: '8px',
-                      borderRadius: '50%',
-                      backgroundColor: 'var(--admin-warning)',
-                    }}
-                  />
-                )}
-
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                  <strong style={{ fontSize: '0.92rem', fontWeight: msg.is_read ? '500' : '700' }}>{msg.full_name}</strong>
-                  <span style={{ fontSize: '0.78rem', color: 'var(--admin-text-sub)' }}>{msg.date}</span>
-                </div>
-                <div style={{ fontSize: '0.85rem', fontWeight: msg.is_read ? '500' : '600', color: 'var(--admin-accent)', marginBottom: '4px' }}>
-                  {msg.subject}
-                </div>
-                <p style={{ fontSize: '0.82rem', color: 'var(--admin-text-sub)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {msg.message}
-                </p>
-              </div>
-            ))}
-          </div>
         </div>
-
-        {/* SAĞ SÜTUN (7 Sütun): Seçilmiş Mesajın Tam Detalı */}
-        <div style={{ gridColumn: 'span 7', backgroundColor: 'white', borderRadius: 'var(--admin-radius)', border: '1px solid var(--admin-border)', padding: '28px', boxShadow: 'var(--admin-shadow)', display: 'flex', flexDirection: 'column' }}>
-          {selectedMessage ? (
-            <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-              {/* Header Actions */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--admin-border)', paddingBottom: '16px', marginBottom: '20px' }}>
-                <div>
-                  <h3 style={{ fontSize: '1.3rem', fontWeight: '600', marginBottom: '2px' }}>{selectedMessage.subject}</h3>
-                  <span style={{ fontSize: '0.85rem', color: 'var(--admin-text-sub)' }}>Tarix: {selectedMessage.date}</span>
-                </div>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <button className="admin-action-btn delete" onClick={() => handleDeleteMessage(selectedMessage.id)} title="Mesajı Sil">
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              </div>
-
-              {/* Göndərən Məlumatı */}
-              <div style={{ backgroundColor: 'var(--admin-bg)', padding: '16px', borderRadius: 'var(--admin-radius)', marginBottom: '24px', fontSize: '0.9rem' }}>
-                <div style={{ marginBottom: '4px' }}>
-                  <strong>Göndərən:</strong> {selectedMessage.full_name}
-                </div>
-                <div style={{ marginBottom: '4px' }}>
-                  <strong>Email:</strong> <a href={`mailto:${selectedMessage.email}`} style={{ color: 'var(--admin-accent)' }}>{selectedMessage.email}</a>
-                </div>
-                {selectedMessage.phone && (
-                  <div>
-                    <strong>Tel:</strong> <a href={`tel:${selectedMessage.phone}`} style={{ color: 'var(--admin-accent)' }}>{selectedMessage.phone}</a>
-                  </div>
-                )}
-              </div>
-
-              {/* Tam Mesaj Mətni */}
-              <div style={{ fontSize: '1rem', lineHeight: 1.8, color: 'var(--admin-text-main)', flexGrow: 1, marginBottom: '28px' }}>
-                {selectedMessage.message}
-              </div>
-
-              {/* Cavab Yaz Düymələri */}
-              <div style={{ borderTop: '1px solid var(--admin-border)', paddingTop: '20px', display: 'flex', gap: '12px' }}>
-                <a
-                  href={`mailto:${selectedMessage.email}?subject=Re: ${encodeURIComponent(selectedMessage.subject)}`}
-                  className="btn btn-primary"
-                  style={{ textDecoration: 'none', padding: '12px 24px', fontSize: '0.9rem' }}
-                >
-                  <Send size={16} /> Email ilə Cavab Yaz
-                </a>
-
-                {selectedMessage.phone && (
-                  <a
-                    href={`https://wa.me/${selectedMessage.phone.replace(/[^0-9]/g, '')}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="btn"
-                    style={{ backgroundColor: '#25D366', color: 'white', textDecoration: 'none', padding: '12px 24px', fontSize: '0.9rem' }}
-                  >
-                    <MessageCircle size={16} /> WhatsApp ilə Yaz
-                  </a>
-                )}
-              </div>
-            </div>
-          ) : (
-            <div style={{ margin: 'auto', textAlign: 'center', color: 'var(--admin-text-sub)' }}>
-              <Mail size={48} style={{ marginBottom: '12px' }} />
-              <p>Baxmaq üçün soldan bir mesaj seçin</p>
-            </div>
-          )}
-        </div>
-      </div>
+      )}
     </div>
   );
 }
