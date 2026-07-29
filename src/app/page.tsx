@@ -179,7 +179,7 @@ export default function HomePage() {
                   <p style={{ fontSize: 'clamp(1rem, 2vw, 1.2rem)', color: '#E5D9C7', marginBottom: '32px' }}>
                     {slide.subtitle}
                   </p>
-                  <Link href="/kateqoriyalar" className="btn btn-gold" style={{ padding: '14px 36px', fontSize: '1rem' }}>
+                  <Link href="/mehsullar" className="btn btn-gold" style={{ padding: '14px 36px', fontSize: '1rem' }}>
                     Kolleksiyaya Bax
                   </Link>
                 </div>

@@ -14,12 +14,13 @@ import { useCart } from '@/context/CartContext';
 function ProductsContent() {
   const searchParams = useSearchParams();
   const initialSearch = searchParams.get('search') || '';
+  const initialCategory = searchParams.get('kateqoriya') || 'Bütün';
 
   const { addToCart } = useCart();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [errorMsg, setErrorMsg] = useState<string>('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('Bütün');
+  const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
   const [searchQuery, setSearchQuery] = useState<string>(initialSearch);
   const [sortBy, setSortBy] = useState<'default' | 'price-low' | 'price-high' | 'rating'>('default');
 
@@ -28,6 +29,7 @@ function ProductsContent() {
     if (q !== null) {
       setSearchQuery(q);
     }
+    setSelectedCategory(searchParams.get('kateqoriya') || 'Bütün');
   }, [searchParams]);
 
   const categories = ['Bütün', 'Qonaq Otağı', 'Yataq Otağı', 'Mətbəx', 'Uşaq Otağı', 'Masa və Stullar'];
