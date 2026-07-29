@@ -349,7 +349,7 @@ a {
   left: 0;
   bottom: 0;
   width: min(82vw, 340px);
-  background-color: var(--white);
+  background-color: #ffffff !important;
   border-right: 1px solid var(--border-color);
   padding: 24px;
   display: flex;
@@ -853,4 +853,30 @@ html, body {
     grid-column: span 7 !important;
   }
 }
+
+@media (max-width: 480px) {
+  .logo {
+    font-size: 1.15rem !important;
+  }
+  .header-actions {
+    gap: 4px !important;
+  }
+  .icon-btn {
+    width: 32px !important;
+    height: 32px !important;
+  }
+  .icon-btn svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+  .hamburger {
+    width: 32px !important;
+    height: 32px !important;
+  }
+  .hamburger svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+}
+
 

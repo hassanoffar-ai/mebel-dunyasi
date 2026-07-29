@@ -545,24 +545,36 @@ export default function ProductDetailPage() {
                       Hələ ki bu məhsul üçün təsdiqlənmiş rəy yoxdur. İlk rəyi siz yazın!
                     </div>
                   ) : (
-                    approvedReviews.map((rev) => (
-                      <div key={rev.id} style={{ padding: '20px 0', borderBottom: '1px solid var(--border-color)' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                          <span style={{ fontWeight: '600' }}>{rev.user_name || rev.ad_soyad || 'Müştəri'}</span>
-                          <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                            {rev.created_at ? new Date(rev.created_at).toLocaleDateString('az-AZ') : 'Təsdiqlənib'}
-                          </span>
+                    approvedReviews.map((rev) => {
+                      let displayName = rev.user_name || rev.ad_soyad || 'Müştəri';
+                      let displayComment = rev.metn || rev.comment || '';
+                      try {
+                        if (rev.metn && rev.metn.startsWith('{')) {
+                          const parsed = JSON.parse(rev.metn);
+                          displayName = parsed.user_name || displayName;
+                          displayComment = parsed.comment || displayComment;
+                        }
+                      } catch (e) {}
+                      
+                      return (
+                        <div key={rev.id} style={{ padding: '20px 0', borderBottom: '1px solid var(--border-color)' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                            <span style={{ fontWeight: '600' }}>{displayName}</span>
+                            <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                              {rev.created_at ? new Date(rev.created_at).toLocaleDateString('az-AZ') : 'Təsdiqlənib'}
+                            </span>
+                          </div>
+                          <div style={{ display: 'flex', color: '#C9A15D', marginBottom: '8px' }}>
+                            {[...Array(5)].map((_, i) => (
+                              <Star key={i} size={14} fill={i < (rev.ulduz || rev.rating || 5) ? '#C9A15D' : 'none'} color="#C9A15D" />
+                            ))}
+                          </div>
+                          <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>
+                            "{displayComment}"
+                          </p>
                         </div>
-                        <div style={{ display: 'flex', color: '#C9A15D', marginBottom: '8px' }}>
-                          {[...Array(5)].map((_, i) => (
-                            <Star key={i} size={14} fill={i < (rev.ulduz || rev.rating || 5) ? '#C9A15D' : 'none'} color="#C9A15D" />
-                          ))}
-                        </div>
-                        <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>
-                          "{rev.metn || rev.comment}"
-                        </p>
-                      </div>
-                    ))
+                      );
+                    })
                   )}
                 </div>
 

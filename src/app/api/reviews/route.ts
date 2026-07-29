@@ -6,7 +6,7 @@ export const preferredRegion = 'fra1';
 
 export async function POST(req: Request) {
   try {
-    const { product_id, user_name, rating, comment } = await req.json();
+    const { product_id, user_name, user_email, rating, comment } = await req.json();
     if (!product_id || !user_name?.trim() || !comment?.trim() || !Number.isInteger(rating) || rating < 1 || rating > 5) {
       return NextResponse.json({ error: 'Rəy məlumatları düzgün deyil.' }, { status: 400 });
     }
@@ -14,7 +14,11 @@ export async function POST(req: Request) {
     const { error } = await supabaseAdmin.from('reviews').insert({
       product_id,
       ulduz: rating,
-      metn: comment.trim(),
+      metn: JSON.stringify({
+        user_name: user_name.trim(),
+        user_email: user_email ? user_email.trim() : null,
+        comment: comment.trim()
+      }),
       status: 'gozlemede',
     });
     if (error) throw error;

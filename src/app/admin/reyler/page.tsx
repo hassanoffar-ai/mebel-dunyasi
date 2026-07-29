@@ -38,14 +38,26 @@ export default function AdminReviewsPage() {
             const pName = p?.ad || p?.name || 'Məhsul';
             const pImg = p?.product_images?.[0]?.sekil_url || p?.sekil_url || p?.image_url || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80';
 
+            let reviewerName = rev.user_name || rev.ad_soyad || (rev.user_id ? `İstifadəçi #${rev.user_id.slice(0, 5)}` : 'Qonaq Müştəri');
+            let reviewerEmail = rev.user_email || rev.email || 'Məlumatsız';
+            let parsedComment = rev.metn || rev.comment || '';
+            try {
+              if (rev.metn && rev.metn.startsWith('{')) {
+                const parsed = JSON.parse(rev.metn);
+                reviewerName = parsed.user_name || reviewerName;
+                reviewerEmail = parsed.user_email || reviewerEmail;
+                parsedComment = parsed.comment || parsedComment;
+              }
+            } catch (e) {}
+
             return {
               id: rev.id,
-              user_name: rev.user_name || rev.ad_soyad || (rev.user_id ? `İstifadəçi #${rev.user_id.slice(0, 5)}` : 'Qonaq Müştəri'),
-              user_email: rev.user_email || rev.email || 'Məlumatsız',
+              user_name: reviewerName,
+              user_email: reviewerEmail,
               product_name: pName,
               product_image: pImg,
               rating: rev.ulduz || rev.rating || 5,
-              comment: rev.metn || rev.comment || '',
+              comment: parsedComment,
               status: rev.status === 'pending' ? 'gozlemede' : rev.status || 'gozlemede',
               date: rev.created_at ? new Date(rev.created_at).toLocaleDateString('az-AZ', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Bu gün',
               rejection_reason: rev.rejection_reason || rev.red_sebebi,
