@@ -286,12 +286,19 @@ export default function AdminProductsPage() {
 
     const dbPayload = {
       ad: name.trim(),
+      name: name.trim(),
       category: category,
       qiymet: parseFloat(price),
+      price: parseFloat(price),
       endirimli_qiymet: oldPrice ? parseFloat(oldPrice) : null,
+      old_price: oldPrice ? parseFloat(oldPrice) : null,
       stok: parseInt(stock) || 0,
+      stock: parseInt(stock) || 0,
       qisa_teswir: description.trim().slice(0, 150),
       etrafli_teswir: description.trim(),
+      description: description.trim(),
+      image_url: primaryImage,
+      sekil_url: primaryImage,
       xususiyyetler: {
         sku: sku || `MBL-${Date.now().toString().slice(-5)}`,
         material,
@@ -305,41 +312,11 @@ export default function AdminProductsPage() {
       let savedProductId = editingProduct ? editingProduct.id : null;
 
       if (editingProduct) {
-        const { error: updateErr } = await supabase.from('products').update(dbPayload).eq('id', editingProduct.id);
-        if (updateErr) {
-          // Fallback if column names differ
-          await supabase.from('products').update({
-            name: name.trim(),
-            category,
-            price: parseFloat(price),
-            old_price: oldPrice ? parseFloat(oldPrice) : null,
-            stock: parseInt(stock) || 0,
-            material,
-            dimensions: dimensions.trim(),
-            color: color.trim(),
-            description: description.trim(),
-            image_url: primaryImage,
-          }).eq('id', editingProduct.id);
-        }
+        await supabase.from('products').update(dbPayload).eq('id', editingProduct.id);
       } else {
-        const { data: inserted, error: insertErr } = await supabase.from('products').insert([dbPayload]).select().single();
+        const { data: inserted } = await supabase.from('products').insert([dbPayload]).select().single();
         if (inserted) {
           savedProductId = inserted.id;
-        } else if (insertErr) {
-          // Fallback insert if schema uses English column names
-          const { data: fallbackInserted } = await supabase.from('products').insert([{
-            name: name.trim(),
-            category,
-            price: parseFloat(price),
-            old_price: oldPrice ? parseFloat(oldPrice) : null,
-            stock: parseInt(stock) || 0,
-            material,
-            dimensions: dimensions.trim(),
-            color: color.trim(),
-            description: description.trim(),
-            image_url: primaryImage,
-          }]).select().single();
-          if (fallbackInserted) savedProductId = fallbackInserted.id;
         }
       }
 
