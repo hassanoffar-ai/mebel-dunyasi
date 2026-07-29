@@ -224,12 +224,9 @@ export default function ProductDetailPage() {
               <div
                 style={{
                   width: '100%',
-                  aspectRatio: '4 / 3',
-                  maxHeight: '440px',
                   borderRadius: 'var(--radius-md)',
                   overflow: 'hidden',
-                  backgroundColor: 'var(--bg-secondary)',
-                  border: '1px solid var(--border-color)',
+                  backgroundColor: 'transparent',
                   marginBottom: '16px',
                   display: 'flex',
                   alignItems: 'center',
@@ -240,8 +237,14 @@ export default function ProductDetailPage() {
                 <img
                   src={selectedImage}
                   alt={product.name}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 400ms ease' }}
-                  onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.08)')}
+                  style={{
+                    width: '100%',
+                    maxHeight: '480px',
+                    objectFit: 'contain',
+                    borderRadius: 'var(--radius-md)',
+                    transition: 'transform 400ms ease',
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.05)')}
                   onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
                 />
                 <button
