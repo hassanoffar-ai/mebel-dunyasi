@@ -76,9 +76,10 @@ function LoginContent() {
         return;
       }
 
+      localStorage.setItem('mebel_user_session', JSON.stringify({ email }));
       setSuccessMsg('Uğurlu daxilolma! Səhifəyə yönləndirilirsiniz...');
       setTimeout(() => {
-        router.push(redirectTarget);
+        router.push(redirectTarget || '/');
       }, 1200);
     } catch (err: any) {
       localStorage.setItem('mebel_user_session', JSON.stringify({ email }));

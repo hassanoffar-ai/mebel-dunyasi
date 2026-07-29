@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Search, Heart, ShoppingBag, User, Menu, X, MessageCircle } from 'lucide-react';
+import { Search, Heart, ShoppingBag, User, LogOut, Menu, X, MessageCircle } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 import { useCart } from '@/context/CartContext';
 
@@ -15,11 +16,48 @@ export function Header({ cartCount: propCartCount }: HeaderProps) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [userSession, setUserSession] = useState<any>(null);
   const pathname = usePathname();
   const router = useRouter();
   const { cartCount: contextCartCount } = useCart();
 
   const cartCount = propCartCount !== undefined ? propCartCount : contextCartCount;
+
+  React.useEffect(() => {
+    // Check localStorage session
+    const localSession = localStorage.getItem('mebel_user_session');
+    if (localSession) {
+      try {
+        setUserSession(JSON.parse(localSession));
+      } catch (e) {
+        setUserSession({ email: 'user' });
+      }
+    }
+
+    // Check Supabase session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        setUserSession(session.user);
+      }
+    });
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        setUserSession(session.user);
+      }
+    });
+
+    return () => {
+      authListener?.subscription.unsubscribe();
+    };
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    localStorage.removeItem('mebel_user_session');
+    setUserSession(null);
+    router.push('/');
+  };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,7 +111,19 @@ export function Header({ cartCount: propCartCount }: HeaderProps) {
               <ShoppingBag size={20} />
               <span className="icon-badge">{cartCount}</span>
             </Link>
-            <Link href="/login" className="icon-btn" title="Hesabım"><User size={20} /></Link>
+
+            {userSession ? (
+              <button
+                className="icon-btn"
+                title="Çıxış Et"
+                onClick={handleLogout}
+                style={{ color: '#D9534F' }}
+              >
+                <LogOut size={20} />
+              </button>
+            ) : (
+              <Link href="/login" className="icon-btn" title="Hesabım"><User size={20} /></Link>
+            )}
 
             {/* Mobile Hamburger */}
             <button
