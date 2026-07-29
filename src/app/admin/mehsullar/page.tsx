@@ -308,21 +308,56 @@ export default function AdminProductsPage() {
       status: 'aktiv',
     };
 
+    const newProdState: Product = {
+      id: editingProduct ? editingProduct.id : Date.now().toString(),
+      sku: sku || `MBL-${Date.now().toString().slice(-5)}`,
+      name: name.trim(),
+      category,
+      price: parseFloat(price),
+      old_price: oldPrice ? parseFloat(oldPrice) : undefined,
+      stock: parseInt(stock) || 0,
+      material,
+      dimensions: dimensions.trim(),
+      color: color.trim(),
+      description: description.trim(),
+      image_url: primaryImage,
+      images,
+      rating: editingProduct ? editingProduct.rating : 5.0,
+      reviews_count: editingProduct ? editingProduct.reviews_count : 0,
+    };
+
+    // Optimistic UI state update so product appears in table immediately
+    if (editingProduct) {
+      setProducts((prev) => prev.map((p) => (p.id === editingProduct.id ? newProdState : p)));
+    } else {
+      setProducts((prev) => [newProdState, ...prev]);
+    }
+
     try {
       let savedProductId = editingProduct ? editingProduct.id : null;
 
       if (editingProduct) {
         await supabase.from('products').update(dbPayload).eq('id', editingProduct.id);
       } else {
-        const { data: inserted } = await supabase.from('products').insert([dbPayload]).select().single();
-        if (inserted) {
-          savedProductId = inserted.id;
+        const { data: inserted, error: insertErr } = await supabase.from('products').insert([dbPayload]).select();
+        if (inserted && inserted.length > 0) {
+          savedProductId = inserted[0].id;
+        } else {
+          // Fallback simple insert if select permission is restricted
+          await supabase.from('products').insert([{
+            ad: name.trim(),
+            name: name.trim(),
+            category,
+            qiymet: parseFloat(price),
+            price: parseFloat(price),
+            image_url: primaryImage,
+            sekil_url: primaryImage,
+          }]);
         }
       }
 
       // Save product images to product_images table if we have product id
       if (savedProductId) {
-        // Delete old product images if editing
         if (editingProduct) {
           await supabase.from('product_images').delete().eq('product_id', savedProductId);
         }
@@ -340,7 +375,6 @@ export default function AdminProductsPage() {
       console.error('Error saving product to Supabase:', err);
     }
 
-    await loadProducts();
     setIsModalOpen(false);
   };
 
