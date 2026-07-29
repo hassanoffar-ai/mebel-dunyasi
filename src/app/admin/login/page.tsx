@@ -134,6 +134,7 @@ export default function AdminLoginPage() {
               placeholder="admin@mebeldunyasi.az"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              autoComplete="username"
               required
               style={{
                 width: '100%',
@@ -157,6 +158,7 @@ export default function AdminLoginPage() {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
                 required
                 style={{
                   width: '100%',
