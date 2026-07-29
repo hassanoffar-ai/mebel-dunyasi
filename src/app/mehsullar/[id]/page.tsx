@@ -228,7 +228,7 @@ export default function ProductDetailPage() {
                   maxHeight: '440px',
                   borderRadius: 'var(--radius-md)',
                   overflow: 'hidden',
-                  backgroundColor: 'var(--bg-secondary)',
+                  backgroundColor: '#ffffff',
                   border: '1px solid var(--border-color)',
                   marginBottom: '16px',
                   display: 'flex',
