@@ -184,6 +184,7 @@ export default function ProductDetailPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           product_id: product.id,
+          user_id: authData.user?.id,
           user_name: reviewName,
           user_email: authData.user?.email,
           rating: reviewRating,

@@ -6,13 +6,14 @@ export const preferredRegion = 'fra1';
 
 export async function POST(req: Request) {
   try {
-    const { product_id, user_name, user_email, rating, comment } = await req.json();
+    const { product_id, user_id, user_name, user_email, rating, comment } = await req.json();
     if (!product_id || !user_name?.trim() || !comment?.trim() || !Number.isInteger(rating) || rating < 1 || rating > 5) {
       return NextResponse.json({ error: 'Rəy məlumatları düzgün deyil.' }, { status: 400 });
     }
 
     const { error } = await supabaseAdmin.from('reviews').insert({
       product_id,
+      user_id: user_id || null,
       ulduz: rating,
       metn: JSON.stringify({
         user_name: user_name.trim(),
