@@ -40,10 +40,10 @@ function ProductsContent() {
         if (data && data.length > 0) {
           setProducts(data as Product[]);
         } else {
-          setProducts(MOCK_PRODUCTS);
+          setProducts([]);
         }
       } catch (err: any) {
-        setProducts(MOCK_PRODUCTS);
+        setProducts([]);
       } finally {
         setLoading(false);
       }
