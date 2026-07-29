@@ -6,30 +6,7 @@ import { Header, Footer } from '@/components/Navigation';
 import { ProductCard } from '@/components/ProductCard';
 import { MOCK_PRODUCTS, CATEGORIES, Product } from '@/lib/mockData';
 import { supabase } from '@/lib/supabase';
-import { Truck, ShieldCheck, Headphones, RotateCcw, Star, ChevronLeft, ChevronRight, ChevronDown, HelpCircle } from 'lucide-react';
-
-const FAQ_ITEMS = [
-  {
-    q: 'Çatdırılma və quraşdırılma pulsuzdurmu?',
-    a: 'Bəli, Bakı və Sumqayıt şəhərləri daxilində bütün mebel sifarişlərinə çatdırılma və peşəkar ustalarımız tərəfindən quraşdırılma xidməti tamamilə pulsuzdur.',
-  },
-  {
-    q: 'Məhsullara nə qədər rəsmi zəmanət verilir?',
-    a: 'Bütün mebel kolleksiyalarımıza 2 il rəsmi fabriki zəmanəti təqdim olunur. Zəmanət müddəti ərzində yarana biləcək hər hansı istehsalat qüsuru ödənişsiz aradan qaldırılır.',
-  },
-  {
-    q: 'Ödəniş üsulları hansılardır? Hissə-hissə ödəniş var?',
-    a: 'Siz ödənişi nağd, kuryerə terminal ilə və ya sayt üzərindən kartla həyata keçirə bilərsiniz. Həmçinin Birkart və Tamkart vasitəsilə faizsiz hissə-hissə ödəniş imkanı mövcuddur.',
-  },
-  {
-    q: 'Xüsusi ölçü və fərdi dizaynla mebel sifarişi mümkündür?',
-    a: 'Bəli! Mebel Dünyası olaraq mənzilinizin dəqiq ölçülərinə, istədiyiniz rəng və tekstil materiallarına uyğun xüsusi mebel hazırlayırıq.',
-  },
-  {
-    q: 'Məhsulu qaytarmaq və ya dəyişdirmək şərtləri necədir?',
-    a: 'Qanunvericiliyə uyğun olaraq, zədələnməmiş və qablaşdırması pozulmamış məhsulları 14 gün ərzində rahatlıqla dəyişdirə və ya qaytara bilərsiniz.',
-  },
-];
+import { Truck, ShieldCheck, Headphones, RotateCcw, Star, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export interface Testimonial {
   id: string;
@@ -66,7 +43,6 @@ export default function HomePage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   // Auto Slider for Hero
   useEffect(() => {
@@ -284,85 +260,7 @@ export default function HomePage() {
           </section>
         )}
 
-        {/* 6. TEZ-TEZ VERİLƏN SUALLAR (FAQ) BÖLMƏSİ */}
-        <section style={{ padding: '80px 0', backgroundColor: 'var(--bg-secondary)', borderTop: '1px solid var(--border-color)' }}>
-          <div className="container" style={{ maxWidth: '840px' }}>
-            <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 16px', borderRadius: 'var(--radius-full)', backgroundColor: 'var(--white)', border: '1px solid var(--border-color)', color: 'var(--accent-primary)', fontSize: '0.88rem', fontWeight: '600', marginBottom: '12px' }}>
-                <HelpCircle size={16} /> Suallarınız var?
-              </div>
-              <h2 style={{ fontSize: 'clamp(1.8rem, 4vw, 2.4rem)', marginBottom: '10px' }}>Tez-Tez Verilən Suallar (FAQ)</h2>
-              <p style={{ color: 'var(--text-muted)' }}>Müştərilərimizi maraqlandıran ən çox verilən suallar və cavabları</p>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              {FAQ_ITEMS.map((item, index) => {
-                const isOpen = openFaq === index;
-                return (
-                  <div
-                    key={index}
-                    style={{
-                      backgroundColor: 'var(--white)',
-                      borderRadius: 'var(--radius-md)',
-                      border: '1px solid var(--border-color)',
-                      overflow: 'hidden',
-                      boxShadow: 'var(--shadow-diffuse)',
-                      transition: 'var(--transition)',
-                    }}
-                  >
-                    <button
-                      onClick={() => setOpenFaq(isOpen ? null : index)}
-                      style={{
-                        width: '100%',
-                        padding: '20px 24px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        gap: '16px',
-                        background: 'none',
-                        border: 'none',
-                        textAlign: 'left',
-                        cursor: 'pointer',
-                        fontWeight: '600',
-                        fontSize: '1.05rem',
-                        color: isOpen ? 'var(--accent-primary)' : 'var(--text-main)',
-                        fontFamily: 'var(--font-sans)',
-                      }}
-                    >
-                      <span>{item.q}</span>
-                      <div
-                        style={{
-                          transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                          transition: 'transform 300ms ease',
-                          color: isOpen ? 'var(--accent-primary)' : 'var(--text-muted)',
-                          flexShrink: 0,
-                        }}
-                      >
-                        <ChevronDown size={20} />
-                      </div>
-                    </button>
-                    {isOpen && (
-                      <div
-                        style={{
-                          padding: '0 24px 22px 24px',
-                          fontSize: '0.96rem',
-                          color: 'var(--text-muted)',
-                          lineHeight: '1.65',
-                          borderTop: '1px dashed var(--border-color)',
-                          paddingTop: '16px',
-                        }}
-                      >
-                        {item.a}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-
-        {/* 7. CTA BÖLMƏSİ */}
+        {/* 6. CTA BÖLMƏSİ */}
         <section style={{ padding: '90px 20px', backgroundColor: '#23160F', color: 'var(--white)', textAlign: 'center' }}>
           <div style={{ maxWidth: '650px', margin: '0 auto' }}>
             <h2 style={{ fontSize: '2.6rem', color: 'var(--white)', marginBottom: '16px' }}>Evinizi Yerinə Görə Yeniləyin</h2>
