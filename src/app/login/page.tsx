@@ -134,7 +134,7 @@ function LoginContent() {
   };
 
   return (
-    <div className="auth-container">
+    <div className="auth-container auth-centered">
       {/* Sol tərəf - Şəkil və Breand brending (Header/Footer yoxdur) */}
       <div className="auth-sidebar">
         <img
