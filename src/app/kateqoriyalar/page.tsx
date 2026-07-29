@@ -13,88 +13,58 @@ export interface CategoryItem {
   image_url: string;
 }
 
-export const MOCK_CATEGORIES: CategoryItem[] = [
-  {
-    id: '1',
-    title: 'Qonaq Otağı',
-    description: 'Minimalist və rahat divanlar, kreslolar, TV stendləri və jurnal masaları.',
-    count: 42,
-    image_url: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80',
-  },
-  {
-    id: '2',
-    title: 'Yataq Otağı',
-    description: 'Yumşaq başlıqlı çarpayılar, geniş qarderoblar və komodlar.',
-    count: 28,
-    image_url: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=800&q=80',
-  },
-  {
-    id: '3',
-    title: 'Mətbəx & Yemək',
-    description: 'Təbii palıd masalar, stullar və dəbli mətbəx adaları.',
-    count: 35,
-    image_url: 'https://images.unsplash.com/photo-1615066390971-03e4e1c36ddf?auto=format&fit=crop&w=800&q=80',
-  },
-  {
-    id: '4',
-    title: 'İş və Ofis',
-    description: 'Erqonomik masa və oturacaqlar, arxiv şkafları.',
-    count: 19,
-    image_url: 'https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=800&q=80',
-  },
-  {
-    id: '5',
-    title: 'Uşaq Otağı',
-    description: 'Təhlükəsiz, rəngarəng və funksional uşaq mebelləri.',
-    count: 15,
-    image_url: 'https://images.unsplash.com/photo-1588854337221-4cf9fa96059c?auto=format&fit=crop&w=800&q=80',
-  },
-  {
-    id: '6',
-    title: 'Masa və Stullar',
-    description: 'Şık yemək masaları, çalışma masaları, rahat stul və oturacaqlar.',
-    count: 27,
-    image_url: 'https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=800&q=80',
-  },
-  {
-    id: '7',
-    title: 'Bağ və Terass',
-    description: 'Hava şəraitinə dözümlü rattan və taxta bağ dəstləri.',
-    count: 22,
-    image_url: 'https://images.unsplash.com/photo-1519974719765-e6559eac2575?auto=format&fit=crop&w=800&q=80',
-  },
-  {
-    id: '8',
-    title: 'İşıqlandırma & Dekora',
-    description: 'Estetik çıraqlar, torşerlər və ev aksesuarları.',
-    count: 54,
-    image_url: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=800&q=80',
-  },
-  {
-    id: '9',
-    title: 'Aksesuarlar & Kreslolar',
-    description: 'İstirahət üçün fərdi kreslolar və puflar.',
-    count: 16,
-    image_url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=800&q=80',
-  },
-];
-
 export default function CategoriesPage() {
-  const [categories, setCategories] = useState<CategoryItem[]>(MOCK_CATEGORIES);
+  const [categories, setCategories] = useState<CategoryItem[]>([]);
   const [cartCount, setCartCount] = useState(0);
 
   useEffect(() => {
-    async function fetchCategories() {
+    async function fetchCategoriesWithCounts() {
       try {
-        const { data, error } = await supabase.from('categories').select('*');
-        if (data && data.length > 0 && !error) {
-          setCategories(data as CategoryItem[]);
+        // 1. Fetch all categories from Supabase
+        const { data: dbCategories, error: catError } = await supabase
+          .from('categories')
+          .select('*')
+          .order('sira', { ascending: true });
+
+        // 2. Fetch all active products from Supabase
+        const { data: dbProducts, error: prodError } = await supabase
+          .from('products')
+          .select('id, category, kateqoriya, kateqoriya_id, status');
+
+        if (dbCategories && !catError) {
+          const activeProducts = dbProducts ? dbProducts.filter((p: any) => p.status === 'aktiv' || !p.status) : [];
+
+          const mapped: CategoryItem[] = dbCategories.map((c: any) => {
+            const catTitle = c.ad || c.name || c.title || 'Kateqoriya';
+
+            // Match products by categories.id == products.kateqoriya_id or title matching
+            const count = activeProducts.filter((p: any) => {
+              if (p.kateqoriya_id && c.id) {
+                return p.kateqoriya_id === c.id;
+              }
+              const pCat = p.category || p.kateqoriya;
+              return pCat && pCat.toLowerCase() === catTitle.toLowerCase();
+            }).length;
+
+            return {
+              id: c.id,
+              title: catTitle,
+              description: c.description || c.qisa_teswir || 'Evinizin bu hissəsi üçün eksklüziv mebel dəstləri.',
+              count: count,
+              image_url: c.sekil_url || c.image_url || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80',
+            };
+          });
+
+          setCategories(mapped);
+        } else {
+          setCategories([]);
         }
       } catch (err) {
-        console.log('Fallback to mock categories list');
+        console.log('Error fetching categories:', err);
+        setCategories([]);
       }
     }
-    fetchCategories();
+    fetchCategoriesWithCounts();
   }, []);
 
   return (

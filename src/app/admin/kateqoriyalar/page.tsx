@@ -6,14 +6,8 @@ import { Plus, Edit, Trash2, X, Upload, GripVertical, AlertTriangle } from 'luci
 import '@/app/admin/admin.css';
 
 export default function AdminCategoriesPage() {
-  const [categories, setCategories] = useState<any[]>([
-    { id: '1', name: 'Qonaq Otağı', product_count: 124, order: 1, image_url: 'C:\\Users\\User\\.gemini\\antigravity\\brain\\60ddce65-7740-47cc-a2af-78899d3729b9\\sofa_product_1785206074780.jpg' },
-    { id: '2', name: 'Yataq Otağı', product_count: 86, order: 2, image_url: 'C:\\Users\\User\\.gemini\\antigravity\\brain\\60ddce65-7740-47cc-a2af-78899d3729b9\\bed_product_1785206094275.jpg' },
-    { id: '3', name: 'Mətbəx & Yemək', product_count: 95, order: 3, image_url: 'C:\\Users\\User\\.gemini\\antigravity\\brain\\60ddce65-7740-47cc-a2af-78899d3729b9\\table_product_1785206085165.jpg' },
-    { id: '4', name: 'Ofis və İş Otağı', product_count: 42, order: 4, image_url: 'C:\\Users\\User\\.gemini\\antigravity\\brain\\60ddce65-7740-47cc-a2af-78899d3729b9\\cat_office_1785207131276.jpg' },
-    { id: '5', name: 'Uşaq Otağı', product_count: 15, order: 5, image_url: 'C:\\Users\\User\\.gemini\\antigravity\\brain\\60ddce65-7740-47cc-a2af-78899d3729b9\\cat_kids_1785207140800.jpg' },
-    { id: '6', name: 'Masa və Stullar', product_count: 27, order: 6, image_url: 'https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=800&q=80' },
-  ]);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCat, setEditingCat] = useState<any | null>(null);
@@ -24,18 +18,57 @@ export default function AdminCategoriesPage() {
   const [catDesc, setCatDesc] = useState('');
   const [catImg, setCatImg] = useState('');
 
-  // Fetch Categories from Supabase
-  useEffect(() => {
-    async function loadCategories() {
-      try {
-        const { data, error } = await supabase.from('categories').select('*').order('order', { ascending: true });
-        if (data && data.length > 0 && !error) {
-          setCategories(data);
-        }
-      } catch (err) {
-        console.log('Using mock categories list');
+  // Fetch Categories from Supabase with real active product counts
+  const loadCategories = async () => {
+    setLoading(true);
+    try {
+      // 1. Fetch categories
+      const { data: dbCategories, error: catError } = await supabase
+        .from('categories')
+        .select('*')
+        .order('sira', { ascending: true });
+
+      // 2. Fetch products
+      const { data: dbProducts } = await supabase
+        .from('products')
+        .select('id, category, kateqoriya, kateqoriya_id, status');
+
+      if (dbCategories && !catError) {
+        const activeProducts = dbProducts ? dbProducts.filter((p: any) => p.status === 'aktiv' || !p.status) : [];
+
+        const mapped = dbCategories.map((c: any) => {
+          const catName = c.ad || c.name || c.title || 'Kateqoriya';
+          const productCount = activeProducts.filter((p: any) => {
+            if (p.kateqoriya_id && c.id) {
+              return p.kateqoriya_id === c.id;
+            }
+            const pCat = p.category || p.kateqoriya;
+            return pCat && pCat.toLowerCase() === catName.toLowerCase();
+          }).length;
+
+          return {
+            id: c.id,
+            name: catName,
+            description: c.description || c.qisa_teswir || '',
+            product_count: productCount,
+            order: c.sira || c.order || 0,
+            image_url: c.sekil_url || c.image_url || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80',
+          };
+        });
+
+        setCategories(mapped);
+      } else {
+        setCategories([]);
       }
+    } catch (err) {
+      console.log('Error loading categories:', err);
+      setCategories([]);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
     loadCategories();
   }, []);
 
@@ -58,40 +91,48 @@ export default function AdminCategoriesPage() {
   const handleSaveCategory = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const newCat = {
-      id: editingCat ? editingCat.id : Date.now().toString(),
-      name: catName,
-      description: catDesc,
-      product_count: editingCat ? editingCat.product_count : 0,
-      order: editingCat ? editingCat.order : categories.length + 1,
-      image_url: catImg,
+    const dbPayload = {
+      ad: catName.trim(),
+      sekil_url: catImg,
+      sira: editingCat ? editingCat.order : categories.length + 1,
     };
 
     if (editingCat) {
-      setCategories((prev) => prev.map((c) => (c.id === editingCat.id ? newCat : c)));
       try {
-        await supabase.from('categories').update(newCat).eq('id', editingCat.id);
+        const { error } = await supabase.from('categories').update(dbPayload).eq('id', editingCat.id);
+        if (error) {
+          await supabase.from('categories').update({
+            name: catName.trim(),
+            description: catDesc,
+            image_url: catImg,
+          }).eq('id', editingCat.id);
+        }
       } catch (err) {}
     } else {
-      setCategories((prev) => [...prev, newCat]);
       try {
-        await supabase.from('categories').insert([newCat]);
+        const { error } = await supabase.from('categories').insert([dbPayload]);
+        if (error) {
+          await supabase.from('categories').insert([{
+            name: catName.trim(),
+            description: catDesc,
+            image_url: catImg,
+          }]);
+        }
       } catch (err) {}
     }
 
+    await loadCategories();
     setIsModalOpen(false);
   };
 
-  const handleDeleteClick = (cat: any) => {
-    // If category has products, show strict warning modal
+  const handleDeleteClick = async (cat: any) => {
     if (cat.product_count > 0) {
       setDeleteWarningCat(cat);
     } else {
-      // Direct delete if 0 products
-      setCategories((prev) => prev.filter((c) => c.id !== cat.id));
       try {
-        supabase.from('categories').delete().eq('id', cat.id);
+        await supabase.from('categories').delete().eq('id', cat.id);
       } catch (err) {}
+      await loadCategories();
     }
   };
 
