@@ -17,7 +17,7 @@ export async function POST(req: Request) {
 
     // Calculate total amount in AZN
     const umumi_meblegh = cartItems.reduce(
-      (acc: number, item: any) => acc + item.qiymet * (item.say || item.quantity || 1),
+      (acc: number, item: any) => acc + Number(item.price || item.qiymet || 0) * Number(item.quantity || item.say || 1),
       0
     );
 
