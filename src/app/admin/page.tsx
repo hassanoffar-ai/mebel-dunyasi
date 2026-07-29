@@ -7,8 +7,8 @@ export default function AdminIndexPage() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace('/admin/sifarisler');
+    router.replace('/admin/dashboard');
   }, [router]);
 
-  return <div style={{ padding: '40px', textAlign: 'center', color: 'var(--admin-text-sub)' }}>Sifarişlər bölməsinə yönləndirilir...</div>;
+  return <div style={{ padding: '40px', textAlign: 'center', color: 'var(--admin-text-sub)' }}>Dashboard-a yönləndirilir...</div>;
 }

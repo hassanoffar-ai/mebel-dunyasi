@@ -102,75 +102,74 @@ export default function AdminDashboardPage() {
       {/* 1. 4 STATİSTİKA KARTI */}
       <div className="admin-metrics-grid">
         {/* Kart 1: Ümumi Sifarişlər */}
-        <div className="admin-metric-card">
-          <div>
-            <div className="admin-metric-label">Ümumi Sifarişlər</div>
-            <div className="admin-metric-value">{stats.totalOrders}</div>
-            <div style={{ fontSize: '0.8rem', color: 'var(--admin-text-sub)', marginTop: '4px' }}>
-              Real verilənlər bazasından
-            </div>
-          </div>
-          <div className="admin-metric-icon">
-            <ShoppingCart size={24} />
-          </div>
-        </div>
-
-        {/* Kart 2: Ümumi Gəlir */}
-        <div className="admin-metric-card">
-          <div>
-            <div className="admin-metric-label">Ümumi Gəlir</div>
-            <div className="admin-metric-value">{stats.totalRevenue.toLocaleString()} ₼</div>
-            <div style={{ fontSize: '0.8rem', color: 'var(--admin-text-sub)', marginTop: '4px' }}>
-              Ödənilmiş sifarişlər
-            </div>
-          </div>
-          <div className="admin-metric-icon">
-            <DollarSign size={24} />
-          </div>
-        </div>
-
-        {/* Kart 3: Gözləyən Rəylər */}
-        <Link href="/admin/reyler" style={{ textDecoration: 'none' }}>
-          <div
-            className="admin-metric-card"
-            style={{
-              borderColor: 'var(--admin-warning)',
-              backgroundColor: 'var(--admin-warning-bg)',
-              cursor: 'pointer',
-            }}
-          >
+        <Link href="/admin/sifarisler" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <div className="admin-metric-card" style={{ cursor: 'pointer' }}>
             <div>
-              <div className="admin-metric-label" style={{ color: '#8A6822', fontWeight: '600' }}>Gözləyən Rəylər</div>
-              <div className="admin-metric-value" style={{ color: 'var(--admin-warning)' }}>{stats.pendingReviewsCount}</div>
-              <div style={{ fontSize: '0.8rem', color: '#8A6822', marginTop: '4px', fontWeight: '500' }}>
-                Moderasiya tələb olunur →
+              <div className="admin-metric-label">Ümumi Sifarişlər</div>
+              <div className="admin-metric-value">{stats.totalOrders}</div>
+              <div style={{ fontSize: '0.8rem', color: 'var(--admin-text-sub)', marginTop: '4px' }}>
+                Bütün daxil olan sifarişlər →
               </div>
             </div>
-            <div className="admin-metric-icon" style={{ backgroundColor: '#FFF5E5', color: 'var(--admin-warning)' }}>
+            <div className="admin-metric-icon">
+              <ShoppingCart size={24} />
+            </div>
+          </div>
+        </Link>
+
+        {/* Kart 2: Ümumi Gəlir */}
+        <Link href="/admin/sifarisler" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <div className="admin-metric-card" style={{ cursor: 'pointer' }}>
+            <div>
+              <div className="admin-metric-label">Ümumi Gəlir</div>
+              <div className="admin-metric-value">{stats.totalRevenue.toLocaleString()} ₼</div>
+              <div style={{ fontSize: '0.8rem', color: 'var(--admin-text-sub)', marginTop: '4px' }}>
+                Ödənilmiş sifarişlər məbləği →
+              </div>
+            </div>
+            <div className="admin-metric-icon">
+              <DollarSign size={24} />
+            </div>
+          </div>
+        </Link>
+
+        {/* Kart 3: Gözləyən Rəylər */}
+        <Link href="/admin/reyler" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <div className="admin-metric-card" style={{ cursor: 'pointer' }}>
+            <div>
+              <div className="admin-metric-label">Gözləyən Rəylər</div>
+              <div className="admin-metric-value">{stats.pendingReviewsCount}</div>
+              <div style={{ fontSize: '0.8rem', color: 'var(--admin-text-sub)', marginTop: '4px' }}>
+                Moderasiya tələb olunan rəylər →
+              </div>
+            </div>
+            <div className="admin-metric-icon">
               <MessageSquare size={24} />
             </div>
           </div>
         </Link>
 
         {/* Kart 4: Aktiv Məhsullar */}
-        <div className="admin-metric-card">
-          <div>
-            <div className="admin-metric-label">Aktiv Məhsullar</div>
-            <div className="admin-metric-value">{stats.activeProductsCount}</div>
-            <div style={{ fontSize: '0.8rem', color: 'var(--admin-text-sub)', marginTop: '4px' }}>
-              Kataloqda satışda olan
+        <Link href="/admin/mehsullar" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <div className="admin-metric-card" style={{ cursor: 'pointer' }}>
+            <div>
+              <div className="admin-metric-label">Aktiv Məhsullar</div>
+              <div className="admin-metric-value">{stats.activeProductsCount}</div>
+              <div style={{ fontSize: '0.8rem', color: 'var(--admin-text-sub)', marginTop: '4px' }}>
+                Kataloqdakı məhsullar →
+              </div>
+            </div>
+            <div className="admin-metric-icon">
+              <Package size={24} />
             </div>
           </div>
-          <div className="admin-metric-icon">
-            <Package size={24} />
-          </div>
-        </div>
+        </Link>
       </div>
 
       {/* 2. CƏDVƏL & WIDGET GRID (Son Sifarişlər + Gözləyən Rəylər) */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '32px', marginTop: '32px' }}>
-        {/* Son Sifarişlər Cədvəli (8 Sütun) */}
-        <div style={{ gridColumn: 'span 8' }} className="admin-table-container">
+      <div className="admin-dashboard-widgets">
+        {/* Son Sifarişlər Cədvəli */}
+        <div className="admin-table-container">
           <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--admin-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h2 style={{ fontSize: '1.2rem', fontWeight: '600' }}>Son Sifarişlər</h2>
             <Link href="/admin/sifarisler" style={{ fontSize: '0.88rem', color: 'var(--admin-accent)', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -214,8 +213,8 @@ export default function AdminDashboardPage() {
           )}
         </div>
 
-        {/* Gözləyən Rəylər Widget (4 Sütun) */}
-        <div style={{ gridColumn: 'span 4', backgroundColor: 'var(--admin-card-bg)', borderRadius: 'var(--admin-radius)', border: '1px solid var(--admin-border)', padding: '20px 24px', boxShadow: 'var(--admin-shadow)' }}>
+        {/* Gözləyən Rəylər Widget */}
+        <div className="admin-dashboard-widget-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid var(--admin-border)', paddingBottom: '12px' }}>
             <h2 style={{ fontSize: '1.1rem', fontWeight: '600' }}>Gözləyən Rəylər</h2>
             <Link href="/admin/reyler" style={{ fontSize: '0.85rem', color: 'var(--admin-accent)', fontWeight: '600' }}>
