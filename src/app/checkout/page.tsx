@@ -121,17 +121,32 @@ function CheckoutContent() {
         setLoading(false);
       }
     } else {
-      // 2. NAĞD (KURYERƏ) FLOW - Direct Supabase Insert with status="yeni"
+      // 2. NAĞD (KURYERƏ) FLOW - Direct Supabase Insert
       try {
         const generatedOrderId = 'MD-' + Math.floor(100000 + Math.random() * 900000);
+        const orderProducts = cartItems.map(item => ({
+          id: item.id,
+          name: item.name,
+          quantity: item.quantity,
+          price: item.price,
+          image_url: item.image_url
+        }));
+
         await supabase.from('orders').insert([
           {
             id: generatedOrderId,
-            umumi_meblegh: total,
-            status: 'pending',
-            catdirilma_unvani: `${city}, ${address}`,
+            customer: fullName,
+            email: email,
+            phone: phone,
             telefon: phone,
+            address: `${city}, ${address}`,
+            catdirilma_unvani: `${city}, ${address}`,
+            items_count: cartItems.reduce((acc, item) => acc + item.quantity, 0),
+            umumi_meblegh: total,
+            total_amount: total,
+            status: 'pending',
             odenis_usulu: 'Nağd (Kuryerə)',
+            products: orderProducts,
           },
         ]);
         clearCart();

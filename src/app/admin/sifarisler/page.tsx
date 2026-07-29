@@ -74,11 +74,11 @@ export default function AdminOrdersPage() {
           const mappedData: OrderItem[] = data.map((item: any) => ({
             id: item.id,
             order_id: item.id,
-            customer: item.user_id ? `İstifadəçi #${item.user_id}` : 'Qonaq Müştəri',
+            customer: item.customer || item.full_name || (item.user_id ? `İstifadəçi #${item.user_id}` : 'Qonaq Müştəri'),
             email: item.email || 'Məlumatsız',
             phone: item.telefon || item.phone || '+994 50 000 00 00',
             address: item.catdirilma_unvani || item.address || 'Ünvan qeyd edilməyib',
-            items_count: item.items_count || 1,
+            items_count: item.items_count || (item.products ? item.products.length : 1),
             total_amount: item.umumi_meblegh || item.total_amount || 0,
             status: (item.status as OrderStatus) || 'pending',
             date: item.created_at ? new Date(item.created_at).toLocaleDateString('az-AZ', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Bu gün',
