@@ -415,9 +415,16 @@ export default function AdminProductsPage() {
   const handleDeleteProduct = async (id: string) => {
     setDeleteConfirmId(null);
     try {
-      await fetch(`/api/admin/crud?table=product_images&id=${id}`, { method: 'DELETE' });
-      await fetch(`/api/admin/crud?table=products&id=${id}`, { method: 'DELETE' });
-    } catch (err) {}
+      await fetch(`/api/admin/crud?table=product_images&column=product_id&id=${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/admin/crud?table=products&id=${id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        alert(`Məhsul silinərkən xəta baş verdi: ${data.error || 'Naməlum xəta'}`);
+      }
+    } catch (err: any) {
+      console.error('Delete product error:', err);
+      alert(`Məhsul silinərkən xəta baş verdi: ${err.message || err}`);
+    }
     await loadProducts();
   };
 

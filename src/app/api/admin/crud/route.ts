@@ -138,6 +138,7 @@ export async function DELETE(req: Request) {
     const { searchParams } = new URL(req.url);
     const table = searchParams.get('table');
     const id = searchParams.get('id');
+    const column = searchParams.get('column') || (table === 'product_images' ? 'product_id' : 'id');
 
     if (!table || !id) {
       return NextResponse.json({ error: 'Cədvəl adı və ID tələb olunur' }, { status: 400 });
@@ -146,7 +147,7 @@ export async function DELETE(req: Request) {
     const { error } = await supabaseAdmin
       .from(table)
       .delete()
-      .eq('id', id);
+      .eq(column, id);
 
     if (error) {
       console.error(`Admin CRUD Delete Error in ${table}:`, error);
