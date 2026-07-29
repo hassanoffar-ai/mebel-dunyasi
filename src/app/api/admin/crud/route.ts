@@ -3,6 +3,22 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 
 export const dynamic = 'force-dynamic';
 
+function cleanCategoryPayload(data: any) {
+  if (!data) return data;
+  if (Array.isArray(data)) {
+    return data.map((item) => {
+      const copy = { ...item };
+      delete copy.description;
+      delete copy.qisa_teswir;
+      return copy;
+    });
+  }
+  const copy = { ...data };
+  delete copy.description;
+  delete copy.qisa_teswir;
+  return copy;
+}
+
 export async function POST(req: Request) {
   try {
     const { table, data } = await req.json();
@@ -11,7 +27,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Cədvəl və verilənlər tələb olunur' }, { status: 400 });
     }
 
-    const inputData = Array.isArray(data) ? data : [data];
+    const payload = table === 'categories' ? cleanCategoryPayload(data) : data;
+    const inputData = Array.isArray(payload) ? payload : [payload];
 
     let { data: result, error } = await supabaseAdmin
       .from(table)
@@ -23,7 +40,6 @@ export async function POST(req: Request) {
       const item = inputData[0];
       const img = item.sekil_url || item.image_url || '';
       const name = item.ad || item.name || '';
-      const desc = item.description || item.qisa_teswir || '';
       const sira = item.sira || item.order || 1;
 
       const attempts = [
@@ -32,8 +48,6 @@ export async function POST(req: Request) {
         { ad: name, sekil_url: img },
         { ad: name, image_url: img },
         { name: name, image_url: img },
-        { ad: name, sekil_url: img, description: desc, sira },
-        { ad: name, image_url: img, description: desc, sira },
       ];
 
       for (const attemptPayload of attempts) {
@@ -70,18 +84,19 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: 'Cədvəl, ID və yenilənəcək verilənlər tələb olunur' }, { status: 400 });
     }
 
+    const payload = table === 'categories' ? cleanCategoryPayload(data) : data;
+
     let { data: result, error } = await supabaseAdmin
       .from(table)
-      .update(data)
+      .update(payload)
       .eq('id', id)
       .select();
 
     // Fallback for categories schema variations
     if (error && table === 'categories') {
-      const img = data.sekil_url || data.image_url || '';
-      const name = data.ad || data.name || '';
-      const desc = data.description || data.qisa_teswir || '';
-      const sira = data.sira || data.order || 1;
+      const img = payload.sekil_url || payload.image_url || '';
+      const name = payload.ad || payload.name || '';
+      const sira = payload.sira || payload.order || 1;
 
       const attempts = [
         { ad: name, sekil_url: img, sira },
@@ -89,8 +104,6 @@ export async function PUT(req: Request) {
         { ad: name, sekil_url: img },
         { ad: name, image_url: img },
         { name: name, image_url: img },
-        { ad: name, sekil_url: img, description: desc, sira },
-        { ad: name, image_url: img, description: desc, sira },
       ];
 
       for (const attemptPayload of attempts) {
