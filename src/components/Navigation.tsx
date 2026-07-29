@@ -71,6 +71,7 @@ export function Header({ cartCount: propCartCount }: HeaderProps) {
   const navItems = [
     { name: 'Ana Səhifə', href: '/' },
     { name: 'Məhsullar', href: '/mehsullar' },
+    { name: 'Sifarişlərim', href: '/profil' },
     { name: 'Materiallar', href: '/materiallar' },
     { name: 'Haqqımızda', href: '/haqqimizda' },
     { name: 'FAQ', href: '/faq' },
@@ -227,6 +228,7 @@ export function Footer() {
             <ul className="footer-links">
               <li><Link href="/">Ana Səhifə</Link></li>
               <li><Link href="/mehsullar">Məhsullar</Link></li>
+              <li><Link href="/profil">Sifarişlərim</Link></li>
               <li><Link href="/materiallar">Materiallar</Link></li>
               <li><Link href="/haqqimizda">Haqqımızda</Link></li>
             </ul>

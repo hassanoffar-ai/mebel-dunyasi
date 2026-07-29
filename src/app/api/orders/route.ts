@@ -5,13 +5,14 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(req: Request) {
   try {
-    const { searchParams } = new URL(req.url);
-    const email = searchParams.get('email');
-    const user_id = searchParams.get('user_id');
+    const authHeader = req.headers.get('authorization');
+    const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
+    if (!token) return NextResponse.json({ error: 'Sifarişləri görmək üçün daxil olun.' }, { status: 401 });
 
-    if (!email && !user_id) {
-      return NextResponse.json({ error: 'Məlumat çatışmır.' }, { status: 400 });
-    }
+    const { data: authData, error: authError } = await supabaseAdmin.auth.getUser(token);
+    if (authError || !authData.user) return NextResponse.json({ error: 'Sessiya etibarlı deyil.' }, { status: 401 });
+    const userId = authData.user.id;
+    const email = authData.user.email?.toLowerCase();
 
     // Fetch all orders with items and product details
     const { data: allOrders, error } = await supabaseAdmin
@@ -37,10 +38,11 @@ export async function GET(req: Request) {
 
     if (error) throw error;
 
-    // Filter orders by user_id or if email is stored in catdirilma_unvani
+    // Only return the authenticated user's orders. The email condition keeps
+    // older orders (created before user_id was saved) visible to their owner.
     const filteredOrders = allOrders ? allOrders.filter((order: any) => {
-      const matchUserId = user_id && order.user_id === user_id;
-      const matchEmail = email && order.catdirilma_unvani && order.catdirilma_unvani.toLowerCase().includes(email.toLowerCase());
+      const matchUserId = order.user_id === userId;
+      const matchEmail = email && order.email?.toLowerCase() === email;
       return matchUserId || matchEmail;
     }) : [];
 

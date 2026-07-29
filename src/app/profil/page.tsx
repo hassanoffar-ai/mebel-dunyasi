@@ -33,18 +33,15 @@ export default function ProfilePage() {
           }
         }
 
-        if (!currentUser) {
-          router.push('/login?redirect=/profil');
-          return;
-        }
+        if (!currentUser) return;
 
         setUser(currentUser);
 
         // 2. Fetch orders from backend API to bypass RLS limitations
-        const emailParam = currentUser.email ? encodeURIComponent(currentUser.email) : '';
-        const userIdParam = currentUser.id ? encodeURIComponent(currentUser.id) : '';
-        
-        const res = await fetch(`/api/orders?email=${emailParam}&user_id=${userIdParam}`);
+        if (!session?.access_token) return;
+        const res = await fetch('/api/orders', {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        });
         if (res.ok) {
           const json = await res.json();
           if (json.data) {
@@ -112,6 +109,14 @@ export default function ProfilePage() {
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '300px' }}>
               <div className="loader" style={{ border: '4px solid #f3f3f3', borderTop: '4px solid var(--gold-color)', borderRadius: '50%', width: '40px', height: '40px', animation: 'spin 1s linear infinite' }}></div>
             </div>
+          ) : !user ? (
+            <section style={{ maxWidth: '620px', margin: '40px auto', padding: '48px 32px', textAlign: 'center', background: 'var(--white)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', boxShadow: 'var(--shadow-diffuse)' }}>
+              <ShoppingBag size={44} style={{ color: 'var(--accent-primary)', marginBottom: '16px' }} />
+              <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '2rem', marginBottom: '12px' }}>Sifarişlərim</h1>
+              <p style={{ color: 'var(--text-muted)', lineHeight: 1.65, marginBottom: '26px' }}>Sifarişlərinizi görmək və izləmək üçün qeydiyyatdan keçin.</p>
+              <Link href="/register?redirect=%2Fprofil" className="btn btn-primary" style={{ padding: '12px 24px' }}>Qeydiyyatdan Keçin</Link>
+              <p style={{ marginTop: '18px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Hesabınız var? <Link href="/login?redirect=%2Fprofil" style={{ color: 'var(--accent-primary)', fontWeight: 600 }}>Daxil olun</Link></p>
+            </section>
           ) : (
             <div className="profile-grid">
               
