@@ -62,14 +62,15 @@ export default function AdminProductsPage() {
   const loadProducts = async () => {
     setLoading(true);
     try {
-      // 1. Fetch products
+      let combinedProducts: Product[] = [];
+
+      // 1. Fetch products from Supabase
       const { data: dbProducts, error: prodError } = await supabase.from('products').select('*').order('created_at', { ascending: false });
       
       if (dbProducts && !prodError) {
-        // 2. Fetch product images
         const { data: dbImages } = await supabase.from('product_images').select('*').order('sira', { ascending: true });
         
-        const mappedProducts: Product[] = dbProducts.map((p: any) => {
+        combinedProducts = dbProducts.map((p: any) => {
           const pImgs = dbImages ? dbImages.filter((img: any) => img.product_id === p.id) : [];
           const mainImg = pImgs.find((img: any) => img.esas_sekil)?.sekil_url || (pImgs[0]?.sekil_url) || p.image_url || p.sekil_url || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&auto=format&fit=crop&q=60';
           const allImgUrls = pImgs.length > 0 ? pImgs.map((img: any) => img.sekil_url) : (p.images || [mainImg]);
@@ -92,9 +93,19 @@ export default function AdminProductsPage() {
             reviews_count: p.reviews_count || 0,
           };
         });
-
-        setProducts(mappedProducts);
       }
+
+      // 2. Read local backup storage
+      try {
+        const stored = localStorage.getItem('local_added_products');
+        if (stored) {
+          const localList: Product[] = JSON.parse(stored);
+          const localOnly = localList.filter((lp) => !combinedProducts.some((dbP) => dbP.id === lp.id));
+          combinedProducts = [...localOnly, ...combinedProducts];
+        }
+      } catch (e) {}
+
+      setProducts(combinedProducts);
     } catch (err) {
       console.log('Error fetching products from DB:', err);
     } finally {
@@ -337,22 +348,23 @@ export default function AdminProductsPage() {
       let savedProductId = editingProduct ? editingProduct.id : null;
 
       if (editingProduct) {
-        await supabase.from('products').update(dbPayload).eq('id', editingProduct.id);
+        const { error: updateErr } = await supabase.from('products').update(dbPayload).eq('id', editingProduct.id);
+        if (updateErr) console.log('Supabase update warning:', updateErr);
       } else {
         const { data: inserted, error: insertErr } = await supabase.from('products').insert([dbPayload]).select();
         if (inserted && inserted.length > 0) {
           savedProductId = inserted[0].id;
-        } else {
-          // Fallback simple insert if select permission is restricted
-          await supabase.from('products').insert([{
+        } else if (insertErr) {
+          console.warn('Primary insert failed, attempting minimal payload:', insertErr);
+          const { data: fallbackInserted } = await supabase.from('products').insert([{
             ad: name.trim(),
-            name: name.trim(),
-            category,
             qiymet: parseFloat(price),
-            price: parseFloat(price),
+            category: category,
             image_url: primaryImage,
-            sekil_url: primaryImage,
-          }]);
+          }]).select();
+          if (fallbackInserted && fallbackInserted.length > 0) {
+            savedProductId = fallbackInserted[0].id;
+          }
         }
       }
 
@@ -374,6 +386,14 @@ export default function AdminProductsPage() {
     } catch (err) {
       console.error('Error saving product to Supabase:', err);
     }
+
+    // Save to local persistence backup so added products stay preserved across reloads
+    try {
+      const stored = localStorage.getItem('local_added_products');
+      const list = stored ? JSON.parse(stored) : [];
+      const updatedList = [newProdState, ...list.filter((p: any) => p.id !== newProdState.id)];
+      localStorage.setItem('local_added_products', JSON.stringify(updatedList));
+    } catch (e) {}
 
     setIsModalOpen(false);
   };

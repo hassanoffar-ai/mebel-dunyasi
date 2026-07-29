@@ -36,11 +36,13 @@ function ProductsContent() {
     async function loadProducts() {
       setLoading(true);
       try {
+        let combined: Product[] = [];
         const { data: dbProducts } = await supabase.from('products').select('*').order('created_at', { ascending: false });
+
         if (dbProducts && dbProducts.length > 0) {
           const { data: dbImages } = await supabase.from('product_images').select('*').order('sira', { ascending: true });
 
-          const mapped: Product[] = dbProducts.map((p: any) => {
+          combined = dbProducts.map((p: any) => {
             const pImgs = dbImages ? dbImages.filter((img: any) => img.product_id === p.id) : [];
             const mainImg = pImgs.find((img: any) => img.esas_sekil)?.sekil_url || (pImgs[0]?.sekil_url) || p.image_url || p.sekil_url || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&auto=format&fit=crop&q=60';
             const allImgs = pImgs.length > 0 ? pImgs.map((img: any) => img.sekil_url) : (p.images || [mainImg]);
@@ -63,11 +65,19 @@ function ProductsContent() {
               reviews_count: p.reviews_count || 0,
             };
           });
-
-          setProducts(mapped);
-        } else {
-          setProducts([]);
         }
+
+        // Read local backup products
+        try {
+          const stored = localStorage.getItem('local_added_products');
+          if (stored) {
+            const localList: Product[] = JSON.parse(stored);
+            const localOnly = localList.filter((lp) => !combined.some((dbP) => dbP.id === lp.id));
+            combined = [...localOnly, ...combined];
+          }
+        } catch (e) {}
+
+        setProducts(combined);
       } catch (err: any) {
         setProducts([]);
       } finally {
