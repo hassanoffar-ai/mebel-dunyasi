@@ -234,6 +234,7 @@ export default function ProductDetailPage() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
+                  position: 'relative',
                 }}
               >
                 <img
@@ -243,6 +244,19 @@ export default function ProductDetailPage() {
                   onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.08)')}
                   onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
                 />
+                <button
+                  className="product-wishlist-btn"
+                  onClick={() => setIsWishlisted(!isWishlisted)}
+                  title={isWishlisted ? 'Sevimlilərdən çıxar' : 'Sevimlilərə əlavə et'}
+                  style={{
+                    position: 'absolute',
+                    top: '16px',
+                    right: '16px',
+                    color: isWishlisted ? 'var(--error-color)' : 'var(--text-main)',
+                  }}
+                >
+                  <Heart size={20} fill={isWishlisted ? 'var(--error-color)' : 'none'} />
+                </button>
               </div>
 
               {/* Thumbnails (Only show if there are multiple images) */}
@@ -379,15 +393,6 @@ export default function ProductDetailPage() {
                 >
                   <ShoppingBag size={20} />
                   Səbətə Əlavə Et
-                </button>
-
-                <button
-                  className="btn btn-outline"
-                  onClick={() => setIsWishlisted(!isWishlisted)}
-                  style={{ color: isWishlisted ? 'var(--error-color)' : 'var(--accent-primary)', borderColor: isWishlisted ? 'var(--error-color)' : 'var(--accent-primary)' }}
-                >
-                  <Heart size={20} fill={isWishlisted ? 'var(--error-color)' : 'none'} />
-                  Sevimlilər
                 </button>
               </div>
 
