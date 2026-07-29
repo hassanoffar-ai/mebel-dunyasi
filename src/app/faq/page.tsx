@@ -57,12 +57,6 @@ export default function FAQPage() {
             >
               <HelpCircle size={17} /> Suallarınız var?
             </div>
-            <h1 style={{ fontSize: 'clamp(2.2rem, 5vw, 3rem)', fontFamily: 'var(--font-serif)', color: 'var(--text-main)', marginBottom: '12px' }}>
-              Tez-Tez Verilən Suallar (FAQ)
-            </h1>
-            <p style={{ color: 'var(--text-muted)', fontSize: '1.05rem', maxWidth: '580px', margin: '0 auto' }}>
-              Müştərilərimizi ən çox maraqlandıran suallar və onların ətraflı cavabları ilə tanış olun.
-            </p>
           </div>
 
           {/* Accordions */}
