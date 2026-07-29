@@ -40,80 +40,17 @@ export default function ProfilePage() {
 
         setUser(currentUser);
 
-        // 2. Fetch orders
-        let fetchedOrders: any[] = [];
-
-        // If we have a real uuid from Supabase
-        if (currentUser.id && currentUser.id.length > 15) {
-          const { data, error } = await supabase
-            .from('orders')
-            .select(`
-              *,
-              order_items (
-                id,
-                say,
-                vahid_qiymet,
-                product_id,
-                products (
-                  ad,
-                  qiymet,
-                  product_images (
-                    sekil_url,
-                    esas_sekil
-                  )
-                )
-              )
-            `)
-            .eq('user_id', currentUser.id)
-            .order('created_at', { ascending: false });
-
-          if (!error && data) {
-            fetchedOrders = data;
+        // 2. Fetch orders from backend API to bypass RLS limitations
+        const emailParam = currentUser.email ? encodeURIComponent(currentUser.email) : '';
+        const userIdParam = currentUser.id ? encodeURIComponent(currentUser.id) : '';
+        
+        const res = await fetch(`/api/orders?email=${emailParam}&user_id=${userIdParam}`);
+        if (res.ok) {
+          const json = await res.json();
+          if (json.data) {
+            setOrders(json.data);
           }
         }
-
-        // Fallback / Combine with email match: search in catdirilma_unvani for the email
-        if (currentUser.email) {
-          const { data: emailData, error: emailError } = await supabase
-            .from('orders')
-            .select(`
-              *,
-              order_items (
-                id,
-                say,
-                vahid_qiymet,
-                product_id,
-                products (
-                  ad,
-                  qiymet,
-                  product_images (
-                    sekil_url,
-                    esas_sekil
-                  )
-                )
-              )
-            `)
-            .order('created_at', { ascending: false });
-
-          if (!emailError && emailData) {
-            const filtered = emailData.filter((o: any) => 
-              (o.catdirilma_unvani && o.catdirilma_unvani.includes(currentUser.email)) ||
-              (o.user_id === currentUser.id)
-            );
-            
-            // Merge lists keeping unique ids
-            const existingIds = new Set(fetchedOrders.map(o => o.id));
-            filtered.forEach((o: any) => {
-              if (!existingIds.has(o.id)) {
-                fetchedOrders.push(o);
-              }
-            });
-            // Re-sort by created_at desc
-            fetchedOrders.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-          }
-        }
-
-        setOrders(fetchedOrders);
       } catch (err) {
         console.error('Error loading profile data:', err);
       } finally {
