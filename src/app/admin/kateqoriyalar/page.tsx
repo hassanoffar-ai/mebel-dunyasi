@@ -1,13 +1,14 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
-import { Plus, Edit, Trash2, X, Upload, GripVertical, AlertTriangle } from 'lucide-react';
+import { supabase, uploadImage } from '@/lib/supabase';
+import { Plus, Edit, Trash2, X, Upload, GripVertical, AlertTriangle, Loader2 } from 'lucide-react';
 import '@/app/admin/admin.css';
 
 export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCat, setEditingCat] = useState<any | null>(null);
@@ -17,6 +18,33 @@ export default function AdminCategoriesPage() {
   const [catName, setCatName] = useState('');
   const [catDesc, setCatDesc] = useState('');
   const [catImg, setCatImg] = useState('');
+
+  // Handle Category Image File Upload (from Desktop)
+  const handleCategoryFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type.toLowerCase())) {
+      alert('Yalnız JPG, PNG və WEBP formatları qəbul olunur.');
+      e.target.value = '';
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const publicUrl = await uploadImage(file);
+      if (publicUrl) {
+        setCatImg(publicUrl);
+      }
+    } catch (err: any) {
+      console.error('Category image upload error:', err);
+      alert(`Şəkil yüklənməsi xətası: ${err.message || err}`);
+    } finally {
+      setUploading(false);
+      e.target.value = '';
+    }
+  };
 
   // Fetch Categories from Supabase with real active product counts
   const loadCategories = async () => {
@@ -211,26 +239,78 @@ export default function AdminCategoriesPage() {
 
             <form onSubmit={handleSaveCategory}>
               <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', marginBottom: '6px' }}>Kateqoriya Adı</label>
-                <input type="text" value={catName} onChange={(e) => setCatName(e.target.value)} required style={{ width: '100%', padding: '10px', borderRadius: 'var(--admin-radius)', border: '1px solid var(--admin-border)' }} />
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', marginBottom: '6px' }}>Kateqoriya Adı *</label>
+                <input type="text" value={catName} onChange={(e) => setCatName(e.target.value)} required placeholder="məs: Yataq Otağı Mebelləri" style={{ width: '100%', padding: '10px', borderRadius: 'var(--admin-radius)', border: '1px solid var(--admin-border)' }} />
               </div>
 
               <div style={{ marginBottom: '16px' }}>
                 <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', marginBottom: '6px' }}>Qısa Təsvir (Opsional)</label>
-                <textarea rows={3} value={catDesc} onChange={(e) => setCatDesc(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: 'var(--admin-radius)', border: '1px solid var(--admin-border)' }} />
+                <textarea rows={2} value={catDesc} onChange={(e) => setCatDesc(e.target.value)} placeholder="Kateqoriya haqqında qısa məlumat..." style={{ width: '100%', padding: '10px', borderRadius: 'var(--admin-radius)', border: '1px solid var(--admin-border)' }} />
               </div>
 
-              <div style={{ marginBottom: '24px' }}>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', marginBottom: '6px' }}>Şəkil Yükləmə (Supabase Storage)</label>
-                <div style={{ border: '2px dashed var(--admin-border)', padding: '16px', textAlign: 'center', borderRadius: 'var(--admin-radius)', backgroundColor: 'var(--admin-bg)', cursor: 'pointer' }}>
-                  <Upload size={24} color="var(--admin-accent)" style={{ marginBottom: '6px' }} />
-                  <p style={{ fontSize: '0.8rem', color: 'var(--admin-text-sub)' }}>Şəkil seçin və ya bura sürüşdürün</p>
+              {/* Şəkil Yükləmə & Preview */}
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', marginBottom: '6px' }}>Kateqoriya Şəkli *</label>
+
+                {/* File Upload Button */}
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '10px' }}>
+                  <div style={{ position: 'relative', flexGrow: 1 }}>
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      disabled={uploading}
+                      onChange={handleCategoryFileUpload}
+                      style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%', height: '100%', zIndex: 5 }}
+                    />
+                    <button
+                      type="button"
+                      disabled={uploading}
+                      className="btn btn-primary"
+                      style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '10px', fontSize: '0.85rem' }}
+                    >
+                      {uploading ? (
+                        <>
+                          <Loader2 className="animate-spin" size={16} /> Yüklənir...
+                        </>
+                      ) : (
+                        <>
+                          <Upload size={16} /> 📁 Kompüterdən Şəkil Yüklə
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
+
+                {/* Direct Image URL input */}
+                <input
+                  type="url"
+                  value={catImg}
+                  onChange={(e) => setCatImg(e.target.value)}
+                  placeholder="və ya şəkil URL ünvanı daxil edin (https://...)"
+                  style={{ width: '100%', padding: '9px 12px', borderRadius: 'var(--admin-radius)', border: '1px solid var(--admin-border)', fontSize: '0.82rem', marginBottom: '10px' }}
+                />
+
+                {/* Preview Thumbnail */}
+                {catImg && (
+                  <div style={{ position: 'relative', height: '120px', borderRadius: 'var(--admin-radius)', overflow: 'hidden', border: '1px solid var(--admin-border)' }}>
+                    <img src={catImg} alt="Kateqoriya şəkli" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <button
+                      type="button"
+                      onClick={() => setCatImg('')}
+                      style={{ position: 'absolute', top: '6px', right: '6px', backgroundColor: 'rgba(179,65,58,0.9)', color: 'white', border: 'none', borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                      title="Şəkli sil"
+                    >
+                      <X size={12} />
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
                 <button type="button" className="btn btn-outline" onClick={() => setIsModalOpen(false)}>Ləğv Et</button>
-                <button type="submit" className="btn btn-primary">Yadda Saxla</button>
+                <button type="submit" className="btn btn-primary" disabled={uploading}>
+                  {uploading ? 'Yüklənir...' : 'Yadda Saxla'}
+                </button>
               </div>
             </form>
           </div>
