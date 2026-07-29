@@ -90,8 +90,30 @@ export default function ProductDetailPage() {
 
           // Fetch related products
           const { data: relData } = await supabase.from('products').select('*').neq('id', productId).limit(4);
-          if (relData) {
-            setRelatedProducts(relData as Product[]);
+          if (relData && relData.length > 0) {
+            const { data: dbImages } = await supabase.from('product_images').select('*');
+            const mappedRel: Product[] = relData.map((p: any) => {
+              const pImgs = dbImages ? dbImages.filter((img: any) => img.product_id === p.id) : [];
+              const mainImg = pImgs.find((img: any) => img.esas_sekil)?.sekil_url || pImgs[0]?.sekil_url || p.xususiyyetler?.image_url || p.image_url || p.sekil_url || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&auto=format&fit=crop&q=60';
+              return {
+                id: p.id,
+                sku: p.xususiyyetler?.sku || p.sku || `MBL-${p.id.slice(0, 5)}`,
+                name: p.ad || p.name || 'Məhsul',
+                category: p.xususiyyetler?.category || p.category || p.kateqoriya || 'Qonaq Otağı',
+                price: Number(p.qiymet || p.price || 0),
+                old_price: p.endirimli_qiymet || p.old_price ? Number(p.endirimli_qiymet || p.old_price) : undefined,
+                stock: Number(p.stok || p.stock || 0),
+                material: p.xususiyyetler?.material || p.material || 'Təbii Palıd',
+                dimensions: p.xususiyyetler?.dimensions || p.dimensions || '',
+                color: p.xususiyyetler?.color || p.color || '',
+                description: p.etrafli_teswir || p.qisa_teswir || p.description,
+                image_url: mainImg,
+                images: [mainImg],
+                rating: p.rating || 5.0,
+                reviews_count: p.reviews_count || 0,
+              };
+            });
+            setRelatedProducts(mappedRel);
           }
         } else {
           setProduct(null);
