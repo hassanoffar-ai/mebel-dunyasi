@@ -110,9 +110,8 @@ function RegisterContent() {
 
       <div className="auth-content-side">
         <div className="auth-card animate-fade-in-up">
-          <div className="auth-header">
+          <div className="auth-header" style={{ marginBottom: '24px' }}>
             <h1 className="auth-title">Hesab Yaradın</h1>
-            <p className="auth-subtitle">Məlumatlarınızı daxil edərək yeni hesab açın</p>
           </div>
 
           {errorMsg && (
