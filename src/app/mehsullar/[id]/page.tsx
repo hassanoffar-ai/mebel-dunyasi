@@ -228,7 +228,7 @@ export default function ProductDetailPage() {
                   maxHeight: '440px',
                   borderRadius: 'var(--radius-md)',
                   overflow: 'hidden',
-                  backgroundColor: '#ffffff',
+                  backgroundColor: 'var(--bg-secondary)',
                   border: '1px solid var(--border-color)',
                   marginBottom: '16px',
                   display: 'flex',
@@ -240,7 +240,7 @@ export default function ProductDetailPage() {
                 <img
                   src={selectedImage}
                   alt={product.name}
-                  style={{ width: '100%', height: '100%', objectFit: 'contain', transition: 'transform 400ms ease' }}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 400ms ease' }}
                   onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.08)')}
                   onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
                 />
