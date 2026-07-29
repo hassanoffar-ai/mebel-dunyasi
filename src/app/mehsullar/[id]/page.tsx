@@ -42,14 +42,18 @@ export default function ProductDetailPage() {
       try {
         let activeProduct: Product | null = null;
         
-        // 1. Try to fetch from Supabase
-        const { data: p, error } = await supabase.from('products').select('*').eq('id', productId).maybeSingle();
+        // Fetch independent data concurrently to avoid a request waterfall.
+        const [{ data: p, error }, { data: relData }, { data: dbImages }] = await Promise.all([
+          supabase.from('products').select('*').eq('id', productId).maybeSingle(),
+          supabase.from('products').select('*').neq('id', productId).limit(4),
+          supabase.from('product_images').select('*').order('sira', { ascending: true }),
+        ]);
         
         if (p && !error) {
-          const { data: dbImages } = await supabase.from('product_images').select('*').eq('product_id', productId).order('sira', { ascending: true });
+          const productImages = dbImages?.filter((image: any) => image.product_id === productId) || [];
 
-          const pImgs = dbImages && dbImages.length > 0 ? dbImages.map((img: any) => img.sekil_url) : (p.xususiyyetler?.images || p.images || [p.xususiyyetler?.image_url || p.image_url || p.sekil_url]);
-          const mainImg = (dbImages && dbImages.find((img: any) => img.esas_sekil)?.sekil_url) || pImgs[0] || p.xususiyyetler?.image_url || p.image_url || p.sekil_url || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&auto=format&fit=crop&q=60';
+          const pImgs = productImages.length > 0 ? productImages.map((img: any) => img.sekil_url) : (p.xususiyyetler?.images || p.images || [p.xususiyyetler?.image_url || p.image_url || p.sekil_url]);
+          const mainImg = productImages.find((img: any) => img.esas_sekil)?.sekil_url || pImgs[0] || p.xususiyyetler?.image_url || p.image_url || p.sekil_url || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&auto=format&fit=crop&q=60';
 
           activeProduct = {
             id: p.id,
@@ -88,10 +92,7 @@ export default function ProductDetailPage() {
           setProduct(activeProduct);
           setSelectedImage(activeProduct.image_url);
 
-          // Fetch related products
-          const { data: relData } = await supabase.from('products').select('*').neq('id', productId).limit(4);
           if (relData && relData.length > 0) {
-            const { data: dbImages } = await supabase.from('product_images').select('*');
             const mappedRel: Product[] = relData.map((p: any) => {
               const pImgs = dbImages ? dbImages.filter((img: any) => img.product_id === p.id) : [];
               const mainImg = pImgs.find((img: any) => img.esas_sekil)?.sekil_url || pImgs[0]?.sekil_url || p.xususiyyetler?.image_url || p.image_url || p.sekil_url || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&auto=format&fit=crop&q=60';

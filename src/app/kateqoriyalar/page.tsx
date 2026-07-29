@@ -20,16 +20,10 @@ export default function CategoriesPage() {
   useEffect(() => {
     async function fetchCategoriesWithCounts() {
       try {
-        // 1. Fetch all categories from Supabase
-        const { data: dbCategories, error: catError } = await supabase
-          .from('categories')
-          .select('*')
-          .order('sira', { ascending: true });
-
-        // 2. Fetch all active products from Supabase
-        const { data: dbProducts, error: prodError } = await supabase
-          .from('products')
-          .select('*');
+        const [{ data: dbCategories, error: catError }, { data: dbProducts, error: prodError }] = await Promise.all([
+          supabase.from('categories').select('*').order('sira', { ascending: true }),
+          supabase.from('products').select('*'),
+        ]);
 
         if (dbCategories && !catError) {
           const activeProducts = dbProducts ? dbProducts.filter((p: any) => p.status === 'aktiv' || !p.status) : [];
@@ -42,7 +36,7 @@ export default function CategoriesPage() {
               if (p.kateqoriya_id && c.id) {
                 return p.kateqoriya_id === c.id;
               }
-              const pCat = p.category || p.kateqoriya;
+              const pCat = p.xususiyyetler?.category || p.category || p.kateqoriya;
               return pCat && pCat.toLowerCase() === catTitle.toLowerCase();
             }).length;
 

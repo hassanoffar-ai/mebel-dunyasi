@@ -51,11 +51,12 @@ function ProductsContent() {
       if (!hasCachedProducts) setLoading(true);
       try {
         let combined: Product[] = [];
-        const { data: dbProducts } = await supabase.from('products').select('*').order('created_at', { ascending: false });
+        const [{ data: dbProducts }, { data: dbImages }] = await Promise.all([
+          supabase.from('products').select('*').order('created_at', { ascending: false }),
+          supabase.from('product_images').select('*').order('sira', { ascending: true }),
+        ]);
 
         if (dbProducts && dbProducts.length > 0) {
-          const { data: dbImages } = await supabase.from('product_images').select('*').order('sira', { ascending: true });
-
           combined = dbProducts.map((p: any) => {
             const pImgs = dbImages ? dbImages.filter((img: any) => img.product_id === p.id) : [];
             const mainImg = pImgs.find((img: any) => img.esas_sekil)?.sekil_url || (pImgs[0]?.sekil_url) || p.xususiyyetler?.image_url || p.image_url || p.sekil_url || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&auto=format&fit=crop&q=60';

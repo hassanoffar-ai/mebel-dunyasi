@@ -57,11 +57,12 @@ export default function HomePage() {
     async function fetchData() {
       try {
         let combined: Product[] = [];
-        const { data: dbProducts } = await supabase.from('products').select('*').order('created_at', { ascending: false });
+        const [{ data: dbProducts }, { data: dbImages }] = await Promise.all([
+          supabase.from('products').select('*').order('created_at', { ascending: false }),
+          supabase.from('product_images').select('*').order('sira', { ascending: true }),
+        ]);
 
         if (dbProducts && dbProducts.length > 0) {
-          const { data: dbImages } = await supabase.from('product_images').select('*').order('sira', { ascending: true });
-
           combined = dbProducts.map((p: any) => {
             const pImgs = dbImages ? dbImages.filter((img: any) => img.product_id === p.id) : [];
             const mainImg =

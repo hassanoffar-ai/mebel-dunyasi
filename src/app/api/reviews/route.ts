@@ -13,7 +13,6 @@ export async function POST(req: Request) {
 
     const { error } = await supabaseAdmin.from('reviews').insert({
       product_id,
-      user_name: user_name.trim(),
       ulduz: rating,
       metn: comment.trim(),
       status: 'gozlemede',

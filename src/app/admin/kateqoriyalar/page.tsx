@@ -51,15 +51,10 @@ export default function AdminCategoriesPage() {
     setLoading(true);
     try {
       // 1. Fetch categories
-      const { data: dbCategories, error: catError } = await supabase
-        .from('categories')
-        .select('*')
-        .order('sira', { ascending: true });
-
-      // 2. Fetch products
-      const { data: dbProducts } = await supabase
-        .from('products')
-        .select('*');
+      const [{ data: dbCategories, error: catError }, { data: dbProducts }] = await Promise.all([
+        supabase.from('categories').select('*').order('sira', { ascending: true }),
+        supabase.from('products').select('*'),
+      ]);
 
       if (dbCategories && !catError) {
         const activeProducts = dbProducts ? dbProducts.filter((p: any) => p.status === 'aktiv' || !p.status) : [];
