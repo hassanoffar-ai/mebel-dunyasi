@@ -202,7 +202,8 @@ export default function ProductDetailPage() {
               <div
                 style={{
                   width: '100%',
-                  aspectRatio: '4 / 5',
+                  aspectRatio: '16 / 10',
+                  maxHeight: '420px',
                   borderRadius: 'var(--radius-md)',
                   overflow: 'hidden',
                   backgroundColor: 'var(--bg-secondary)',
