@@ -25,7 +25,7 @@ export default function CartPage() {
   // Cart Calculations
   const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const discountAmount = discountApplied ? Math.round(subtotal * 0.1) : 0; // 10% discount
-  const shippingFee = subtotal > 1500 || subtotal === 0 ? 0 : 30;
+  const shippingFee = 0;
   const totalPrice = subtotal - discountAmount + shippingFee;
 
   const handleApplyCoupon = (e: React.FormEvent) => {
@@ -209,8 +209,8 @@ export default function CartPage() {
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)' }}>
                       <span>Çatdırılma:</span>
-                      <span style={{ color: shippingFee === 0 ? 'var(--success-color)' : 'var(--text-main)', fontWeight: '600' }}>
-                        {shippingFee === 0 ? 'Pulsuz' : `${shippingFee} ₼`}
+                      <span style={{ color: 'var(--success-color)', fontWeight: '600' }}>
+                        Pulsuz
                       </span>
                     </div>
                   </div>
