@@ -653,14 +653,15 @@ a {
 .grid-responsive-products,
 .product-grid {
   display: grid !important;
-  grid-template-columns: repeat(3, 1fr) !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
   gap: 24px !important;
+  width: 100% !important;
 }
 
 @media (max-width: 900px) {
   .grid-responsive-products,
   .product-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     gap: 18px !important;
   }
 }
@@ -668,7 +669,7 @@ a {
 @media (max-width: 580px) {
   .grid-responsive-products,
   .product-grid {
-    grid-template-columns: repeat(1, 1fr) !important;
+    grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
     gap: 16px !important;
   }
 }
