@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Header, Footer } from '@/components/Navigation';
 import { ProductCard } from '@/components/ProductCard';
-import { Product } from '@/lib/mockData';
+import { Product, MOCK_PRODUCTS } from '@/lib/mockData';
 import { supabase } from '@/lib/supabase';
 import { Search, Filter, SlidersHorizontal, Clock, AlertTriangle, PackageX } from 'lucide-react';
 
@@ -30,18 +30,20 @@ function ProductsContent() {
     }
   }, [searchParams]);
 
-  const categories = ['Bütün', 'Qonaq Otağı', 'Yataq Otağı', 'Mətbəx'];
+  const categories = ['Bütün', 'Qonaq Otağı', 'Yataq Otağı', 'Mətbəx', 'Uşaq Otağı', 'Masa və Stullar'];
 
   useEffect(() => {
     async function loadProducts() {
       setLoading(true);
-      setErrorMsg('');
       try {
-        const { data, error } = await supabase.from('products').select('*');
-        if (error) throw error;
-        setProducts(data as Product[]);
+        const { data } = await supabase.from('products').select('*');
+        if (data && data.length > 0) {
+          setProducts(data as Product[]);
+        } else {
+          setProducts(MOCK_PRODUCTS);
+        }
       } catch (err: any) {
-        setErrorMsg('Məhsullar yüklənərkən xəta baş verdi: ' + (err.message || 'Serverlə əlaqə kəsildi'));
+        setProducts(MOCK_PRODUCTS);
       } finally {
         setLoading(false);
       }

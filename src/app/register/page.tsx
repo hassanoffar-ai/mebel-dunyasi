@@ -97,17 +97,19 @@ function RegisterContent() {
           className="auth-sidebar-img"
         />
         <div className="auth-sidebar-overlay">
-          <Link href="/" className="auth-sidebar-logo">
-            MEBEL DÜNYASI
+          <Link href="/" style={{ textDecoration: 'none' }}>
+            <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '2.4rem', color: '#FAF7F2', marginBottom: '12px', cursor: 'pointer' }}>
+              Mebel <span style={{ color: 'var(--accent-gold)' }}>Dünyası</span>
+            </h1>
           </Link>
-          <p className="auth-sidebar-text">
+          <p style={{ color: '#E5D9C7', fontSize: '1.05rem', maxWidth: '400px' }}>
             Müasir mebel dünyasına qoşulun. Özəl təkliflərdən yararlanın və sifarişlərinizi rahatlıqla izləyin.
           </p>
         </div>
       </div>
 
-      <div className="auth-form-wrapper">
-        <div className="auth-form-box">
+      <div className="auth-content-side">
+        <div className="auth-card animate-fade-in-up">
           <div className="auth-header">
             <h1 className="auth-title">Hesab Yaradın</h1>
             <p className="auth-subtitle">Məlumatlarınızı daxil edərək yeni hesab açın</p>

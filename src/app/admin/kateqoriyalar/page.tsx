@@ -11,7 +11,8 @@ export default function AdminCategoriesPage() {
     { id: '2', name: 'Yataq Otağı', product_count: 86, order: 2, image_url: 'C:\\Users\\User\\.gemini\\antigravity\\brain\\60ddce65-7740-47cc-a2af-78899d3729b9\\bed_product_1785206094275.jpg' },
     { id: '3', name: 'Mətbəx & Yemək', product_count: 95, order: 3, image_url: 'C:\\Users\\User\\.gemini\\antigravity\\brain\\60ddce65-7740-47cc-a2af-78899d3729b9\\table_product_1785206085165.jpg' },
     { id: '4', name: 'Ofis və İş Otağı', product_count: 42, order: 4, image_url: 'C:\\Users\\User\\.gemini\\antigravity\\brain\\60ddce65-7740-47cc-a2af-78899d3729b9\\cat_office_1785207131276.jpg' },
-    { id: '5', name: 'Uşaq Otağı', product_count: 0, order: 5, image_url: 'C:\\Users\\User\\.gemini\\antigravity\\brain\\60ddce65-7740-47cc-a2af-78899d3729b9\\cat_kids_1785207140800.jpg' },
+    { id: '5', name: 'Uşaq Otağı', product_count: 15, order: 5, image_url: 'C:\\Users\\User\\.gemini\\antigravity\\brain\\60ddce65-7740-47cc-a2af-78899d3729b9\\cat_kids_1785207140800.jpg' },
+    { id: '6', name: 'Masa və Stullar', product_count: 27, order: 6, image_url: 'https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=800&q=80' },
   ]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);

@@ -12,6 +12,7 @@ const CATEGORIES = [
   'Mətbəx',
   'Ofis',
   'Uşaq Otağı',
+  'Masa və Stullar',
   'Bağ və Balkon'
 ];
 
