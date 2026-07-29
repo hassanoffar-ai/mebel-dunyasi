@@ -28,12 +28,11 @@ export default function AdminReviewsPage() {
   useEffect(() => {
     async function loadReviews() {
       try {
-        const { data, error } = await supabase
-          .from('reviews')
-          .select('*, products(ad, name, sekil_url, image_url, product_images(sekil_url))')
-          .order('created_at', { ascending: false });
+        const response = await fetch('/api/admin/reviews', { cache: 'no-store' });
+        const result = await response.json();
+        const { data } = result;
 
-        if (data && !error) {
+        if (response.ok && data) {
           const mapped: ReviewItem[] = data.map((rev: any) => {
             const p = rev.products;
             const pName = p?.ad || p?.name || 'Məhsul';
@@ -74,7 +73,10 @@ export default function AdminReviewsPage() {
     );
 
     try {
-      await supabase.from('reviews').update({ status: 'tesdiqlendi' }).eq('id', id);
+      await fetch('/api/admin/reviews', {
+        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, status: 'tesdiqlendi' }),
+      });
     } catch (err) {}
   };
 
@@ -85,7 +87,10 @@ export default function AdminReviewsPage() {
     );
 
     try {
-      await supabase.from('reviews').update({ status: 'reddedildi', rejection_reason: rejectReasonInput }).eq('id', id);
+      await fetch('/api/admin/reviews', {
+        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, status: 'reddedildi', rejection_reason: rejectReasonInput }),
+      });
     } catch (err) {}
 
     setRejectingId(null);

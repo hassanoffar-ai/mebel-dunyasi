@@ -34,7 +34,21 @@ function ProductsContent() {
 
   useEffect(() => {
     async function loadProducts() {
-      setLoading(true);
+      // Show the most recently fetched catalogue immediately, then refresh it
+      // in the background. This removes the blank loading state on repeat visits.
+      let hasCachedProducts = false;
+      try {
+        const cached = sessionStorage.getItem('catalogue_products_cache');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed)) {
+            setProducts(parsed);
+            setLoading(false);
+            hasCachedProducts = true;
+          }
+        }
+      } catch {}
+      if (!hasCachedProducts) setLoading(true);
       try {
         let combined: Product[] = [];
         const { data: dbProducts } = await supabase.from('products').select('*').order('created_at', { ascending: false });
@@ -75,6 +89,9 @@ function ProductsContent() {
         } catch (e) {}
 
         setProducts(combined);
+        try {
+          sessionStorage.setItem('catalogue_products_cache', JSON.stringify(combined));
+        } catch {}
       } catch (err: any) {
         setProducts([]);
       } finally {

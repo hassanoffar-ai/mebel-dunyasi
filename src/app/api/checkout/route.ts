@@ -3,6 +3,7 @@ import { stripe } from '@/lib/stripe';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 
 export const dynamic = 'force-dynamic';
+export const preferredRegion = 'fra1';
 
 export async function POST(req: Request) {
   try {
@@ -37,9 +38,7 @@ export async function POST(req: Request) {
       .select()
       .single();
 
-    if (orderError) {
-      console.error('Order Insert Error in Supabase:', orderError);
-    }
+    if (orderError || !order) throw orderError || new Error('Sifariş yaradıla bilmədi.');
 
     let orderId = order?.id;
 
@@ -54,7 +53,8 @@ export async function POST(req: Request) {
         say: item.say || item.quantity || 1,
         vahid_qiymet: item.qiymet || item.price,
       }));
-      await supabaseAdmin.from('order_items').insert(orderItems);
+      const { error: itemsError } = await supabaseAdmin.from('order_items').insert(orderItems);
+      if (itemsError) throw itemsError;
     }
 
     // Origin URL

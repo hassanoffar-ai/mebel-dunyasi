@@ -70,7 +70,7 @@ export default function AdminCategoriesPage() {
             if (p.kateqoriya_id && c.id) {
               return p.kateqoriya_id === c.id;
             }
-            const pCat = p.category || p.kateqoriya;
+            const pCat = p.xususiyyetler?.category || p.category || p.kateqoriya;
             return pCat && pCat.toLowerCase() === catName.toLowerCase();
           }).length;
 

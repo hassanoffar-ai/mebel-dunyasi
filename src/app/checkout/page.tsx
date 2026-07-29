@@ -123,48 +123,28 @@ function CheckoutContent() {
         setLoading(false);
       }
     } else {
-      // 2. NAĞD (KURYERƏ) FLOW - Direct Supabase Insert
+      // 2. NAĞD (KURYERƏ) FLOW
       try {
-        const { data: insertedOrder, error: orderErr } = await supabase
-          .from('orders')
-          .insert([
-            {
-              customer: fullName,
-              email: email,
-              telefon: phone,
-              catdirilma_unvani: `${city}, ${address}`,
-              umumi_meblegh: total,
-              status: 'pending',
-              odenis_usulu: 'Nağd (Kuryerə)',
-            },
-          ])
-          .select()
-          .single();
-
-        if (orderErr) {
-          console.error('Supabase Order Insert Error:', orderErr);
-        }
-
-        const createdId = insertedOrder?.id;
-
-        if (createdId && cartItems.length > 0) {
-          const orderItemsData = cartItems.map((item) => ({
-            order_id: createdId,
-            product_id: item.id,
-            say: item.quantity,
-            vahid_qiymet: item.price,
-          }));
-          await supabase.from('order_items').insert(orderItemsData);
-        }
-
-        const displayOrderId = createdId ? `MD-${createdId.slice(0, 6)}` : `MD-${Math.floor(100000 + Math.random() * 900000)}`;
+        const response = await fetch('/api/checkout/cash', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            cartItems,
+            customer: fullName,
+            email,
+            telefon: phone,
+            catdirilma_unvani: `${city}, ${address}`,
+          }),
+        });
+        const data = await response.json();
+        if (!response.ok || !data.id) throw new Error(data.error || 'Sifariş yaradıla bilmədi.');
 
         clearCart();
-        router.push(`/checkout/ugur?order_id=${displayOrderId}`);
-      } catch (err) {
+        router.push(`/checkout/ugur?order_id=MD-${data.id.slice(0, 6)}`);
+      } catch (err: any) {
         console.error('Checkout submit error:', err);
-        clearCart();
-        router.push(`/checkout/ugur?order_id=MD-${Math.floor(100000 + Math.random() * 900000)}`);
+        setErrorMsg(err.message || 'Sifariş yaradıla bilmədi.');
+        setLoading(false);
       }
     }
   };

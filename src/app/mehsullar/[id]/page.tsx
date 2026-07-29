@@ -174,29 +174,26 @@ export default function ProductDetailPage() {
     setReviewStatusMsg('');
 
     try {
-      const { error } = await supabase.from('reviews').insert([
-        {
+      const { data: authData } = await supabase.auth.getUser();
+      const response = await fetch('/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           product_id: product.id,
           user_name: reviewName,
-          ulduz: reviewRating,
+          user_email: authData.user?.email,
           rating: reviewRating,
-          metn: reviewComment,
           comment: reviewComment,
-          status: 'gozlemede',
-        },
-      ]);
-
-      if (error) {
-        console.error('Review submit error:', error);
-      }
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Rəy göndərilə bilmədi.');
 
       setReviewStatusMsg('Rəyiniz göndərildi, admin təsdiqindən sonra dərc olunacaq.');
       setReviewName('');
       setReviewComment('');
-    } catch (err) {
-      setReviewStatusMsg('Rəyiniz göndərildi, admin təsdiqindən sonra dərc olunacaq.');
-      setReviewName('');
-      setReviewComment('');
+    } catch (err: any) {
+      setReviewStatusMsg(`Rəy göndərilə bilmədi: ${err.message || 'yenidən cəhd edin.'}`);
     } finally {
       setSubmittingReview(false);
     }

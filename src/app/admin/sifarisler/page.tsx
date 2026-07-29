@@ -61,14 +61,10 @@ export default function AdminOrdersPage() {
       setLoading(true);
       setErrorMsg('');
       try {
-        const { data, error } = await supabase
-          .from('orders')
-          .select('*, order_items(*, products(*))')
-          .order('created_at', { ascending: false });
-
-        if (error) {
-          throw error;
-        }
+        const response = await fetch('/api/admin/orders', { cache: 'no-store' });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Sifarişlər yüklənə bilmədi.');
+        const data = result.data;
 
         if (data) {
           const mappedData: OrderItem[] = data.map((item: any) => {
@@ -76,7 +72,7 @@ export default function AdminOrdersPage() {
               name: oi.products?.ad || oi.products?.name || 'Mebel Məhsulu',
               quantity: oi.say || oi.quantity || 1,
               price: oi.vahid_qiymet || oi.price || 0,
-              image_url: oi.products?.sekil_url || oi.products?.image_url || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80',
+              image_url: oi.products?.product_images?.find((image: any) => image.esas_sekil)?.sekil_url || oi.products?.product_images?.[0]?.sekil_url || oi.products?.sekil_url || oi.products?.image_url || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80',
             }));
 
             const finalProducts = mappedProducts.length > 0 ? mappedProducts : (item.products || [
@@ -103,6 +99,7 @@ export default function AdminOrdersPage() {
       } catch (err: any) {
         console.log('Database read error:', err);
         setOrders([]);
+        setErrorMsg(err.message || 'Sifarişlər yüklənə bilmədi.');
       } finally {
         setLoading(false);
       }
@@ -134,8 +131,16 @@ export default function AdminOrdersPage() {
     );
 
     try {
-      await supabase.from('orders').update({ status: newStatus, notes: adminNotes }).eq('id', selectedOrder.id);
-    } catch (err) {}
+      const response = await fetch('/api/admin/orders', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: selectedOrder.id, status: newStatus, notes: adminNotes }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Sifariş yenilənə bilmədi.');
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Sifariş yenilənə bilmədi.');
+    }
 
     setSelectedOrder(null);
   };
