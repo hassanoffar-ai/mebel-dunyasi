@@ -1,9 +1,10 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Package, Grid, ShoppingCart, MessageSquare, Mail, Settings, LogOut, User, Quote } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { LayoutDashboard, Package, Grid, ShoppingCart, MessageSquare, Mail, LogOut, Quote } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 import '@/app/admin/admin.css';
 
 const NAV_ITEMS = [
@@ -18,9 +19,57 @@ const NAV_ITEMS = [
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (pathname === '/admin/login') {
+      setIsAuthenticated(true);
+      return;
+    }
+
+    const checkSession = () => {
+      const cookies = document.cookie.split(';');
+      const hasCookie = cookies.some((c) => c.trim().startsWith('admin_session=authenticated'));
+
+      if (!hasCookie) {
+        setIsAuthenticated(false);
+        window.location.replace('/admin/login');
+      } else {
+        setIsAuthenticated(true);
+      }
+    };
+
+    checkSession();
+  }, [pathname]);
+
+  const handleLogout = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    // 1. Delete admin_session cookie
+    document.cookie = 'admin_session=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+    document.cookie = 'admin_session=; path=/admin; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+
+    // 2. Sign out from Supabase Auth
+    try {
+      await supabase.auth.signOut();
+    } catch (err) {}
+
+    // 3. Clear local storage
+    try {
+      localStorage.removeItem('admin_session');
+      localStorage.removeItem('mebel_admin_session');
+    } catch (err) {}
+
+    // 4. Force location replace to /admin/login so browser back button cannot reopen admin pages
+    window.location.replace('/admin/login');
+  };
 
   if (pathname === '/admin/login') {
     return <>{children}</>;
+  }
+
+  if (isAuthenticated === false) {
+    return null;
   }
 
   return (
@@ -51,16 +100,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           })}
         </nav>
 
-        <Link
-          href="/admin/login"
+        <button
+          type="button"
           className="admin-logout-btn"
-          onClick={() => {
-            document.cookie = 'admin_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
-          }}
+          onClick={handleLogout}
         >
           <LogOut size={20} />
           <span>Çıxış Et</span>
-        </Link>
+        </button>
       </aside>
 
       {/* Sağ Əsas Məzmun Sahəsi */}
