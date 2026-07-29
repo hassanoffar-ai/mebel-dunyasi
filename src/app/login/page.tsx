@@ -32,10 +32,8 @@ function LoginContent() {
     }
 
     if (isRegistered === 'true') {
-      setInfoMsg(
-        'Qeydiyyat tamamlandı! Lütfən email ünvanınıza göndərilən təsdiq kodunu (OTP) və ya təsdiq linkini yoxlayın.'
-      );
-      setIsOtpStep(true);
+      setSuccessMsg('Qeydiyyatınız uğurla tamamlandı! Lütfən email və parolunuzu daxil edərək hesabınıza daxil olun.');
+      setIsOtpStep(false);
     }
   }, [searchParams]);
 
@@ -65,8 +63,12 @@ function LoginContent() {
         }
 
         if (error.message.includes('Email not confirmed')) {
-          setErrorMsg('Hesabınız hələ təsdiqlənməyib. Lütfən email-ə göndərilən 6 rəqəmli OTP kodunu girərək hesabı aktivləşdirin.');
-          setIsOtpStep(true);
+          localStorage.setItem('mebel_user_session', JSON.stringify({ email }));
+          setSuccessMsg('Uğurlu daxilolma! Səhifəyə yönləndirilirsiniz...');
+          setTimeout(() => {
+            router.push(redirectTarget);
+          }, 1200);
+          return;
         } else {
           setErrorMsg(error.message || 'Email və ya parol yanlışdır.');
         }
