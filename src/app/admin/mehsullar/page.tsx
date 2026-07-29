@@ -299,21 +299,14 @@ export default function AdminProductsPage() {
 
     const dbPayload = {
       ad: name.trim(),
-      name: name.trim(),
-      category: category,
       qiymet: parseFloat(price),
-      price: parseFloat(price),
       endirimli_qiymet: oldPrice ? parseFloat(oldPrice) : null,
-      old_price: oldPrice ? parseFloat(oldPrice) : null,
       stok: parseInt(stock) || 0,
-      stock: parseInt(stock) || 0,
       qisa_teswir: description.trim().slice(0, 150),
       etrafli_teswir: description.trim(),
-      description: description.trim(),
-      image_url: primaryImage,
-      sekil_url: primaryImage,
       xususiyyetler: {
         sku: sku || `MBL-${Date.now().toString().slice(-5)}`,
+        category: category,
         material,
         dimensions: dimensions.trim(),
         color: color.trim(),
@@ -325,15 +318,7 @@ export default function AdminProductsPage() {
       let savedProductId = editingProduct ? editingProduct.id : null;
 
       if (editingProduct) {
-        const { error: updateErr } = await supabase.from('products').update({
-          ad: name.trim(),
-          qiymet: parseFloat(price),
-          endirimli_qiymet: oldPrice ? parseFloat(oldPrice) : null,
-          stok: parseInt(stock) || 0,
-          qisa_teswir: description.trim().slice(0, 150),
-          etrafli_teswir: description.trim(),
-          status: 'aktiv',
-        }).eq('id', editingProduct.id);
+        const { error: updateErr } = await supabase.from('products').update(dbPayload).eq('id', editingProduct.id);
 
         if (updateErr) {
           console.error('Update error:', updateErr);
@@ -341,16 +326,8 @@ export default function AdminProductsPage() {
           return;
         }
       } else {
-        // Attempt full insert
-        const { data: inserted, error: insertErr } = await supabase.from('products').insert([{
-          ad: name.trim(),
-          qiymet: parseFloat(price),
-          endirimli_qiymet: oldPrice ? parseFloat(oldPrice) : null,
-          stok: parseInt(stock) || 0,
-          qisa_teswir: description.trim().slice(0, 150),
-          etrafli_teswir: description.trim(),
-          status: 'aktiv',
-        }]).select();
+        // Attempt full insert with dbPayload
+        const { data: inserted, error: insertErr } = await supabase.from('products').insert([dbPayload]).select();
 
         if (insertErr) {
           console.error('Insert error:', insertErr);
