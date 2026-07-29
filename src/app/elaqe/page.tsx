@@ -65,10 +65,9 @@ export default function ContactPage() {
         <div className="container">
 
 
-          {/* 2 Sütunlu Responsive Layout (Desktop 40/60, Mobil üst-üstə) */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '36px' }}>
+          <div className="contact-grid">
             {/* SOL SÜTUN (40%): Əlaqə Məlumatları & Xəritə */}
-            <div style={{ gridColumn: 'span 5' }}>
+            <div className="contact-left">
               <div
                 style={{
                   backgroundColor: 'var(--white)',
@@ -170,7 +169,7 @@ export default function ContactPage() {
             </div>
 
             {/* SAĞ SÜTUN (60%): Əlaqə Forması */}
-            <div style={{ gridColumn: 'span 7' }}>
+            <div className="contact-right">
               <div
                 style={{
                   backgroundColor: 'var(--white)',
@@ -247,7 +246,7 @@ export default function ContactPage() {
                         />
                       </div>
 
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
                         <div className="form-group">
                           <label className="form-label">Email Ünvanı</label>
                           <input

@@ -113,7 +113,7 @@ export default function ProfilePage() {
               <div className="loader" style={{ border: '4px solid #f3f3f3', borderTop: '4px solid var(--gold-color)', borderRadius: '50%', width: '40px', height: '40px', animation: 'spin 1s linear infinite' }}></div>
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 3fr', gap: '30px', alignItems: 'start' }}>
+            <div className="profile-grid">
               
               {/* Left Profile card */}
               <div style={{ backgroundColor: 'var(--white)', padding: '30px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', border: '1px solid var(--border-color)' }}>
