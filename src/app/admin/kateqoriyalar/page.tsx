@@ -136,27 +136,31 @@ export default function AdminCategoriesPage() {
 
     try {
       if (editingCat) {
-        const { error } = await supabase.from('categories').update(dbPayload).eq('id', editingCat.id);
-        if (error) {
-          console.error('Update category error:', error);
-          await supabase.from('categories').update({
-            ad: catName.trim(),
-            sekil_url: finalImg,
-          }).eq('id', editingCat.id);
+        const res = await fetch('/api/admin/crud', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            table: 'categories',
+            id: editingCat.id,
+            data: dbPayload,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok || data.error) {
+          throw new Error(data.error || 'Kateqoriya yenilənə bilmədi.');
         }
       } else {
-        const { error } = await supabase.from('categories').insert([dbPayload]);
-        if (error) {
-          console.error('Insert category error:', error);
-          const { error: fallbackErr } = await supabase.from('categories').insert([{
-            ad: catName.trim(),
-            sekil_url: finalImg,
-          }]);
-
-          if (fallbackErr) {
-            alert(`Kateqoriya əlavə edilərkən xəta baş verdi: ${fallbackErr.message}`);
-            return;
-          }
+        const res = await fetch('/api/admin/crud', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            table: 'categories',
+            data: dbPayload,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok || data.error) {
+          throw new Error(data.error || 'Kateqoriya əlavə edilə bilmədi.');
         }
       }
 
@@ -164,7 +168,7 @@ export default function AdminCategoriesPage() {
       setIsModalOpen(false);
     } catch (err: any) {
       console.error('Save category exception:', err);
-      alert(`Xəta baş verdi: ${err.message || err}`);
+      alert(`Kateqoriya saxlanılarkən xəta baş verdi: ${err.message || err}`);
     }
   };
 
@@ -173,7 +177,9 @@ export default function AdminCategoriesPage() {
       setDeleteWarningCat(cat);
     } else {
       try {
-        await supabase.from('categories').delete().eq('id', cat.id);
+        await fetch(`/api/admin/crud?table=categories&id=${cat.id}`, {
+          method: 'DELETE',
+        });
       } catch (err) {}
       await loadCategories();
     }

@@ -320,37 +320,34 @@ export default function AdminProductsPage() {
       let savedProductId = editingProduct ? editingProduct.id : null;
 
       if (editingProduct) {
-        const { error: updateErr } = await supabase.from('products').update(dbPayload).eq('id', editingProduct.id);
-
-        if (updateErr) {
-          console.error('Update error:', updateErr);
-          alert(`Məhsul yenilənmə xətası: ${updateErr.message}`);
-          return;
+        const res = await fetch('/api/admin/crud', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            table: 'products',
+            id: editingProduct.id,
+            data: dbPayload,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok || data.error) {
+          throw new Error(data.error || 'Məhsul yenilənə bilmədi.');
         }
       } else {
-        // Attempt full insert with dbPayload
-        const { data: inserted, error: insertErr } = await supabase.from('products').insert([dbPayload]).select();
-
-        if (insertErr) {
-          console.error('Insert error:', insertErr);
-          // Try minimal insert if optional fields/columns cause schema mismatch
-          const { data: fallbackData, error: fallbackErr } = await supabase.from('products').insert([{
-            ad: name.trim(),
-            qiymet: parseFloat(price),
-          }]).select();
-
-          if (fallbackErr) {
-            alert(`Məhsul daxil edilərkən Supabase DB xətası baş verdi: ${fallbackErr.message}\n(Supabase SQL RLS icazəsini yoxlayın)`);
-            return;
-          }
-
-          if (fallbackData && fallbackData.length > 0) {
-            savedProductId = fallbackData[0].id;
-            // Complete the update with all fields
-            await supabase.from('products').update(dbPayload).eq('id', savedProductId);
-          }
-        } else if (inserted && inserted.length > 0) {
-          savedProductId = inserted[0].id;
+        const res = await fetch('/api/admin/crud', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            table: 'products',
+            data: dbPayload,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok || data.error) {
+          throw new Error(data.error || 'Məhsul əlavə edilə bilmədi.');
+        }
+        if (data.data && data.data.length > 0) {
+          savedProductId = data.data[0].id;
         }
       }
 
@@ -358,7 +355,9 @@ export default function AdminProductsPage() {
       if (savedProductId) {
         if (editingProduct) {
           try {
-            await supabase.from('product_images').delete().eq('product_id', savedProductId);
+            await fetch(`/api/admin/crud?table=product_images&id=${savedProductId}`, {
+              method: 'DELETE',
+            });
           } catch (e) {}
         }
 
@@ -369,10 +368,14 @@ export default function AdminProductsPage() {
           sira: idx + 1,
         }));
 
-        const { error: imgErr } = await supabase.from('product_images').insert(imageInserts);
-        if (imgErr) {
-          console.warn('product_images table RLS policy warning:', imgErr.message);
-        }
+        await fetch('/api/admin/crud', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            table: 'product_images',
+            data: imageInserts,
+          }),
+        });
       }
 
       // Local storage backup for instant sync across tabs
@@ -412,8 +415,8 @@ export default function AdminProductsPage() {
   const handleDeleteProduct = async (id: string) => {
     setDeleteConfirmId(null);
     try {
-      await supabase.from('product_images').delete().eq('product_id', id);
-      await supabase.from('products').delete().eq('id', id);
+      await fetch(`/api/admin/crud?table=product_images&id=${id}`, { method: 'DELETE' });
+      await fetch(`/api/admin/crud?table=products&id=${id}`, { method: 'DELETE' });
     } catch (err) {}
     await loadProducts();
   };
