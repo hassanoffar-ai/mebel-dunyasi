@@ -28,9 +28,31 @@ export default function AdminReviewsPage() {
   useEffect(() => {
     async function loadReviews() {
       try {
-        const { data, error } = await supabase.from('reviews').select('*');
+        const { data, error } = await supabase
+          .from('reviews')
+          .select('*, products(ad, name, sekil_url, image_url, product_images(sekil_url))')
+          .order('created_at', { ascending: false });
+
         if (data && !error) {
-          setReviews(data as any);
+          const mapped: ReviewItem[] = data.map((rev: any) => {
+            const p = rev.products;
+            const pName = p?.ad || p?.name || 'Məhsul';
+            const pImg = p?.product_images?.[0]?.sekil_url || p?.sekil_url || p?.image_url || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80';
+
+            return {
+              id: rev.id,
+              user_name: rev.user_name || rev.ad_soyad || (rev.user_id ? `İstifadəçi #${rev.user_id.slice(0, 5)}` : 'Qonaq Müştəri'),
+              user_email: rev.user_email || rev.email || 'Məlumatsız',
+              product_name: pName,
+              product_image: pImg,
+              rating: rev.ulduz || rev.rating || 5,
+              comment: rev.metn || rev.comment || '',
+              status: rev.status === 'pending' ? 'gozlemede' : rev.status || 'gozlemede',
+              date: rev.created_at ? new Date(rev.created_at).toLocaleDateString('az-AZ', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Bu gün',
+              rejection_reason: rev.rejection_reason || rev.red_sebebi,
+            };
+          });
+          setReviews(mapped);
         }
       } catch (err) {
         console.log('Error loading reviews from DB');

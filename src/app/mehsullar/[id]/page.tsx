@@ -107,31 +107,56 @@ export default function ProductDetailPage() {
   // Thumbnails gallery (product images from DB)
   const thumbnails = (product.images && product.images.length > 0 ? product.images : [product.image_url]).filter(Boolean);
 
+  const [approvedReviews, setApprovedReviews] = useState<any[]>([]);
+
+  // Fetch approved reviews
+  useEffect(() => {
+    async function loadProductReviews() {
+      if (!productId) return;
+      try {
+        const { data } = await supabase
+          .from('reviews')
+          .select('*')
+          .eq('product_id', productId)
+          .or('status.eq.tesdiqlendi,status.eq.confirmed')
+          .order('created_at', { ascending: false });
+
+        if (data) setApprovedReviews(data);
+      } catch (err) {}
+    }
+    loadProductReviews();
+  }, [productId]);
+
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmittingReview(true);
     setReviewStatusMsg('');
 
     try {
-      // Send to Supabase reviews table with status = 'pending'
       const { error } = await supabase.from('reviews').insert([
         {
           product_id: product.id,
           user_name: reviewName,
+          ulduz: reviewRating,
           rating: reviewRating,
+          metn: reviewComment,
           comment: reviewComment,
-          status: 'pending', // Gözləmədə
+          status: 'gozlemede',
         },
       ]);
+
+      if (error) {
+        console.error('Review submit error:', error);
+      }
 
       setReviewStatusMsg('Rəyiniz göndərildi, admin təsdiqindən sonra dərc olunacaq.');
       setReviewName('');
       setReviewComment('');
-      setSubmittingReview(false);
     } catch (err) {
       setReviewStatusMsg('Rəyiniz göndərildi, admin təsdiqindən sonra dərc olunacaq.');
       setReviewName('');
       setReviewComment('');
+    } finally {
       setSubmittingReview(false);
     }
   };
@@ -457,20 +482,30 @@ export default function ProductDetailPage() {
               <div>
                 {/* Mövcud Təsdiqlənmiş Rəylər Siyahısı */}
                 <div style={{ marginBottom: '40px' }}>
-                  <div style={{ padding: '20px 0', borderBottom: '1px solid var(--border-color)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                      <span style={{ fontWeight: '600' }}>Samir Həsənov</span>
-                      <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>14 İyul 2026</span>
+                  {approvedReviews.length === 0 ? (
+                    <div style={{ padding: '20px 0', color: 'var(--text-muted)', fontSize: '0.95rem' }}>
+                      Hələ ki bu məhsul üçün təsdiqlənmiş rəy yoxdur. İlk rəyi siz yazın!
                     </div>
-                    <div style={{ display: 'flex', color: '#C9A15D', marginBottom: '8px' }}>
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} size={14} fill="#C9A15D" />
-                      ))}
-                    </div>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>
-                      Çox keyfiyyətli mebeldir, rəngi tam olaraq şəkillərdəki kimidir. Çatdırılma da vaxtında həyata keçirildi.
-                    </p>
-                  </div>
+                  ) : (
+                    approvedReviews.map((rev) => (
+                      <div key={rev.id} style={{ padding: '20px 0', borderBottom: '1px solid var(--border-color)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                          <span style={{ fontWeight: '600' }}>{rev.user_name || rev.ad_soyad || 'Müştəri'}</span>
+                          <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                            {rev.created_at ? new Date(rev.created_at).toLocaleDateString('az-AZ') : 'Təsdiqlənib'}
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', color: '#C9A15D', marginBottom: '8px' }}>
+                          {[...Array(5)].map((_, i) => (
+                            <Star key={i} size={14} fill={i < (rev.ulduz || rev.rating || 5) ? '#C9A15D' : 'none'} color="#C9A15D" />
+                          ))}
+                        </div>
+                        <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>
+                          "{rev.metn || rev.comment}"
+                        </p>
+                      </div>
+                    ))
+                  )}
                 </div>
 
                 {/* Rəy Yaz Forması */}

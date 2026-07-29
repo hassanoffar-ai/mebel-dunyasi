@@ -63,7 +63,7 @@ export default function AdminOrdersPage() {
       try {
         const { data, error } = await supabase
           .from('orders')
-          .select('*')
+          .select('*, order_items(*, products(*))')
           .order('created_at', { ascending: false });
 
         if (error) {
@@ -71,22 +71,33 @@ export default function AdminOrdersPage() {
         }
 
         if (data) {
-          const mappedData: OrderItem[] = data.map((item: any) => ({
-            id: item.id,
-            order_id: item.id,
-            customer: item.customer || item.full_name || (item.user_id ? `İstifadəçi #${item.user_id}` : 'Qonaq Müştəri'),
-            email: item.email || 'Məlumatsız',
-            phone: item.telefon || item.phone || '+994 50 000 00 00',
-            address: item.catdirilma_unvani || item.address || 'Ünvan qeyd edilməyib',
-            items_count: item.items_count || (item.products ? item.products.length : 1),
-            total_amount: item.umumi_meblegh || item.total_amount || 0,
-            status: (item.status as OrderStatus) || 'pending',
-            date: item.created_at ? new Date(item.created_at).toLocaleDateString('az-AZ', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Bu gün',
-            notes: item.notes,
-            products: item.products || [
+          const mappedData: OrderItem[] = data.map((item: any) => {
+            const mappedProducts = (item.order_items || []).map((oi: any) => ({
+              name: oi.products?.ad || oi.products?.name || 'Mebel Məhsulu',
+              quantity: oi.say || oi.quantity || 1,
+              price: oi.vahid_qiymet || oi.price || 0,
+              image_url: oi.products?.sekil_url || oi.products?.image_url || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80',
+            }));
+
+            const finalProducts = mappedProducts.length > 0 ? mappedProducts : (item.products || [
               { name: 'Sifariş edilmiş mebel məhsulu', quantity: 1, price: item.umumi_meblegh || 0, image_url: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80' }
-            ],
-          }));
+            ]);
+
+            return {
+              id: item.id,
+              order_id: item.id,
+              customer: item.customer || item.full_name || (item.user_id ? `İstifadəçi #${item.user_id.slice(0, 6)}` : 'Qonaq Müştəri'),
+              email: item.email || 'Məlumatsız',
+              phone: item.telefon || item.phone || '+994 50 000 00 00',
+              address: item.catdirilma_unvani || item.address || 'Ünvan qeyd edilməyib',
+              items_count: finalProducts.reduce((acc: number, p: any) => acc + p.quantity, 0),
+              total_amount: item.umumi_meblegh || item.total_amount || 0,
+              status: (item.status as OrderStatus) || 'pending',
+              date: item.created_at ? new Date(item.created_at).toLocaleDateString('az-AZ', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Bu gün',
+              notes: item.notes,
+              products: finalProducts,
+            };
+          });
           setOrders(mappedData);
         }
       } catch (err: any) {

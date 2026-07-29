@@ -373,6 +373,32 @@ export default function AdminProductsPage() {
         }
       }
 
+      // Local storage backup for instant sync across tabs
+      try {
+        const newProdObj: Product = {
+          id: savedProductId || `MBL-${Date.now()}`,
+          sku: sku || `MBL-${Math.floor(10000 + Math.random() * 90000)}`,
+          name: name.trim(),
+          category: category,
+          price: parseFloat(price),
+          old_price: oldPrice ? parseFloat(oldPrice) : undefined,
+          stock: parseInt(stock) || 10,
+          material,
+          dimensions: dimensions.trim(),
+          color: color.trim(),
+          description: description.trim(),
+          image_url: primaryImage,
+          images,
+          rating: 5.0,
+          reviews_count: 0,
+        };
+
+        const stored = localStorage.getItem('local_added_products');
+        const localList: Product[] = stored ? JSON.parse(stored) : [];
+        const filtered = localList.filter((p) => p.id !== newProdObj.id);
+        localStorage.setItem('local_added_products', JSON.stringify([newProdObj, ...filtered]));
+      } catch (e) {}
+
       await loadProducts();
       setIsModalOpen(false);
     } catch (err: any) {

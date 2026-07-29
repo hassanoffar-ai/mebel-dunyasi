@@ -59,7 +59,7 @@ export default function AdminCategoriesPage() {
       // 2. Fetch products
       const { data: dbProducts } = await supabase
         .from('products')
-        .select('id, category, kateqoriya, kateqoriya_id, status');
+        .select('*');
 
       if (dbCategories && !catError) {
         const activeProducts = dbProducts ? dbProducts.filter((p: any) => p.status === 'aktiv' || !p.status) : [];
@@ -104,7 +104,7 @@ export default function AdminCategoriesPage() {
     setEditingCat(null);
     setCatName('');
     setCatDesc('');
-    setCatImg('C:\\Users\\User\\.gemini\\antigravity\\brain\\60ddce65-7740-47cc-a2af-78899d3729b9\\sofa_product_1785206074780.jpg');
+    setCatImg('');
     setIsModalOpen(true);
   };
 
@@ -119,38 +119,53 @@ export default function AdminCategoriesPage() {
   const handleSaveCategory = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!catName.trim()) {
+      alert('Zəhmət olmasa kateqoriya adını daxil edin.');
+      return;
+    }
+
+    const defaultImg = 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80';
+    const finalImg = catImg.trim() || defaultImg;
+
     const dbPayload = {
       ad: catName.trim(),
-      sekil_url: catImg,
+      description: catDesc.trim(),
+      sekil_url: finalImg,
       sira: editingCat ? editingCat.order : categories.length + 1,
     };
 
-    if (editingCat) {
-      try {
+    try {
+      if (editingCat) {
         const { error } = await supabase.from('categories').update(dbPayload).eq('id', editingCat.id);
         if (error) {
+          console.error('Update category error:', error);
           await supabase.from('categories').update({
-            name: catName.trim(),
-            description: catDesc,
-            image_url: catImg,
+            ad: catName.trim(),
+            sekil_url: finalImg,
           }).eq('id', editingCat.id);
         }
-      } catch (err) {}
-    } else {
-      try {
+      } else {
         const { error } = await supabase.from('categories').insert([dbPayload]);
         if (error) {
-          await supabase.from('categories').insert([{
-            name: catName.trim(),
-            description: catDesc,
-            image_url: catImg,
+          console.error('Insert category error:', error);
+          const { error: fallbackErr } = await supabase.from('categories').insert([{
+            ad: catName.trim(),
+            sekil_url: finalImg,
           }]);
-        }
-      } catch (err) {}
-    }
 
-    await loadCategories();
-    setIsModalOpen(false);
+          if (fallbackErr) {
+            alert(`Kateqoriya əlavə edilərkən xəta baş verdi: ${fallbackErr.message}`);
+            return;
+          }
+        }
+      }
+
+      await loadCategories();
+      setIsModalOpen(false);
+    } catch (err: any) {
+      console.error('Save category exception:', err);
+      alert(`Xəta baş verdi: ${err.message || err}`);
+    }
   };
 
   const handleDeleteClick = async (cat: any) => {

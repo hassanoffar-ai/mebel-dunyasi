@@ -102,6 +102,8 @@ function CheckoutContent() {
               qiymet: item.price,
               say: item.quantity,
             })),
+            customer: fullName,
+            email: email,
             catdirilma_unvani: `${city}, ${address}`,
             telefon: phone,
           }),
@@ -123,35 +125,44 @@ function CheckoutContent() {
     } else {
       // 2. NAĞD (KURYERƏ) FLOW - Direct Supabase Insert
       try {
-        const generatedOrderId = 'MD-' + Math.floor(100000 + Math.random() * 900000);
-        const orderProducts = cartItems.map(item => ({
-          id: item.id,
-          name: item.name,
-          quantity: item.quantity,
-          price: item.price,
-          image_url: item.image_url
-        }));
+        const { data: insertedOrder, error: orderErr } = await supabase
+          .from('orders')
+          .insert([
+            {
+              customer: fullName,
+              email: email,
+              telefon: phone,
+              catdirilma_unvani: `${city}, ${address}`,
+              umumi_meblegh: total,
+              status: 'pending',
+              odenis_usulu: 'Nağd (Kuryerə)',
+            },
+          ])
+          .select()
+          .single();
 
-        await supabase.from('orders').insert([
-          {
-            id: generatedOrderId,
-            customer: fullName,
-            email: email,
-            phone: phone,
-            telefon: phone,
-            address: `${city}, ${address}`,
-            catdirilma_unvani: `${city}, ${address}`,
-            items_count: cartItems.reduce((acc, item) => acc + item.quantity, 0),
-            umumi_meblegh: total,
-            total_amount: total,
-            status: 'pending',
-            odenis_usulu: 'Nağd (Kuryerə)',
-            products: orderProducts,
-          },
-        ]);
+        if (orderErr) {
+          console.error('Supabase Order Insert Error:', orderErr);
+        }
+
+        const createdId = insertedOrder?.id;
+
+        if (createdId && cartItems.length > 0) {
+          const orderItemsData = cartItems.map((item) => ({
+            order_id: createdId,
+            product_id: item.id,
+            say: item.quantity,
+            vahid_qiymet: item.price,
+          }));
+          await supabase.from('order_items').insert(orderItemsData);
+        }
+
+        const displayOrderId = createdId ? `MD-${createdId.slice(0, 6)}` : `MD-${Math.floor(100000 + Math.random() * 900000)}`;
+
         clearCart();
-        router.push(`/checkout/ugur?order_id=${generatedOrderId}`);
+        router.push(`/checkout/ugur?order_id=${displayOrderId}`);
       } catch (err) {
+        console.error('Checkout submit error:', err);
         clearCart();
         router.push(`/checkout/ugur?order_id=MD-${Math.floor(100000 + Math.random() * 900000)}`);
       }

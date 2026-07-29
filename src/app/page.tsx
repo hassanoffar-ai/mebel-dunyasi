@@ -56,10 +56,58 @@ export default function HomePage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const { data: prodData } = await supabase.from('products').select('*');
-        if (prodData) {
-          setProducts(prodData as Product[]);
+        let combined: Product[] = [];
+        const { data: dbProducts } = await supabase.from('products').select('*').order('created_at', { ascending: false });
+
+        if (dbProducts && dbProducts.length > 0) {
+          const { data: dbImages } = await supabase.from('product_images').select('*').order('sira', { ascending: true });
+
+          combined = dbProducts.map((p: any) => {
+            const pImgs = dbImages ? dbImages.filter((img: any) => img.product_id === p.id) : [];
+            const mainImg =
+              pImgs.find((img: any) => img.esas_sekil)?.sekil_url ||
+              pImgs[0]?.sekil_url ||
+              p.xususiyyetler?.image_url ||
+              p.image_url ||
+              p.sekil_url ||
+              'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&auto=format&fit=crop&q=60';
+
+            const allImgs =
+              pImgs.length > 0
+                ? pImgs.map((img: any) => img.sekil_url)
+                : p.xususiyyetler?.images || p.images || [mainImg];
+
+            return {
+              id: p.id,
+              sku: p.xususiyyetler?.sku || p.sku || `MBL-${p.id.toString().slice(0, 5)}`,
+              name: p.ad || p.name || 'Məhsul',
+              category: p.xususiyyetler?.category || p.category || p.kateqoriya || 'Qonaq Otağı',
+              price: Number(p.qiymet || p.price || 0),
+              old_price: p.endirimli_qiymet || p.old_price ? Number(p.endirimli_qiymet || p.old_price) : undefined,
+              stock: Number(p.stok || p.stock || 0),
+              material: p.xususiyyetler?.material || p.material || 'Təbii Palıd',
+              dimensions: p.xususiyyetler?.dimensions || p.dimensions || '',
+              color: p.xususiyyetler?.color || p.color || '',
+              description: p.etrafli_teswir || p.qisa_teswir || p.description || '',
+              image_url: mainImg,
+              images: allImgs,
+              rating: p.rating || 5.0,
+              reviews_count: p.reviews_count || 0,
+            };
+          });
         }
+
+        // Check local_added_products backup
+        try {
+          const stored = localStorage.getItem('local_added_products');
+          if (stored) {
+            const localList: Product[] = JSON.parse(stored);
+            const localOnly = localList.filter((lp) => !combined.some((dbP) => dbP.id === lp.id));
+            combined = [...localOnly, ...combined];
+          }
+        } catch (e) {}
+
+        setProducts(combined);
       } catch (err) {}
 
       try {
@@ -158,30 +206,6 @@ export default function HomePage() {
           </button>
         </section>
 
-        {/* 3. SEÇİLMİŞ MƏHSULLAR BÖLMƏSİ */}
-        <section id="products" style={{ padding: '50px 0 80px 0', backgroundColor: 'var(--bg-main)' }}>
-          <div className="container">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '40px' }}>
-              <div>
-                <h2 style={{ fontSize: 'clamp(1.6rem, 4vw, 2.2rem)', marginBottom: '8px' }}>Önə Çıxan Məhsullar</h2>
-                <p style={{ color: 'var(--text-muted)' }}>Ən çox üstünlük verilən eksklüziv kolleksiya</p>
-              </div>
-              <Link href="/mehsullar" className="btn btn-outline">Bütün Məhsullar</Link>
-            </div>
-
-            {products.length > 0 ? (
-              <div className="grid-responsive-products">
-                {products.map((prod) => (
-                  <ProductCard key={prod.id} product={prod} onAddToCart={handleAddToCart} />
-                ))}
-              </div>
-            ) : (
-              <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-muted)' }}>
-                <p>Hələ ki məhsul əlavə edilməyib.</p>
-              </div>
-            )}
-          </div>
-        </section>
 
         {/* 4. ÜSTÜNLÜKLƏR BÖLMƏSİ */}
         <section style={{ padding: '60px 0', backgroundColor: 'var(--bg-secondary)', borderTop: '1px solid var(--border-color)', borderBottom: '1px solid var(--border-color)' }}>

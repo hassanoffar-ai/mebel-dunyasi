@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { cartItems, user_id, catdirilma_unvani, telefon } = body;
+    const { cartItems, user_id, catdirilma_unvani, telefon, customer, email } = body;
 
     if (!cartItems || cartItems.length === 0) {
       return NextResponse.json({ error: 'Səbət boşdur' }, { status: 400 });
@@ -19,12 +19,14 @@ export async function POST(req: Request) {
       0
     );
 
-    // 1. Save order in Supabase with status = 'gozleyir_odenis'
+    // 1. Save order in Supabase with status = 'pending'
     const { data: order, error: orderError } = await supabase
       .from('orders')
       .insert([
         {
           user_id: user_id || null,
+          customer: customer || 'Müştəri',
+          email: email || '',
           umumi_meblegh,
           status: 'pending',
           catdirilma_unvani: catdirilma_unvani || 'Baku, Azerbaijan',

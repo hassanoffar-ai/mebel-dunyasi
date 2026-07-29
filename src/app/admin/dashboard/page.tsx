@@ -52,7 +52,7 @@ export default function AdminDashboardPage() {
       try {
         const { count: ordersCount } = await supabase.from('orders').select('*', { count: 'exact', head: true });
         const { count: productsCount } = await supabase.from('products').select('*', { count: 'exact', head: true });
-        const { count: pendingRevCount } = await supabase.from('reviews').select('*', { count: 'exact', head: true }).eq('status', 'gozlemede');
+        const { count: pendingRevCount } = await supabase.from('reviews').select('*', { count: 'exact', head: true }).or('status.eq.gozlemede,status.eq.pending');
         
         const { data: revenueData } = await supabase.from('orders').select('umumi_meblegh');
         const totalRevenue = (revenueData || []).reduce((acc: number, item: any) => acc + (item.umumi_meblegh || 0), 0);
@@ -66,11 +66,29 @@ export default function AdminDashboardPage() {
 
         // Load recent orders
         const { data: ordersData } = await supabase.from('orders').select('*').order('created_at', { ascending: false }).limit(5);
-        if (ordersData) setRecentOrders(ordersData);
+        if (ordersData) {
+          const mappedOrders = ordersData.map((order: any) => ({
+            id: order.id,
+            musteri_ad: order.customer || order.full_name || (order.user_id ? `İstifadəçi #${order.user_id.slice(0, 6)}` : 'Qonaq Müştəri'),
+            umumi_meblegh: order.umumi_meblegh || order.total_amount || 0,
+            status: order.status || 'pending',
+            created_at: order.created_at,
+          }));
+          setRecentOrders(mappedOrders);
+        }
 
         // Load pending reviews
-        const { data: reviewsData } = await supabase.from('reviews').select('*').eq('status', 'gozlemede').limit(5);
-        if (reviewsData) setPendingReviews(reviewsData);
+        const { data: reviewsData } = await supabase.from('reviews').select('*').or('status.eq.gozlemede,status.eq.pending').limit(5);
+        if (reviewsData) {
+          const mappedReviews = reviewsData.map((rev: any) => ({
+            id: rev.id,
+            user_name: rev.user_name || rev.ad_soyad || 'İstifadəçi',
+            rating: rev.ulduz || rev.rating || 5,
+            comment: rev.metn || rev.comment || '',
+            date: rev.created_at ? new Date(rev.created_at).toLocaleDateString('az-AZ') : 'Bu gün',
+          }));
+          setPendingReviews(mappedReviews);
+        }
 
       } catch (err) {
         console.log('Database metrics fetch error:', err);

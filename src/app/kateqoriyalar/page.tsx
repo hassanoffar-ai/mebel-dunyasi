@@ -29,7 +29,7 @@ export default function CategoriesPage() {
         // 2. Fetch all active products from Supabase
         const { data: dbProducts, error: prodError } = await supabase
           .from('products')
-          .select('id, category, kateqoriya, kateqoriya_id, status');
+          .select('*');
 
         if (dbCategories && !catError) {
           const activeProducts = dbProducts ? dbProducts.filter((p: any) => p.status === 'aktiv' || !p.status) : [];

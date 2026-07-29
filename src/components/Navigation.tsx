@@ -211,37 +211,33 @@ export function Footer() {
   return (
     <footer className="footer">
       <div className="container">
-        <div className="footer-grid">
-          <div className="footer-col">
-            <div className="footer-logo">Mebel <span>Dünyası</span></div>
-            <p className="footer-desc">
-              Mebel Dünyası evinizin rahatlığı və estetik gözəlliyi üçün yüksək keyfiyyətli, modern və minimalist mebellər təqdim edir.
-            </p>
-          </div>
-
-          <div className="footer-col">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '32px', marginBottom: '40px' }}>
+          {/* Column 1: Naviqasiya */}
+          <div className="footer-col" style={{ gridColumn: 'span 1' }}>
             <h4 className="footer-title">Naviqasiya</h4>
             <ul className="footer-links">
               <li><Link href="/">Ana Səhifə</Link></li>
-              <li><Link href="#products">Məhsullar</Link></li>
-              <li><Link href="#categories">Kateqoriyalar</Link></li>
-              <li><Link href="#about">Haqqımızda</Link></li>
+              <li><Link href="/mehsullar">Məhsullar</Link></li>
+              <li><Link href="/kateqoriyalar">Kateqoriyalar</Link></li>
+              <li><Link href="/haqqimizda">Haqqımızda</Link></li>
             </ul>
           </div>
 
-          <div className="footer-col">
+          {/* Column 2: Müştəri Xidməti */}
+          <div className="footer-col" style={{ gridColumn: 'span 1' }}>
             <h4 className="footer-title">Müştəri Xidməti</h4>
             <ul className="footer-links">
-              <li><Link href="#">Əlaqə & Dəstək</Link></li>
-              <li><Link href="#">Çatdırılma Şərtləri</Link></li>
-              <li><Link href="#">Qaytarma vı Dəyişdirilmə</Link></li>
+              <li><Link href="/elaqe">Əlaqə & Dəstək</Link></li>
+              <li><Link href="/faq">Çatdırılma Şərtləri</Link></li>
+              <li><Link href="/faq">Qaytarma və Dəyişdirilmə</Link></li>
             </ul>
           </div>
 
-          <div className="footer-col">
+          {/* Column 3: Bizimlə Əlaqə */}
+          <div className="footer-col" style={{ gridColumn: 'span 1' }}>
             <h4 className="footer-title">Bizimlə Əlaqə</h4>
-            <p className="footer-desc" style={{ marginBottom: '8px' }}>Bakı şəh., Həsən Əliyev küç. 45</p>
-            <p className="footer-desc">Tel: +994 12 555 00 11</p>
+            <p className="footer-desc" style={{ marginBottom: '8px', color: '#D4C9BF' }}>Bakı şəh., Həsən Əliyev küç. 45</p>
+            <p className="footer-desc" style={{ color: '#D4C9BF' }}>Tel: +994 12 555 00 11</p>
           </div>
         </div>
 
