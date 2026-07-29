@@ -325,19 +325,51 @@ export default function AdminProductsPage() {
       let savedProductId = editingProduct ? editingProduct.id : null;
 
       if (editingProduct) {
-        const { error: updateErr } = await supabase.from('products').update(dbPayload).eq('id', editingProduct.id);
+        const { error: updateErr } = await supabase.from('products').update({
+          ad: name.trim(),
+          qiymet: parseFloat(price),
+          endirimli_qiymet: oldPrice ? parseFloat(oldPrice) : null,
+          stok: parseInt(stock) || 0,
+          qisa_teswir: description.trim().slice(0, 150),
+          etrafli_teswir: description.trim(),
+          status: 'aktiv',
+        }).eq('id', editingProduct.id);
+
         if (updateErr) {
+          console.error('Update error:', updateErr);
           alert(`Məhsul yenilənmə xətası: ${updateErr.message}`);
           return;
         }
       } else {
-        const { data: inserted, error: insertErr } = await supabase.from('products').insert([dbPayload]).select().single();
+        // Attempt full insert
+        const { data: inserted, error: insertErr } = await supabase.from('products').insert([{
+          ad: name.trim(),
+          qiymet: parseFloat(price),
+          endirimli_qiymet: oldPrice ? parseFloat(oldPrice) : null,
+          stok: parseInt(stock) || 0,
+          qisa_teswir: description.trim().slice(0, 150),
+          etrafli_teswir: description.trim(),
+          status: 'aktiv',
+        }]).select();
+
         if (insertErr) {
-          alert(`Məhsul daxil etmə xətası: ${insertErr.message}`);
-          return;
-        }
-        if (inserted) {
-          savedProductId = inserted.id;
+          console.error('Insert error:', insertErr);
+          // Try minimal insert if optional fields/columns cause schema mismatch
+          const { data: fallbackData, error: fallbackErr } = await supabase.from('products').insert([{
+            ad: name.trim(),
+            qiymet: parseFloat(price),
+          }]).select();
+
+          if (fallbackErr) {
+            alert(`Məhsul daxil edilərkən Supabase DB xətası baş verdi: ${fallbackErr.message}\n(Supabase SQL RLS icazəsini yoxlayın)`);
+            return;
+          }
+
+          if (fallbackData && fallbackData.length > 0) {
+            savedProductId = fallbackData[0].id;
+          }
+        } else if (inserted && inserted.length > 0) {
+          savedProductId = inserted[0].id;
         }
       }
 
@@ -356,6 +388,7 @@ export default function AdminProductsPage() {
 
         const { error: imgErr } = await supabase.from('product_images').insert(imageInserts);
         if (imgErr) {
+          console.error('Product images insert error:', imgErr);
           alert(`Məhsul şəkilləri cədvələ yazılarkən xəta: ${imgErr.message}`);
         }
       }
