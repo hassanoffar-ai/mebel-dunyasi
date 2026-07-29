@@ -73,6 +73,7 @@ export function Header({ cartCount: propCartCount }: HeaderProps) {
     { name: 'Məhsullar', href: '/mehsullar' },
     { name: 'Kateqoriyalar', href: '/kateqoriyalar' },
     { name: 'Haqqımızda', href: '/haqqimizda' },
+    { name: 'FAQ', href: '/faq' },
     { name: 'Əlaqə', href: '/elaqe' },
   ];
 
