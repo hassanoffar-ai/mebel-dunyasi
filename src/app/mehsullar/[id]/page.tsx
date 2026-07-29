@@ -224,19 +224,22 @@ export default function ProductDetailPage() {
               <div
                 style={{
                   width: '100%',
-                  aspectRatio: '16 / 10',
-                  maxHeight: '420px',
+                  aspectRatio: '4 / 3',
+                  maxHeight: '440px',
                   borderRadius: 'var(--radius-md)',
                   overflow: 'hidden',
                   backgroundColor: 'var(--bg-secondary)',
                   border: '1px solid var(--border-color)',
                   marginBottom: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 }}
               >
                 <img
                   src={selectedImage}
                   alt={product.name}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 400ms ease' }}
+                  style={{ width: '100%', height: '100%', objectFit: 'contain', transition: 'transform 400ms ease' }}
                   onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.08)')}
                   onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
                 />
