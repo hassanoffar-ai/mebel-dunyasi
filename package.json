@@ -5,7 +5,8 @@
   "main": "index.js",
   "dependencies": {
     "@stripe/stripe-js": "^9.12.1",
-    "@supabase/supabase-js": "^2.110.9",
+    "@supabase/ssr": "^0.12.4",
+    "@supabase/supabase-js": "^2.111.0",
     "@types/node": "^26.1.2",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",

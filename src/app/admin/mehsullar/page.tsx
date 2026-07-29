@@ -203,8 +203,9 @@ export default function AdminProductsPage() {
           });
         }
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('File upload error:', err);
+      alert(`Şəkil yüklənməsi xətası: ${err.message || err}`);
     } finally {
       setUploadingImage(false);
       e.target.value = '';
@@ -267,8 +268,9 @@ export default function AdminProductsPage() {
           return updated;
         });
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Replace image error:', err);
+      alert(`Şəkil dəyişdirmə xətası: ${err.message || err}`);
     } finally {
       setUploadingImage(false);
       e.target.value = '';
@@ -293,7 +295,7 @@ export default function AdminProductsPage() {
     e.preventDefault();
     if (!validateForm()) return;
 
-    const primaryImage = images[0] || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&auto=format&fit=crop&q=60';
+    const primaryImage = images[0];
 
     const dbPayload = {
       ad: name.trim(),
@@ -319,56 +321,27 @@ export default function AdminProductsPage() {
       status: 'aktiv',
     };
 
-    const newProdState: Product = {
-      id: editingProduct ? editingProduct.id : Date.now().toString(),
-      sku: sku || `MBL-${Date.now().toString().slice(-5)}`,
-      name: name.trim(),
-      category,
-      price: parseFloat(price),
-      old_price: oldPrice ? parseFloat(oldPrice) : undefined,
-      stock: parseInt(stock) || 0,
-      material,
-      dimensions: dimensions.trim(),
-      color: color.trim(),
-      description: description.trim(),
-      image_url: primaryImage,
-      images,
-      rating: editingProduct ? editingProduct.rating : 5.0,
-      reviews_count: editingProduct ? editingProduct.reviews_count : 0,
-    };
-
-    // Optimistic UI state update so product appears in table immediately
-    if (editingProduct) {
-      setProducts((prev) => prev.map((p) => (p.id === editingProduct.id ? newProdState : p)));
-    } else {
-      setProducts((prev) => [newProdState, ...prev]);
-    }
-
     try {
       let savedProductId = editingProduct ? editingProduct.id : null;
 
       if (editingProduct) {
         const { error: updateErr } = await supabase.from('products').update(dbPayload).eq('id', editingProduct.id);
-        if (updateErr) console.log('Supabase update warning:', updateErr);
+        if (updateErr) {
+          alert(`Məhsul yenilənmə xətası: ${updateErr.message}`);
+          return;
+        }
       } else {
-        const { data: inserted, error: insertErr } = await supabase.from('products').insert([dbPayload]).select();
-        if (inserted && inserted.length > 0) {
-          savedProductId = inserted[0].id;
-        } else if (insertErr) {
-          console.warn('Primary insert failed, attempting minimal payload:', insertErr);
-          const { data: fallbackInserted } = await supabase.from('products').insert([{
-            ad: name.trim(),
-            qiymet: parseFloat(price),
-            category: category,
-            image_url: primaryImage,
-          }]).select();
-          if (fallbackInserted && fallbackInserted.length > 0) {
-            savedProductId = fallbackInserted[0].id;
-          }
+        const { data: inserted, error: insertErr } = await supabase.from('products').insert([dbPayload]).select().single();
+        if (insertErr) {
+          alert(`Məhsul daxil etmə xətası: ${insertErr.message}`);
+          return;
+        }
+        if (inserted) {
+          savedProductId = inserted.id;
         }
       }
 
-      // Save product images to product_images table if we have product id
+      // Save product images to product_images table linked with product_id
       if (savedProductId) {
         if (editingProduct) {
           await supabase.from('product_images').delete().eq('product_id', savedProductId);
@@ -381,21 +354,18 @@ export default function AdminProductsPage() {
           sira: idx + 1,
         }));
 
-        await supabase.from('product_images').insert(imageInserts);
+        const { error: imgErr } = await supabase.from('product_images').insert(imageInserts);
+        if (imgErr) {
+          alert(`Məhsul şəkilləri cədvələ yazılarkən xəta: ${imgErr.message}`);
+        }
       }
-    } catch (err) {
+
+      await loadProducts();
+      setIsModalOpen(false);
+    } catch (err: any) {
       console.error('Error saving product to Supabase:', err);
+      alert(`Məhsul yadda saxlanılarkən xəta baş verdi: ${err.message || err}`);
     }
-
-    // Save to local persistence backup so added products stay preserved across reloads
-    try {
-      const stored = localStorage.getItem('local_added_products');
-      const list = stored ? JSON.parse(stored) : [];
-      const updatedList = [newProdState, ...list.filter((p: any) => p.id !== newProdState.id)];
-      localStorage.setItem('local_added_products', JSON.stringify(updatedList));
-    } catch (e) {}
-
-    setIsModalOpen(false);
   };
 
   const handleDeleteProduct = async (id: string) => {
