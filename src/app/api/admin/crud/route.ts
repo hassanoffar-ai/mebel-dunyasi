@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
   try {
-    const { table, data, id } = await req.json();
+    const { table, data } = await req.json();
 
     if (!table || !data) {
       return NextResponse.json({ error: 'Cədvəl və verilənlər tələb olunur' }, { status: 400 });
@@ -27,13 +27,13 @@ export async function POST(req: Request) {
       const sira = item.sira || item.order || 1;
 
       const attempts = [
-        { ad: name, sekil_url: img, description: desc, sira },
-        { ad: name, image_url: img, description: desc, sira },
         { ad: name, sekil_url: img, sira },
         { ad: name, image_url: img, sira },
-        { name: name, image_url: img, description: desc, order: sira },
-        { name: name, image_url: img },
         { ad: name, sekil_url: img },
+        { ad: name, image_url: img },
+        { name: name, image_url: img },
+        { ad: name, sekil_url: img, description: desc, sira },
+        { ad: name, image_url: img, description: desc, sira },
       ];
 
       for (const attemptPayload of attempts) {
@@ -84,13 +84,13 @@ export async function PUT(req: Request) {
       const sira = data.sira || data.order || 1;
 
       const attempts = [
-        { ad: name, sekil_url: img, description: desc, sira },
-        { ad: name, image_url: img, description: desc, sira },
         { ad: name, sekil_url: img, sira },
         { ad: name, image_url: img, sira },
-        { name: name, image_url: img, description: desc, order: sira },
-        { name: name, image_url: img },
         { ad: name, sekil_url: img },
+        { ad: name, image_url: img },
+        { name: name, image_url: img },
+        { ad: name, sekil_url: img, description: desc, sira },
+        { ad: name, image_url: img, description: desc, sira },
       ];
 
       for (const attemptPayload of attempts) {

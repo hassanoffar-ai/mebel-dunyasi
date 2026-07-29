@@ -127,12 +127,14 @@ export default function AdminCategoriesPage() {
     const defaultImg = 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80';
     const finalImg = catImg.trim() || defaultImg;
 
-    const dbPayload = {
+    const dbPayload: any = {
       ad: catName.trim(),
-      description: catDesc.trim(),
       sekil_url: finalImg,
       sira: editingCat ? editingCat.order : categories.length + 1,
     };
+    if (catDesc.trim()) {
+      dbPayload.description = catDesc.trim();
+    }
 
     try {
       if (editingCat) {
