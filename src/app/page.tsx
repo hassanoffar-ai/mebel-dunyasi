@@ -138,7 +138,7 @@ export default function HomePage() {
 
       <main style={{ flexGrow: 1 }}>
         {/* 1. HERO BÖLMƏSİ (Slayder) */}
-        <section style={{ position: 'relative', height: 'clamp(480px, 75vh, 680px)', overflow: 'hidden', backgroundColor: '#23160F' }}>
+        <section style={{ position: 'relative', height: 'clamp(480px, 95vh, 680px)', overflow: 'hidden', backgroundColor: '#23160F' }}>
           {HERO_SLIDES.map((slide, index) => (
             <div
               key={index}

@@ -346,6 +346,8 @@ export default function AdminProductsPage() {
 
           if (fallbackData && fallbackData.length > 0) {
             savedProductId = fallbackData[0].id;
+            // Complete the update with all fields
+            await supabase.from('products').update(dbPayload).eq('id', savedProductId);
           }
         } else if (inserted && inserted.length > 0) {
           savedProductId = inserted[0].id;

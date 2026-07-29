@@ -33,6 +33,7 @@ export default function ProductDetailPage() {
 
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [approvedReviews, setApprovedReviews] = useState<any[]>([]);
 
   // Initial Product Data Fetch
   useEffect(() => {
@@ -84,6 +85,24 @@ export default function ProductDetailPage() {
     getProduct();
   }, [productId]);
 
+  // Fetch approved reviews
+  useEffect(() => {
+    async function loadProductReviews() {
+      if (!productId) return;
+      try {
+        const { data } = await supabase
+          .from('reviews')
+          .select('*')
+          .eq('product_id', productId)
+          .or('status.eq.tesdiqlendi,status.eq.confirmed')
+          .order('created_at', { ascending: false });
+
+        if (data) setApprovedReviews(data);
+      } catch (err) {}
+    }
+    loadProductReviews();
+  }, [productId]);
+
   if (loading) {
     return <div style={{ padding: '80px', textAlign: 'center' }}>Yüklənir...</div>;
   }
@@ -106,26 +125,6 @@ export default function ProductDetailPage() {
 
   // Thumbnails gallery (product images from DB)
   const thumbnails = (product.images && product.images.length > 0 ? product.images : [product.image_url]).filter(Boolean);
-
-  const [approvedReviews, setApprovedReviews] = useState<any[]>([]);
-
-  // Fetch approved reviews
-  useEffect(() => {
-    async function loadProductReviews() {
-      if (!productId) return;
-      try {
-        const { data } = await supabase
-          .from('reviews')
-          .select('*')
-          .eq('product_id', productId)
-          .or('status.eq.tesdiqlendi,status.eq.confirmed')
-          .order('created_at', { ascending: false });
-
-        if (data) setApprovedReviews(data);
-      } catch (err) {}
-    }
-    loadProductReviews();
-  }, [productId]);
 
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

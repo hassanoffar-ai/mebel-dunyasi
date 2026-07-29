@@ -44,20 +44,20 @@ function ProductsContent() {
 
           combined = dbProducts.map((p: any) => {
             const pImgs = dbImages ? dbImages.filter((img: any) => img.product_id === p.id) : [];
-            const mainImg = pImgs.find((img: any) => img.esas_sekil)?.sekil_url || (pImgs[0]?.sekil_url) || p.image_url || p.sekil_url || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&auto=format&fit=crop&q=60';
-            const allImgs = pImgs.length > 0 ? pImgs.map((img: any) => img.sekil_url) : (p.images || [mainImg]);
+            const mainImg = pImgs.find((img: any) => img.esas_sekil)?.sekil_url || (pImgs[0]?.sekil_url) || p.xususiyyetler?.image_url || p.image_url || p.sekil_url || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&auto=format&fit=crop&q=60';
+            const allImgs = pImgs.length > 0 ? pImgs.map((img: any) => img.sekil_url) : (p.xususiyyetler?.images || p.images || [mainImg]);
 
             return {
               id: p.id,
-              sku: p.sku || p.xususiyyetler?.sku,
+              sku: p.xususiyyetler?.sku || p.sku || `MBL-${p.id.slice(0, 5)}`,
               name: p.ad || p.name || 'Məhsul',
-              category: p.category || p.kateqoriya || 'Qonaq Otağı',
+              category: p.xususiyyetler?.category || p.category || p.kateqoriya || 'Qonaq Otağı',
               price: Number(p.qiymet || p.price || 0),
               old_price: p.endirimli_qiymet || p.old_price ? Number(p.endirimli_qiymet || p.old_price) : undefined,
               stock: Number(p.stok || p.stock || 0),
-              material: p.material || p.xususiyyetler?.material,
-              dimensions: p.dimensions || p.xususiyyetler?.dimensions,
-              color: p.color || p.xususiyyetler?.color,
+              material: p.xususiyyetler?.material || p.material || 'Təbii Palıd',
+              dimensions: p.xususiyyetler?.dimensions || p.dimensions || '',
+              color: p.xususiyyetler?.color || p.color || '',
               description: p.etrafli_teswir || p.qisa_teswir || p.description,
               image_url: mainImg,
               images: allImgs,
