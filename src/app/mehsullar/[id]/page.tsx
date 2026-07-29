@@ -39,10 +39,33 @@ export default function ProductDetailPage() {
     async function getProduct() {
       setLoading(true);
       try {
-        const { data, error } = await supabase.from('products').select('*').eq('id', productId).single();
-        if (data && !error) {
-          setProduct(data as Product);
-          setSelectedImage(data.image_url);
+        const { data: p, error } = await supabase.from('products').select('*').eq('id', productId).single();
+        if (p && !error) {
+          const { data: dbImages } = await supabase.from('product_images').select('*').eq('product_id', productId).order('sira', { ascending: true });
+
+          const pImgs = dbImages && dbImages.length > 0 ? dbImages.map((img: any) => img.sekil_url) : (p.images || [p.image_url || p.sekil_url]);
+          const mainImg = (dbImages && dbImages.find((img: any) => img.esas_sekil)?.sekil_url) || pImgs[0] || p.image_url || p.sekil_url;
+
+          const mapped: Product = {
+            id: p.id,
+            sku: p.sku || p.xususiyyetler?.sku || `MBL-${p.id.slice(0, 5)}`,
+            name: p.ad || p.name || 'Məhsul',
+            category: p.category || p.kateqoriya || 'Qonaq Otağı',
+            price: Number(p.qiymet || p.price || 0),
+            old_price: p.endirimli_qiymet || p.old_price ? Number(p.endirimli_qiymet || p.old_price) : undefined,
+            stock: Number(p.stok || p.stock || 0),
+            material: p.material || p.xususiyyetler?.material || 'Təbii Palıd',
+            dimensions: p.dimensions || p.xususiyyetler?.dimensions || '',
+            color: p.color || p.xususiyyetler?.color || '',
+            description: p.etrafli_teswir || p.qisa_teswir || p.description || '',
+            image_url: mainImg,
+            images: pImgs,
+            rating: p.rating || 5.0,
+            reviews_count: p.reviews_count || 0,
+          };
+
+          setProduct(mapped);
+          setSelectedImage(mainImg);
 
           // Fetch related products
           const { data: relData } = await supabase.from('products').select('*').neq('id', productId).limit(4);
@@ -81,10 +104,8 @@ export default function ProductDetailPage() {
     );
   }
 
-  // Thumbnails gallery (product image)
-  const thumbnails = [
-    product.image_url,
-  ].filter(Boolean);
+  // Thumbnails gallery (product images from DB)
+  const thumbnails = (product.images && product.images.length > 0 ? product.images : [product.image_url]).filter(Boolean);
 
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

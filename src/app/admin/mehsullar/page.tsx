@@ -58,21 +58,51 @@ export default function AdminProductsPage() {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
-  // Fetch Products from Supabase Backend
-  useEffect(() => {
-    async function loadProducts() {
-      setLoading(true);
-      try {
-        const { data, error } = await supabase.from('products').select('*');
-        if (data && !error) {
-          setProducts(data as Product[]);
-        }
-      } catch (err) {
-        console.log('Error fetching products from DB:', err);
-      } finally {
-        setLoading(false);
+  // Fetch Products from Supabase Backend (with product_images relation)
+  const loadProducts = async () => {
+    setLoading(true);
+    try {
+      // 1. Fetch products
+      const { data: dbProducts, error: prodError } = await supabase.from('products').select('*').order('created_at', { ascending: false });
+      
+      if (dbProducts && !prodError) {
+        // 2. Fetch product images
+        const { data: dbImages } = await supabase.from('product_images').select('*').order('sira', { ascending: true });
+        
+        const mappedProducts: Product[] = dbProducts.map((p: any) => {
+          const pImgs = dbImages ? dbImages.filter((img: any) => img.product_id === p.id) : [];
+          const mainImg = pImgs.find((img: any) => img.esas_sekil)?.sekil_url || (pImgs[0]?.sekil_url) || p.image_url || p.sekil_url || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&auto=format&fit=crop&q=60';
+          const allImgUrls = pImgs.length > 0 ? pImgs.map((img: any) => img.sekil_url) : (p.images || [mainImg]);
+
+          return {
+            id: p.id,
+            sku: p.sku || `MBL-${p.id.slice(0, 5)}`,
+            name: p.ad || p.name || 'Məhsul',
+            category: p.category || p.kateqoriya || 'Qonaq Otağı',
+            price: Number(p.qiymet || p.price || 0),
+            old_price: p.endirimli_qiymet || p.old_price ? Number(p.endirimli_qiymet || p.old_price) : undefined,
+            stock: Number(p.stok || p.stock || 0),
+            material: p.material || p.xususiyyetler?.material || 'Təbii Palıd',
+            dimensions: p.dimensions || p.xususiyyetler?.dimensions || '',
+            color: p.color || p.xususiyyetler?.color || '',
+            description: p.etrafli_teswir || p.qisa_teswir || p.description || '',
+            image_url: mainImg,
+            images: allImgUrls,
+            rating: p.rating || 5.0,
+            reviews_count: p.reviews_count || 0,
+          };
+        });
+
+        setProducts(mappedProducts);
       }
+    } catch (err) {
+      console.log('Error fetching products from DB:', err);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
     loadProducts();
   }, []);
 
@@ -228,45 +258,96 @@ export default function AdminProductsPage() {
 
     const primaryImage = images[0] || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&auto=format&fit=crop&q=60';
 
-    const newProd: Product = {
-      id: editingProduct ? editingProduct.id : Date.now().toString(),
-      sku: sku || `MBL-${Date.now().toString().slice(-5)}`,
-      name: name.trim(),
-      category,
-      price: parseFloat(price),
-      old_price: oldPrice ? parseFloat(oldPrice) : undefined,
-      stock: parseInt(stock) || 0,
-      material,
-      dimensions: dimensions.trim(),
-      color: color.trim(),
-      description: description.trim(),
-      image_url: primaryImage,
-      images,
-      rating: editingProduct ? editingProduct.rating : 5.0,
-      reviews_count: editingProduct ? editingProduct.reviews_count : 0,
+    const dbPayload = {
+      ad: name.trim(),
+      category: category,
+      qiymet: parseFloat(price),
+      endirimli_qiymet: oldPrice ? parseFloat(oldPrice) : null,
+      stok: parseInt(stock) || 0,
+      qisa_teswir: description.trim().slice(0, 150),
+      etrafli_teswir: description.trim(),
+      xususiyyetler: {
+        sku: sku || `MBL-${Date.now().toString().slice(-5)}`,
+        material,
+        dimensions: dimensions.trim(),
+        color: color.trim(),
+      },
+      status: 'aktiv',
     };
 
-    if (editingProduct) {
-      setProducts((prev) => prev.map((p) => (p.id === editingProduct.id ? newProd : p)));
-      try {
-        await supabase.from('products').update(newProd).eq('id', editingProduct.id);
-      } catch (err) {}
-    } else {
-      setProducts((prev) => [newProd, ...prev]);
-      try {
-        await supabase.from('products').insert([newProd]);
-      } catch (err) {}
+    try {
+      let savedProductId = editingProduct ? editingProduct.id : null;
+
+      if (editingProduct) {
+        const { error: updateErr } = await supabase.from('products').update(dbPayload).eq('id', editingProduct.id);
+        if (updateErr) {
+          // Fallback if column names differ
+          await supabase.from('products').update({
+            name: name.trim(),
+            category,
+            price: parseFloat(price),
+            old_price: oldPrice ? parseFloat(oldPrice) : null,
+            stock: parseInt(stock) || 0,
+            material,
+            dimensions: dimensions.trim(),
+            color: color.trim(),
+            description: description.trim(),
+            image_url: primaryImage,
+          }).eq('id', editingProduct.id);
+        }
+      } else {
+        const { data: inserted, error: insertErr } = await supabase.from('products').insert([dbPayload]).select().single();
+        if (inserted) {
+          savedProductId = inserted.id;
+        } else if (insertErr) {
+          // Fallback insert if schema uses English column names
+          const { data: fallbackInserted } = await supabase.from('products').insert([{
+            name: name.trim(),
+            category,
+            price: parseFloat(price),
+            old_price: oldPrice ? parseFloat(oldPrice) : null,
+            stock: parseInt(stock) || 0,
+            material,
+            dimensions: dimensions.trim(),
+            color: color.trim(),
+            description: description.trim(),
+            image_url: primaryImage,
+          }]).select().single();
+          if (fallbackInserted) savedProductId = fallbackInserted.id;
+        }
+      }
+
+      // Save product images to product_images table if we have product id
+      if (savedProductId) {
+        // Delete old product images if editing
+        if (editingProduct) {
+          await supabase.from('product_images').delete().eq('product_id', savedProductId);
+        }
+
+        const imageInserts = images.map((imgUrl, idx) => ({
+          product_id: savedProductId,
+          sekil_url: imgUrl,
+          esas_sekil: idx === 0,
+          sira: idx + 1,
+        }));
+
+        await supabase.from('product_images').insert(imageInserts);
+      }
+    } catch (err) {
+      console.error('Error saving product to Supabase:', err);
     }
 
+    await loadProducts();
     setIsModalOpen(false);
   };
 
   const handleDeleteProduct = async (id: string) => {
-    setProducts((prev) => prev.filter((p) => p.id !== id));
     setDeleteConfirmId(null);
     try {
+      await supabase.from('product_images').delete().eq('product_id', id);
       await supabase.from('products').delete().eq('id', id);
     } catch (err) {}
+    await loadProducts();
   };
 
   return (
