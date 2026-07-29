@@ -21,18 +21,12 @@ export default function CartPage() {
   const { cartItems, updateQuantity, removeFromCart } = useCart();
   const [couponCode, setCouponCode] = useState('');
   const [discountApplied, setDiscountApplied] = useState(false);
-  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   // Cart Calculations
   const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const discountAmount = discountApplied ? Math.round(subtotal * 0.1) : 0; // 10% discount
   const shippingFee = subtotal > 1500 || subtotal === 0 ? 0 : 30;
   const totalPrice = subtotal - discountAmount + shippingFee;
-
-  const removeItem = (id: string, variant: string) => {
-    removeFromCart(id, variant);
-    setConfirmDeleteId(null);
-  };
 
   const handleApplyCoupon = (e: React.FormEvent) => {
     e.preventDefault();
@@ -171,40 +165,14 @@ export default function CartPage() {
                       {item.price * item.quantity} ₼
                     </div>
 
-                    {/* Silmə Düyməsi & Tooltip Confirm */}
-                    <div style={{ position: 'relative' }}>
-                      {confirmDeleteId === `${item.id}-${item.variant}` ? (
-                        <div
-                          style={{
-                            position: 'absolute',
-                            right: 0,
-                            top: '-36px',
-                            backgroundColor: 'var(--text-main)',
-                            color: 'white',
-                            padding: '6px 12px',
-                            borderRadius: 'var(--radius-sm)',
-                            fontSize: '0.75rem',
-                            display: 'flex',
-                            gap: '8px',
-                            alignItems: 'center',
-                            whiteSpace: 'nowrap',
-                            zIndex: 10,
-                          }}
-                        >
-                          <span>Silinsin?</span>
-                          <button onClick={() => removeItem(item.id, item.variant)} style={{ color: '#FF6B6B', fontWeight: '700', background: 'none', border: 'none', cursor: 'pointer' }}>Bəli</button>
-                          <button onClick={() => setConfirmDeleteId(null)} style={{ color: 'white', background: 'none', border: 'none', cursor: 'pointer' }}>Xeyr</button>
-                        </div>
-                      ) : null}
-
-                      <button
-                        onClick={() => setConfirmDeleteId(`${item.id}-${item.variant}`)}
-                        style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '6px' }}
-                        title="Səbətdən Sil"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </div>
+                    {/* Silmə Düyməsi */}
+                    <button
+                      onClick={() => removeFromCart(item.id, item.variant)}
+                      style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '6px' }}
+                      title="Səbətdən Sil"
+                    >
+                      <Trash2 size={18} />
+                    </button>
                   </div>
                 ))}
               </div>
