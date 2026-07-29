@@ -33,6 +33,19 @@ function ProductsContent() {
   const categories = ['Bütün', 'Qonaq Otağı', 'Yataq Otağı', 'Mətbəx', 'Uşaq Otağı', 'Masa və Stullar'];
 
   useEffect(() => {
+    const cat = searchParams.get('kateqoriya') || searchParams.get('category');
+    if (cat) {
+      const decodedCat = decodeURIComponent(cat);
+      const found = categories.find((c) => c.toLowerCase() === decodedCat.toLowerCase());
+      if (found) {
+        setSelectedCategory(found);
+      } else {
+        setSelectedCategory(decodedCat);
+      }
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
     async function loadProducts() {
       // Show the most recently fetched catalogue immediately, then refresh it
       // in the background. This removes the blank loading state on repeat visits.

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Header, Footer } from '@/components/Navigation';
 import { supabase } from '@/lib/supabase';
+import { optimizeImageUrl } from '@/lib/utils';
 
 export interface CategoryItem {
   id: string;
@@ -117,10 +118,10 @@ export default function CategoriesPage() {
                 >
                   {/* Background Image */}
                   <img
-                    src={cat.image_url || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80'}
+                    src={optimizeImageUrl(cat.image_url, 500)}
                     alt={cat.title}
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    onError={(e) => { e.currentTarget.src = 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80'; }}
+                    onError={(e) => { e.currentTarget.src = 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=500&q=80'; }}
                   />
 
                   {/* Dark Transparent Overlay */}
@@ -148,9 +149,6 @@ export default function CategoriesPage() {
                     >
                       {cat.title}
                     </h2>
-                    <span style={{ color: 'var(--accent-gold)', fontWeight: '600', fontSize: '0.9rem' }}>
-                      {cat.count} məhsul
-                    </span>
                   </div>
                 </div>
               </Link>

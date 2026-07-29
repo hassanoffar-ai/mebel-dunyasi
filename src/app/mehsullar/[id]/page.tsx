@@ -11,6 +11,7 @@ import { Star, Heart, ShoppingBag, Truck, ShieldCheck, RotateCcw, Check, Plus, M
 
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
+import { optimizeImageUrl } from '@/lib/utils';
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -238,7 +239,7 @@ export default function ProductDetailPage() {
                 }}
               >
                 <img
-                  src={selectedImage}
+                  src={optimizeImageUrl(selectedImage, 800)}
                   alt={product.name}
                   style={{
                     width: '100%',
@@ -282,7 +283,7 @@ export default function ProductDetailPage() {
                         flexShrink: 0,
                       }}
                     >
-                      <img src={img} alt="thumbnail" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <img src={optimizeImageUrl(img, 150)} alt="thumbnail" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     </button>
                   ))}
                 </div>

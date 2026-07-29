@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Heart, Star, ShoppingCart } from 'lucide-react';
 import { Product } from '@/lib/mockData';
 import { useWishlist } from '@/context/WishlistContext';
+import { optimizeImageUrl } from '@/lib/utils';
 
 interface ProductCardProps {
   product: Product;
@@ -31,10 +32,10 @@ export function ProductCard({ product, onAddToCart, onToggleWishlist }: ProductC
       <div className="product-img-wrapper">
         <Link href={`/mehsullar/${product.id}`}>
           <img 
-            src={product.image_url || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80'} 
+            src={optimizeImageUrl(product.image_url, 400)} 
             alt={product.name} 
             onError={(e) => {
-              e.currentTarget.src = 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80';
+              e.currentTarget.src = 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=400&q=80';
             }}
           />
         </Link>
