@@ -245,26 +245,28 @@ export default function ProductDetailPage() {
                 />
               </div>
 
-              {/* Thumbnails */}
-              <div style={{ display: 'flex', gap: '14px', overflowX: 'auto', paddingBottom: '8px' }}>
-                {thumbnails.map((img, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setSelectedImage(img)}
-                    style={{
-                      width: '80px',
-                      height: '80px',
-                      borderRadius: 'var(--radius-sm)',
-                      overflow: 'hidden',
-                      border: selectedImage === img ? '2px solid var(--accent-gold)' : '1px solid var(--border-color)',
-                      cursor: 'pointer',
-                      flexShrink: 0,
-                    }}
-                  >
-                    <img src={img} alt="thumbnail" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  </button>
-                ))}
-              </div>
+              {/* Thumbnails (Only show if there are multiple images) */}
+              {thumbnails.length > 1 && (
+                <div style={{ display: 'flex', gap: '14px', overflowX: 'auto', paddingBottom: '8px' }}>
+                  {thumbnails.map((img, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setSelectedImage(img)}
+                      style={{
+                        width: '80px',
+                        height: '80px',
+                        borderRadius: 'var(--radius-sm)',
+                        overflow: 'hidden',
+                        border: selectedImage === img ? '2px solid var(--accent-gold)' : '1px solid var(--border-color)',
+                        cursor: 'pointer',
+                        flexShrink: 0,
+                      }}
+                    >
+                      <img src={img} alt="thumbnail" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* SAĞ: Məhsul Məlumatları */}
