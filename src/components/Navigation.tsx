@@ -123,14 +123,17 @@ export function Header({ cartCount: propCartCount }: HeaderProps) {
             </Link>
 
             {userSession ? (
-              <button
-                className="icon-btn"
-                title="Çıxış Et"
-                onClick={handleLogout}
-                style={{ color: '#D9534F' }}
-              >
-                <LogOut size={20} />
-              </button>
+              <>
+                <Link href="/profil" className="icon-btn" title="Profilim"><User size={20} /></Link>
+                <button
+                  className="icon-btn"
+                  title="Çıxış Et"
+                  onClick={handleLogout}
+                  style={{ color: '#D9534F' }}
+                >
+                  <LogOut size={20} />
+                </button>
+              </>
             ) : (
               <Link href="/login" className="icon-btn" title="Hesabım"><User size={20} /></Link>
             )}
