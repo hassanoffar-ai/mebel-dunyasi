@@ -107,14 +107,7 @@ export default function WishlistPage() {
             </div>
           ) : (
             /* SEVİMLİLƏR GRID (3 cols Desktop, 2 cols Tablet/Mobile) */
-            <div 
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                gap: '24px',
-                width: '100%'
-              }}
-            >
+            <div className="grid-responsive-products">
               {favoriteProducts.map((prod) => (
                 <ProductCard
                   key={prod.id}

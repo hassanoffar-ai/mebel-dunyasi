@@ -437,7 +437,7 @@ a {
 .product-img-wrapper {
   position: relative;
   width: 100%;
-  height: 240px;
+  aspect-ratio: 4 / 3;
   overflow: hidden;
   background-color: var(--bg-secondary);
 }

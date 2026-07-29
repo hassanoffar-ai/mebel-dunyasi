@@ -193,14 +193,7 @@ function ProductsContent() {
               <h3>Məhsullar yüklənir...</h3>
             </div>
           ) : filteredProducts.length > 0 ? (
-            <div 
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                gap: '24px',
-                width: '100%'
-              }}
-            >
+            <div className="grid-responsive-products">
               {filteredProducts.map((prod) => (
                 <ProductCard key={prod.id} product={prod} onAddToCart={handleAddToCart} />
               ))}
