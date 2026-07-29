@@ -8,16 +8,14 @@ export const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Bu funksiya seçdiyiniz şəkli Supabase 'images' bucket-inə yükləyir və onun ictimai URL linkini qaytarır
 export async function uploadImage(file: File): Promise<string> {
-  const fileExt = file.name.split('.').pop() || 'jpg';
-  const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
+  const cleanName = file.name.toLowerCase().replace(/[^a-z0-9.]/g, '_');
+  const fileName = `${Date.now()}_${cleanName}`;
 
   try {
     // 1. Try uploading to Supabase Storage 'images' bucket
     const { data, error } = await supabase.storage
       .from('images')
       .upload(fileName, file, {
-        cacheControl: '3600',
-        contentType: file.type || 'image/jpeg',
         upsert: true,
       });
 
@@ -30,7 +28,7 @@ export async function uploadImage(file: File): Promise<string> {
         return publicUrlData.publicUrl;
       }
     } else if (error) {
-      console.warn('Supabase Storage RLS/Upload Error:', error.message);
+      console.warn('Supabase Storage Upload Info:', error.message);
     }
   } catch (err) {
     console.warn('Supabase Storage exception:', err);
