@@ -55,26 +55,6 @@ export const MOCK_PRODUCTS: Product[] = [
     reviews_count: 28,
     image_url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=800&q=80',
   },
-  {
-    id: '5',
-    name: 'Rəngarəng Uşaq Çarpayısı və Dolab Dəsti',
-    category: 'Uşaq Otağı',
-    price: 890,
-    old_price: 1050,
-    rating: 4.9,
-    reviews_count: 14,
-    image_url: 'https://images.unsplash.com/photo-1588854337221-4cf9fa96059c?auto=format&fit=crop&w=800&q=80',
-  },
-  {
-    id: '6',
-    name: 'Təbii Taxta Yemək Masası və 6 Stul Dəsti',
-    category: 'Masa və Stullar',
-    price: 1250,
-    old_price: 1400,
-    rating: 4.8,
-    reviews_count: 22,
-    image_url: 'https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=800&q=80',
-  },
 ];
 
 export const CATEGORIES = [
