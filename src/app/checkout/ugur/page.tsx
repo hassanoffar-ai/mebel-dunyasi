@@ -7,27 +7,44 @@ import { supabase } from '@/lib/supabase';
 import { Header, Footer } from '@/components/Navigation';
 import { CheckCircle2, ShoppingBag, ArrowRight } from 'lucide-react';
 
+import { useCart } from '@/context/CartContext';
+
 function SuccessContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get('order_id') || 'MD-584912';
+  const sessionId = searchParams.get('session_id') || '';
 
+  const { clearCart } = useCart();
   const [order, setOrder] = useState<any>(null);
 
   useEffect(() => {
-    async function getOrderDetails() {
+    async function confirmAndFetchOrder() {
+      if (clearCart) {
+        clearCart();
+      }
       try {
-        const { data, error } = await supabase.from('orders').select('*').eq('id', orderId).single();
-        if (data && !error) {
-          setOrder(data);
+        if (orderId) {
+          // Confirm order status to confirmed via API
+          await fetch('/api/checkout/confirm', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orderId, sessionId }),
+          });
+
+          // Fetch updated order from Supabase
+          const { data } = await supabase.from('orders').select('*').eq('id', orderId).single();
+          if (data) {
+            setOrder(data);
+          } else {
+            setOrder({ id: orderId, status: 'confirmed', catdirilma_unvani: 'Bakı şəhəri daxilində (Pulsuz)' });
+          }
         }
       } catch (err) {
-        console.log('Using default success order presentation');
+        console.log('Order status update error:', err);
       }
     }
-    if (orderId) {
-      getOrderDetails();
-    }
-  }, [orderId]);
+    confirmAndFetchOrder();
+  }, [orderId, sessionId]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: 'var(--bg-main)' }}>
@@ -87,8 +104,8 @@ function SuccessContent() {
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
               <span>Sifariş Statusu:</span>
-              <span style={{ color: 'var(--accent-gold)', fontWeight: '600', textTransform: 'capitalize' }}>
-                {order?.status || 'pending'} (Gözləmədə)
+              <span style={{ color: 'var(--success-color)', fontWeight: '600', textTransform: 'capitalize' }}>
+                {order?.status === 'confirmed' ? 'Təsdiqləndi (Confirmed)' : order?.status || 'Təsdiqləndi (Confirmed)'}
               </span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>

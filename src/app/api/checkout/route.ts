@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
-import { supabase } from '@/lib/supabase';
+import { supabaseAdmin } from '@/lib/supabase-admin';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,8 +19,8 @@ export async function POST(req: Request) {
       0
     );
 
-    // 1. Save order in Supabase with status = 'pending'
-    const { data: order, error: orderError } = await supabase
+    // 1. Save order in Supabase using supabaseAdmin (bypasses RLS)
+    const { data: order, error: orderError } = await supabaseAdmin
       .from('orders')
       .insert([
         {
@@ -37,10 +37,14 @@ export async function POST(req: Request) {
       .select()
       .single();
 
+    if (orderError) {
+      console.error('Order Insert Error in Supabase:', orderError);
+    }
+
     let orderId = order?.id;
 
-    // Fallback order ID if Supabase table is mock or pending
-    if (orderError || !orderId) {
+    // Fallback order ID if Supabase table missing/error
+    if (!orderId) {
       orderId = 'MD-' + Math.floor(100000 + Math.random() * 900000);
     } else {
       // Insert order items
@@ -50,7 +54,7 @@ export async function POST(req: Request) {
         say: item.say || item.quantity || 1,
         vahid_qiymet: item.qiymet || item.price,
       }));
-      await supabase.from('order_items').insert(orderItems);
+      await supabaseAdmin.from('order_items').insert(orderItems);
     }
 
     // Origin URL
