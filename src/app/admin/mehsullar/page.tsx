@@ -95,16 +95,6 @@ export default function AdminProductsPage() {
         });
       }
 
-      // 2. Read local backup storage
-      try {
-        const stored = localStorage.getItem('local_added_products');
-        if (stored) {
-          const localList: Product[] = JSON.parse(stored);
-          const localOnly = localList.filter((lp) => !combinedProducts.some((dbP) => dbP.id === lp.id));
-          combinedProducts = [...localOnly, ...combinedProducts];
-        }
-      } catch (e) {}
-
       setProducts(combinedProducts);
     } catch (err) {
       console.log('Error fetching products from DB:', err);
@@ -114,6 +104,9 @@ export default function AdminProductsPage() {
   };
 
   useEffect(() => {
+    try {
+      localStorage.removeItem('local_added_products');
+    } catch (e) {}
     loadProducts();
   }, []);
 
@@ -415,12 +408,13 @@ export default function AdminProductsPage() {
   const handleDeleteProduct = async (id: string) => {
     setDeleteConfirmId(null);
     try {
-      await fetch(`/api/admin/crud?table=product_images&column=product_id&id=${id}`, { method: 'DELETE' });
-      const res = await fetch(`/api/admin/crud?table=products&id=${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/admin/products/${encodeURIComponent(id)}`, { method: 'DELETE' });
       const data = await res.json();
       if (!res.ok || data.error) {
-        alert(`Məhsul silinərkən xəta baş verdi: ${data.error || 'Naməlum xəta'}`);
+        throw new Error(data.error || 'Naməlum xəta');
       }
+
+      setProducts((current) => current.filter((product) => product.id !== id));
     } catch (err: any) {
       console.error('Delete product error:', err);
       alert(`Məhsul silinərkən xəta baş verdi: ${err.message || err}`);

@@ -67,14 +67,11 @@ function ProductsContent() {
           });
         }
 
-        // Read local backup products
+        // Products must come only from the database. Remove records cached by
+        // an older version of the admin panel so deleted products do not
+        // reappear for visitors.
         try {
-          const stored = localStorage.getItem('local_added_products');
-          if (stored) {
-            const localList: Product[] = JSON.parse(stored);
-            const localOnly = localList.filter((lp) => !combined.some((dbP) => dbP.id === lp.id));
-            combined = [...localOnly, ...combined];
-          }
+          localStorage.removeItem('local_added_products');
         } catch (e) {}
 
         setProducts(combined);

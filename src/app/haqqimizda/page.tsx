@@ -28,24 +28,6 @@ const VALUES = [
   },
 ];
 
-const TEAM = [
-  {
-    name: 'Rəşad Quliyev',
-    role: 'Təsisçi & Baş Dizayner',
-    image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80',
-  },
-  {
-    name: 'Leyla Əhmədova',
-    role: 'İnteryer Arxitektor',
-    image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80',
-  },
-  {
-    name: 'Kamran Məmmədov',
-    role: 'İstehsalat Rəhbəri',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80',
-  },
-];
-
 export default function AboutPage() {
   const [cartCount, setCartCount] = useState(0);
 
@@ -203,41 +185,7 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* 5. KOMANDA BÖLMƏSİ */}
-        <section style={{ padding: '80px 0', backgroundColor: 'var(--bg-main)' }}>
-          <div className="container">
-            <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-              <h2 style={{ fontSize: '2.2rem', fontFamily: 'var(--font-serif)', marginBottom: '12px' }}>Komandamız</h2>
-              <p style={{ color: 'var(--text-muted)' }}>Fikir və dizaynlarımızı həyata keçirən peşəkar komandamız</p>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '30px' }}>
-              {TEAM.map((member, idx) => (
-                <div
-                  key={idx}
-                  style={{
-                    backgroundColor: 'var(--white)',
-                    borderRadius: 'var(--radius-md)',
-                    overflow: 'hidden',
-                    border: '1px solid var(--border-color)',
-                    boxShadow: 'var(--shadow-diffuse)',
-                    textAlign: 'center',
-                  }}
-                >
-                  <div style={{ aspectRatio: '1 / 1', overflow: 'hidden', backgroundColor: 'var(--bg-secondary)' }}>
-                    <img src={member.image} alt={member.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  </div>
-                  <div style={{ padding: '20px' }}>
-                    <h3 style={{ fontSize: '1.2rem', fontFamily: 'var(--font-serif)', marginBottom: '4px' }}>{member.name}</h3>
-                    <span style={{ color: 'var(--accent-primary)', fontSize: '0.88rem', fontWeight: '500' }}>{member.role}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* 6. CTA BÖLMƏSİ */}
+        {/* 5. CTA BÖLMƏSİ */}
         <section style={{ padding: '80px 20px', backgroundColor: 'var(--bg-secondary)', textAlign: 'center', borderTop: '1px solid var(--border-color)' }}>
           <div style={{ maxWidth: '600px', margin: '0 auto' }}>
             <h2 style={{ fontSize: '2.4rem', fontFamily: 'var(--font-serif)', marginBottom: '16px' }}>

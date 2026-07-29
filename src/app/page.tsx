@@ -97,14 +97,10 @@ export default function HomePage() {
           });
         }
 
-        // Check local_added_products backup
+        // Products must come only from the database. Clear stale products
+        // cached by older builds so removed products cannot reappear.
         try {
-          const stored = localStorage.getItem('local_added_products');
-          if (stored) {
-            const localList: Product[] = JSON.parse(stored);
-            const localOnly = localList.filter((lp) => !combined.some((dbP) => dbP.id === lp.id));
-            combined = [...localOnly, ...combined];
-          }
+          localStorage.removeItem('local_added_products');
         } catch (e) {}
 
         setProducts(combined);
