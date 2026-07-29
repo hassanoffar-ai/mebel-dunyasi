@@ -27,10 +27,10 @@ export async function POST(req: Request) {
     }
 
     if (isPaid) {
-      // Update order status in Supabase using the translated status
+      // Keep order status as pending in Supabase as requested
       const { error } = await supabaseAdmin
         .from('orders')
-        .update({ status: toDbStatus('confirmed') })
+        .update({ status: toDbStatus('pending') })
         .eq('id', orderId);
 
       if (error) {

@@ -54,7 +54,7 @@ export async function POST(req: Request) {
 
     const { error: orderError } = await supabaseAdmin
       .from('orders')
-      .update({ status: toDbStatus('confirmed') })
+      .update({ status: toDbStatus('pending') })
       .eq('id', orderId);
 
     if (orderError) {
