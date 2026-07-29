@@ -426,6 +426,8 @@ a {
   flex-direction: column;
   position: relative;
   transition: var(--transition);
+  grid-column: auto !important;
+  width: 100%;
 }
 
 .product-card:hover {
