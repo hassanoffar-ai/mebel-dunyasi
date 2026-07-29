@@ -7,6 +7,7 @@ import { ProductCard } from '@/components/ProductCard';
 import { MOCK_PRODUCTS, CATEGORIES, Product } from '@/lib/mockData';
 import { supabase } from '@/lib/supabase';
 import { Truck, ShieldCheck, Headphones, RotateCcw, Star, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useCart } from '@/context/CartContext';
 
 export interface Testimonial {
   id: string;
@@ -36,8 +37,6 @@ const HERO_SLIDES = [
   },
 ];
 
-import { useCart } from '@/context/CartContext';
-
 export default function HomePage() {
   const { addToCart } = useCart();
   const [products, setProducts] = useState<Product[]>([]);
@@ -57,14 +56,14 @@ export default function HomePage() {
     async function fetchData() {
       try {
         let combined: Product[] = [];
-        const [{ data: dbProducts }, { data: dbImages }] = await Promise.all([
-          supabase.from('products').select('*').order('created_at', { ascending: false }),
-          supabase.from('product_images').select('*').order('sira', { ascending: true }),
-        ]);
+        const { data: dbProducts } = await supabase
+          .from('products')
+          .select('*, product_images(*)')
+          .order('created_at', { ascending: false });
 
         if (dbProducts && dbProducts.length > 0) {
           combined = dbProducts.map((p: any) => {
-            const pImgs = dbImages ? dbImages.filter((img: any) => img.product_id === p.id) : [];
+            const pImgs = p.product_images ? [...p.product_images].sort((a: any, b: any) => (a.sira || 0) - (b.sira || 0)) : [];
             const mainImg =
               pImgs.find((img: any) => img.esas_sekil)?.sekil_url ||
               pImgs[0]?.sekil_url ||

@@ -64,15 +64,15 @@ export default function AdminProductsPage() {
     try {
       let combinedProducts: Product[] = [];
 
-      // 1. Fetch products from Supabase
-      const [{ data: dbProducts, error: prodError }, { data: dbImages }] = await Promise.all([
-        supabase.from('products').select('*').order('created_at', { ascending: false }),
-        supabase.from('product_images').select('*').order('sira', { ascending: true }),
-      ]);
+      // 1. Fetch products from Supabase with nested relation
+      const { data: dbProducts, error: prodError } = await supabase
+        .from('products')
+        .select('*, product_images(*)')
+        .order('created_at', { ascending: false });
       
       if (dbProducts && !prodError) {
         combinedProducts = dbProducts.map((p: any) => {
-          const pImgs = dbImages ? dbImages.filter((img: any) => img.product_id === p.id) : [];
+          const pImgs = p.product_images ? [...p.product_images].sort((a: any, b: any) => (a.sira || 0) - (b.sira || 0)) : [];
           const mainImg = pImgs.find((img: any) => img.esas_sekil)?.sekil_url || (pImgs[0]?.sekil_url) || p.xususiyyetler?.image_url || p.image_url || p.sekil_url || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&auto=format&fit=crop&q=60';
           const allImgUrls = pImgs.length > 0 ? pImgs.map((img: any) => img.sekil_url) : (p.xususiyyetler?.images || p.images || [mainImg]);
 

@@ -51,14 +51,14 @@ function ProductsContent() {
       if (!hasCachedProducts) setLoading(true);
       try {
         let combined: Product[] = [];
-        const [{ data: dbProducts }, { data: dbImages }] = await Promise.all([
-          supabase.from('products').select('*').order('created_at', { ascending: false }),
-          supabase.from('product_images').select('*').order('sira', { ascending: true }),
-        ]);
+        const { data: dbProducts } = await supabase
+          .from('products')
+          .select('*, product_images(*)')
+          .order('created_at', { ascending: false });
 
         if (dbProducts && dbProducts.length > 0) {
           combined = dbProducts.map((p: any) => {
-            const pImgs = dbImages ? dbImages.filter((img: any) => img.product_id === p.id) : [];
+            const pImgs = p.product_images ? [...p.product_images].sort((a: any, b: any) => (a.sira || 0) - (b.sira || 0)) : [];
             const mainImg = pImgs.find((img: any) => img.esas_sekil)?.sekil_url || (pImgs[0]?.sekil_url) || p.xususiyyetler?.image_url || p.image_url || p.sekil_url || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&auto=format&fit=crop&q=60';
             const allImgs = pImgs.length > 0 ? pImgs.map((img: any) => img.sekil_url) : (p.xususiyyetler?.images || p.images || [mainImg]);
 
