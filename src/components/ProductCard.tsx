@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Heart, Star, ShoppingCart } from 'lucide-react';
+import { Heart, ShoppingCart } from 'lucide-react';
 import { Product } from '@/lib/mockData';
 import { useWishlist } from '@/context/WishlistContext';
 import { optimizeImageUrl } from '@/lib/utils';
@@ -56,11 +56,6 @@ export function ProductCard({ product, onAddToCart, onToggleWishlist }: ProductC
           <Link href={`/mehsullar/${product.id}`}>
             <h3 className="product-title" style={{ fontSize: '1rem', margin: 0 }}>{product.name}</h3>
           </Link>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-            <Star size={13} fill="#C9A15D" color="#C9A15D" />
-            <span style={{ fontWeight: '600', color: 'var(--text-main)' }}>{product.rating}</span>
-            <span>({product.reviews_count})</span>
-          </div>
         </div>
 
         {/* Qiymət və Səbət Düyməsi */}
