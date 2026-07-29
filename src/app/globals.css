@@ -122,6 +122,21 @@ a {
   max-width: 440px;
 }
 
+/* Registration form: keep the focus on the form by centering it on the page. */
+.auth-container.auth-centered {
+  justify-content: center;
+  background-color: var(--bg-main);
+}
+
+.auth-container.auth-centered .auth-sidebar {
+  display: none;
+}
+
+.auth-container.auth-centered .auth-content-side {
+  flex: 0 1 520px;
+  width: 100%;
+}
+
 .form-group {
   margin-bottom: 20px;
   display: flex;

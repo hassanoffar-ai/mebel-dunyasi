@@ -89,7 +89,7 @@ function RegisterContent() {
   };
 
   return (
-    <div className="auth-container">
+    <div className="auth-container auth-centered">
       <div className="auth-sidebar">
         <img
           src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1600&q=80"
