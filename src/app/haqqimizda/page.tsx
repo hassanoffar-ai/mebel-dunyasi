@@ -37,7 +37,7 @@ export default function AboutPage() {
 
       <main style={{ flexGrow: 1 }}>
         {/* 1. HERO BÖLMƏSİ */}
-        <section style={{ position: 'relative', height: '600px', backgroundColor: '#23160F', overflow: 'hidden' }}>
+        <section style={{ position: 'relative', height: '700px', backgroundColor: '#23160F', overflow: 'hidden' }}>
           <img
             src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1600&q=80"
             alt="Mebel Dünyası Hekayəmiz"
