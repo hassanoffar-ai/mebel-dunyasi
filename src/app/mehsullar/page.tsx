@@ -192,13 +192,16 @@ function ProductsContent() {
               <Clock size={40} className="animate-spin" style={{ margin: '0 auto 12px auto', color: 'var(--accent-primary)' }} />
               <h3>Məhsullar yüklənir...</h3>
             </div>
-          ) : errorMsg ? (
-            <div style={{ backgroundColor: '#FDE8E8', color: '#E53E3E', padding: '20px', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
-              <AlertTriangle size={32} style={{ margin: '0 auto 8px auto' }} />
-              <p style={{ fontWeight: '600' }}>{errorMsg}</p>
-            </div>
           ) : filteredProducts.length > 0 ? (
-            <div className="grid-responsive-products">
+            <div 
+              className="grid-responsive-products"
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, 1fr)',
+                gap: '24px',
+                width: '100%'
+              }}
+            >
               {filteredProducts.map((prod) => (
                 <ProductCard key={prod.id} product={prod} onAddToCart={handleAddToCart} />
               ))}
