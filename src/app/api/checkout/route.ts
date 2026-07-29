@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { supabaseAdmin } from '@/lib/supabase-admin';
+import { toDbStatus } from '@/lib/statusHelper';
 
 export const dynamic = 'force-dynamic';
 export const preferredRegion = 'fra1';
@@ -21,22 +22,54 @@ export async function POST(req: Request) {
     );
 
     // 1. Save order in Supabase using supabaseAdmin (bypasses RLS)
-    const { data: order, error: orderError } = await supabaseAdmin
-      .from('orders')
-      .insert([
-        {
-          user_id: user_id || null,
-          customer: customer || 'Müştəri',
-          email: email || '',
-          umumi_meblegh,
-          status: 'pending',
-          catdirilma_unvani: catdirilma_unvani || 'Baku, Azerbaijan',
-          telefon: telefon || '+994 50 000 00 00',
-          odenis_usulu: 'Stripe Card',
-        },
-      ])
-      .select()
-      .single();
+    let order: any = null;
+    let orderError: any = null;
+    
+    const baseOrderPayload = {
+      user_id: user_id || null,
+      umumi_meblegh,
+      status: toDbStatus('pending'),
+      telefon: telefon || '+994 50 000 00 00',
+      odenis_usulu: 'Stripe Card',
+    };
+
+    try {
+      const firstAttempt = await supabaseAdmin
+        .from('orders')
+        .insert([
+          {
+            ...baseOrderPayload,
+            customer: customer || 'Müştəri',
+            email: email || '',
+            catdirilma_unvani: catdirilma_unvani || 'Baku, Azerbaijan',
+          },
+        ])
+        .select()
+        .single();
+      
+      order = firstAttempt.data;
+      orderError = firstAttempt.error;
+
+      // Fallback: If database schema doesn't have customer/email columns, format them into catdirilma_unvani
+      if (orderError && (orderError.message?.includes("column") || orderError.code === 'PGRST204' || orderError.code === '42703')) {
+        const formattedAddress = `Müştəri: ${customer || 'Müştəri'} (${email || 'E-poçtsuz'}), Ünvan: ${catdirilma_unvani || 'Baku, Azerbaijan'}`;
+        const secondAttempt = await supabaseAdmin
+          .from('orders')
+          .insert([
+            {
+              ...baseOrderPayload,
+              catdirilma_unvani: formattedAddress.slice(0, 500),
+            },
+          ])
+          .select()
+          .single();
+        
+        order = secondAttempt.data;
+        orderError = secondAttempt.error;
+      }
+    } catch (err: any) {
+      orderError = err;
+    }
 
     if (orderError || !order) throw orderError || new Error('Sifariş yaradıla bilmədi.');
 

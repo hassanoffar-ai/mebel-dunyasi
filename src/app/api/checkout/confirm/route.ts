@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { supabaseAdmin } from '@/lib/supabase-admin';
+import { toDbStatus } from '@/lib/statusHelper';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,10 +27,10 @@ export async function POST(req: Request) {
     }
 
     if (isPaid) {
-      // Update order status to 'confirmed' in Supabase
+      // Update order status in Supabase using the translated status
       const { error } = await supabaseAdmin
         .from('orders')
-        .update({ status: 'confirmed' })
+        .update({ status: toDbStatus('confirmed') })
         .eq('id', orderId);
 
       if (error) {

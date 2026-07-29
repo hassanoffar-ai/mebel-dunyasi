@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import type Stripe from 'stripe';
+import { toDbStatus } from '@/lib/statusHelper';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -53,7 +54,7 @@ export async function POST(req: Request) {
 
     const { error: orderError } = await supabaseAdmin
       .from('orders')
-      .update({ status: 'confirmed' })
+      .update({ status: toDbStatus('confirmed') })
       .eq('id', orderId);
 
     if (orderError) {
