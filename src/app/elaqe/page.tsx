@@ -63,15 +63,7 @@ export default function ContactPage() {
 
       <main style={{ flexGrow: 1, padding: '50px 0 90px 0' }}>
         <div className="container">
-          {/* Header Title */}
-          <div style={{ textAlign: 'center', maxWidth: '600px', margin: '0 auto 50px auto' }}>
-            <h1 style={{ fontSize: '2.8rem', fontFamily: 'var(--font-serif)', marginBottom: '12px', color: 'var(--text-main)' }}>
-              Bizimlə Əlaqə
-            </h1>
-            <p style={{ color: 'var(--text-muted)', fontSize: '1.05rem' }}>
-              Suallarınız, təklifləriniz və ya xüsusi sifarişləriniz üçün bizə yazın və ya mağazamıza baş çəkin.
-            </p>
-          </div>
+
 
           {/* 2 Sütunlu Responsive Layout (Desktop 40/60, Mobil üst-üstə) */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '36px' }}>
