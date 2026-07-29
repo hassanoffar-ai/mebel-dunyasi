@@ -10,18 +10,20 @@ import { supabase } from '@/lib/supabase';
 import { Star, Heart, ShoppingBag, Truck, ShieldCheck, RotateCcw, Check, Plus, Minus, Send, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 import { useCart } from '@/context/CartContext';
+import { useWishlist } from '@/context/WishlistContext';
 
 export default function ProductDetailPage() {
   const params = useParams();
   const productId = (params?.id as string) || '1';
 
   const { addToCart } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
+  
   const [product, setProduct] = useState<Product | null>(null);
   const [selectedImage, setSelectedImage] = useState<string>('');
   const [quantity, setQuantity] = useState(1);
   const [selectedColor, setSelectedColor] = useState('İsti Bej');
   const [activeTab, setActiveTab] = useState<'desc' | 'specs' | 'reviews'>('desc');
-  const [isWishlisted, setIsWishlisted] = useState(false);
 
   // Form State for Review
   const [reviewRating, setReviewRating] = useState(5);
@@ -32,6 +34,7 @@ export default function ProductDetailPage() {
   const [addedToCartMsg, setAddedToCartMsg] = useState(false);
 
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  const isWishlisted = product ? isInWishlist(product.id) : false;
   const [loading, setLoading] = useState(true);
   const [approvedReviews, setApprovedReviews] = useState<any[]>([]);
 
@@ -249,7 +252,7 @@ export default function ProductDetailPage() {
                 />
                 <button
                   className="product-wishlist-btn"
-                  onClick={() => setIsWishlisted(!isWishlisted)}
+                  onClick={() => product && toggleWishlist(product)}
                   title={isWishlisted ? 'Sevimlilərdən çıxar' : 'Sevimlilərə əlavə et'}
                   style={{
                     position: 'absolute',

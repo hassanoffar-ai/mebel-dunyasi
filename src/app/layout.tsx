@@ -2,6 +2,7 @@ import '../../style.css';
 import './globals.css';
 import type { Metadata } from 'next';
 import { CartProvider } from '@/context/CartContext';
+import { WishlistProvider } from '@/context/WishlistContext';
 
 export const metadata: Metadata = {
   title: 'Mebel Dünyası — Premium Mebellər',
@@ -16,7 +17,9 @@ export default function RootLayout({
   return (
     <html lang="az">
       <body>
-        <CartProvider>{children}</CartProvider>
+        <CartProvider>
+          <WishlistProvider>{children}</WishlistProvider>
+        </CartProvider>
       </body>
     </html>
   );
