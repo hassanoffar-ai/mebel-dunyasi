@@ -650,23 +650,16 @@ a {
   gap: 16px;
 }
 
-@media (min-width: 520px) {
+@media (min-width: 540px) {
   .grid-responsive-products {
     grid-template-columns: repeat(2, 1fr);
     gap: 18px;
   }
 }
 
-@media (min-width: 820px) {
+@media (min-width: 880px) {
   .grid-responsive-products {
     grid-template-columns: repeat(3, 1fr);
-    gap: 22px;
-  }
-}
-
-@media (min-width: 1100px) {
-  .grid-responsive-products {
-    grid-template-columns: repeat(4, 1fr);
     gap: 24px;
   }
 }
