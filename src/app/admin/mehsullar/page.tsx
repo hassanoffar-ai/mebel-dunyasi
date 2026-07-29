@@ -238,6 +238,32 @@ export default function AdminProductsPage() {
     });
   };
 
+  const handleReplaceImageFile = async (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type.toLowerCase())) {
+      alert('Yalnız JPG, PNG və WEBP formatları qəbul olunur.');
+      return;
+    }
+    setUploadingImage(true);
+    try {
+      const publicUrl = await uploadImage(file);
+      if (publicUrl) {
+        setImages((prev) => {
+          const updated = [...prev];
+          updated[index] = publicUrl;
+          return updated;
+        });
+      }
+    } catch (err) {
+      console.error('Replace image error:', err);
+    } finally {
+      setUploadingImage(false);
+      e.target.value = '';
+    }
+  };
+
   // Validation Check
   const validateForm = () => {
     const errors: Record<string, string> = {};
@@ -672,13 +698,13 @@ export default function AdminProductsPage() {
 
                 {/* Yüklənmiş Şəkillər Şəbəkəsi (Thumbnails) */}
                 {images.length > 0 && (
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '12px', marginTop: '14px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(105px, 1fr))', gap: '12px', marginTop: '14px' }}>
                     {images.map((imgUrl, idx) => (
                       <div
                         key={idx}
                         style={{
                           position: 'relative',
-                          height: '90px',
+                          height: '95px',
                           borderRadius: '8px',
                           overflow: 'hidden',
                           border: idx === 0 ? '2px solid var(--admin-accent)' : '1px solid var(--admin-border)',
@@ -688,6 +714,29 @@ export default function AdminProductsPage() {
                       >
                         <img src={imgUrl} alt={`Məhsul şəkli ${idx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         
+                        {/* Edit / Replace Button */}
+                        <div style={{ position: 'absolute', top: '4px', left: '4px', zIndex: 10 }}>
+                          <label title="Şəkli Dəyişdir (Desktop-dan yeni şəkil seç)" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '22px', height: '22px', borderRadius: '50%', backgroundColor: 'rgba(43,29,20,0.85)', color: 'white', cursor: 'pointer' }}>
+                            <Edit size={12} />
+                            <input
+                              type="file"
+                              accept="image/jpeg,image/png,image/webp"
+                              style={{ display: 'none' }}
+                              onChange={(e) => handleReplaceImageFile(idx, e)}
+                            />
+                          </label>
+                        </div>
+
+                        {/* Delete Image Button */}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveImage(idx)}
+                          title="Şəkli Sil"
+                          style={{ position: 'absolute', top: '4px', right: '4px', backgroundColor: 'rgba(179,65,58,0.9)', color: 'white', border: 'none', borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10 }}
+                        >
+                          <Trash2 size={12} />
+                        </button>
+
                         {idx === 0 ? (
                           <span style={{ position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: 'var(--admin-accent)', color: 'white', fontSize: '0.65rem', textAlign: 'center', padding: '3px 0', fontWeight: '600' }}>
                             ★ Əsas Şəkil
@@ -696,20 +745,11 @@ export default function AdminProductsPage() {
                           <button
                             type="button"
                             onClick={() => handleSetPrimaryImage(idx)}
-                            style={{ position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: 'rgba(43,29,20,0.75)', color: '#FAF7F2', border: 'none', fontSize: '0.62rem', textAlign: 'center', padding: '3px 0', cursor: 'pointer', fontWeight: '500' }}
+                            style={{ position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: 'rgba(43,29,20,0.8)', color: '#FAF7F2', border: 'none', fontSize: '0.62rem', textAlign: 'center', padding: '3px 0', cursor: 'pointer', fontWeight: '500' }}
                           >
                             Əsas Şəkil Et
                           </button>
                         )}
-
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveImage(idx)}
-                          title="Şəkli Sil"
-                          style={{ position: 'absolute', top: '4px', right: '4px', backgroundColor: 'rgba(179,65,58,0.85)', color: 'white', border: 'none', borderRadius: '50%', width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10 }}
-                        >
-                          <X size={12} />
-                        </button>
                       </div>
                     ))}
                   </div>
