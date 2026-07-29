@@ -662,6 +662,7 @@ a {
 @media (min-width: 880px) {
   .grid-responsive-products,
   .product-grid {
+    display: grid !important;
     grid-template-columns: repeat(3, 1fr) !important;
     gap: 24px;
   }
