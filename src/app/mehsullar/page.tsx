@@ -6,7 +6,7 @@ import { Header, Footer } from '@/components/Navigation';
 import { ProductCard } from '@/components/ProductCard';
 import { Product, MOCK_PRODUCTS } from '@/lib/mockData';
 import { supabase } from '@/lib/supabase';
-import { Search, Filter, SlidersHorizontal, Clock, AlertTriangle, PackageX } from 'lucide-react';
+import { Search, Filter, SlidersHorizontal, AlertTriangle, PackageX } from 'lucide-react';
 
 import { useSearchParams } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
@@ -38,14 +38,19 @@ function ProductsContent() {
       // in the background. This removes the blank loading state on repeat visits.
       let hasCachedProducts = false;
       try {
-        const cached = sessionStorage.getItem('catalogue_products_cache');
-        if (cached) {
-          const parsed = JSON.parse(cached);
-          if (Array.isArray(parsed)) {
-            setProducts(parsed);
-            setLoading(false);
-            hasCachedProducts = true;
-          }
+        const sessionCached = sessionStorage.getItem('catalogue_products_cache');
+        const localCached = localStorage.getItem('catalogue_products_cache_v2');
+        const parsed = sessionCached
+          ? JSON.parse(sessionCached)
+          : localCached
+            ? JSON.parse(localCached)
+            : null;
+        const cachedProducts = Array.isArray(parsed) ? parsed : parsed?.products;
+        const isFresh = Array.isArray(parsed) || (parsed?.savedAt && Date.now() - parsed.savedAt < 2 * 60 * 1000);
+        if (Array.isArray(cachedProducts) && isFresh) {
+          setProducts(cachedProducts);
+          setLoading(false);
+          hasCachedProducts = true;
         }
       } catch {}
       if (!hasCachedProducts) setLoading(true);
@@ -92,6 +97,7 @@ function ProductsContent() {
         setProducts(combined);
         try {
           sessionStorage.setItem('catalogue_products_cache', JSON.stringify(combined));
+          localStorage.setItem('catalogue_products_cache_v2', JSON.stringify({ savedAt: Date.now(), products: combined }));
         } catch {}
       } catch (err: any) {
         setProducts([]);
@@ -203,9 +209,17 @@ function ProductsContent() {
 
           {/* Loading / Error / Empty / Grid States */}
           {loading ? (
-            <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)' }}>
-              <Clock size={40} className="animate-spin" style={{ margin: '0 auto 12px auto', color: 'var(--accent-primary)' }} />
-              <h3>Məhsullar yüklənir...</h3>
+            <div className="grid-responsive-products" aria-label="Məhsullar hazırlanır">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <div key={index} style={{ background: 'var(--white)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
+                  <div style={{ aspectRatio: '1 / 0.78', background: 'linear-gradient(90deg, #f4f0ea 25%, #fbf9f6 50%, #f4f0ea 75%)', backgroundSize: '200% 100%', animation: 'skeleton-loading 1.4s infinite' }} />
+                  <div style={{ padding: '18px' }}>
+                    <div style={{ height: '12px', width: '38%', borderRadius: '999px', background: '#eee8df', marginBottom: '14px' }} />
+                    <div style={{ height: '18px', width: '82%', borderRadius: '6px', background: '#eee8df', marginBottom: '18px' }} />
+                    <div style={{ height: '18px', width: '45%', borderRadius: '6px', background: '#eee8df' }} />
+                  </div>
+                </div>
+              ))}
             </div>
           ) : filteredProducts.length > 0 ? (
             <div className="grid-responsive-products">
@@ -230,12 +244,7 @@ function ProductsContent() {
 
 export default function ProductsPage() {
   return (
-    <React.Suspense fallback={
-      <div style={{ textAlign: 'center', padding: '80px 20px', color: 'var(--text-muted)' }}>
-        <Clock size={40} className="animate-spin" style={{ margin: '0 auto 12px auto', color: 'var(--accent-primary)' }} />
-        <h3>Səhifə yüklənir...</h3>
-      </div>
-    }>
+    <React.Suspense fallback={<div />}>
       <ProductsContent />
     </React.Suspense>
   );

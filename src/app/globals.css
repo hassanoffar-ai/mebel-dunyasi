@@ -394,6 +394,11 @@ a {
   to { transform: translateX(0); }
 }
 
+@keyframes skeleton-loading {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
 /* Button Styles */
 .btn {
   display: inline-flex;
