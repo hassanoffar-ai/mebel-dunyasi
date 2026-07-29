@@ -174,27 +174,33 @@ export default function AdminProductsPage() {
     setUploadingImage(true);
 
     try {
-      for (const file of fileList) {
+      const validFiles = fileList.filter((file) => {
         if (!allowedTypes.includes(file.type.toLowerCase())) {
           alert(`"${file.name}" faylının formatı düzgün deyil. Yalnız JPG, PNG və WEBP formatları qəbul olunur.`);
-          continue;
+          return false;
         }
 
         if (file.size > maxSizeBytes) {
           alert(`"${file.name}" faylının həcmi 5 MB-dan böyükdür (Həcmi: ${(file.size / (1024 * 1024)).toFixed(2)} MB).`);
-          continue;
+          return false;
         }
 
-        const publicUrl = await uploadImage(file);
-        if (publicUrl) {
-          setImages((prev) => {
-            if (prev.includes(publicUrl)) {
-              alert('Bu şəkil artıq əlavə edilib.');
-              return prev;
-            }
-            return [...prev, publicUrl];
-          });
-        }
+        return true;
+      });
+
+      // Storage uploads do not depend on one another. Running them concurrently
+      // avoids making a multi-image upload wait for every previous file.
+      const results = await Promise.allSettled(validFiles.map((file) => uploadImage(file)));
+      const uploadedUrls = results
+        .filter((result): result is PromiseFulfilledResult<string> => result.status === 'fulfilled')
+        .map((result) => result.value);
+      const failedCount = results.filter((result) => result.status === 'rejected').length;
+
+      if (uploadedUrls.length > 0) {
+        setImages((prev) => [...prev, ...uploadedUrls.filter((url) => !prev.includes(url))]);
+      }
+      if (failedCount > 0) {
+        alert(`${failedCount} şəkil yüklənə bilmədi. Zəhmət olmasa yenidən cəhd edin.`);
       }
     } catch (err: any) {
       console.error('File upload error:', err);
