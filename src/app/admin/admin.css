@@ -78,6 +78,12 @@
   text-shadow: 0 0 12px rgba(212, 175, 55, 0.3);
 }
 
+.admin-menu-toggle,
+.admin-menu-close,
+.admin-menu-backdrop {
+  display: none;
+}
+
 .admin-nav {
   padding: 24px 14px;
   display: flex;
@@ -405,35 +411,43 @@
     flex-direction: column;
   }
   .admin-sidebar {
-    position: sticky;
+    position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: auto;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 16px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    overflow-y: visible;
+    bottom: 0;
+    width: min(82vw, 300px);
+    height: 100vh;
+    padding: 0;
+    transform: translateX(-105%);
+    transition: transform 220ms ease;
+    z-index: 200;
+  }
+  .admin-sidebar.is-open {
+    transform: translateX(0);
+  }
+  .admin-menu-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 190;
+    border: 0;
+    background: rgba(0, 0, 0, 0.45);
   }
   .admin-main {
     margin-left: 0;
     width: 100%;
   }
   .admin-sidebar-logo {
-    border-bottom: none;
-    padding: 0;
+    padding: 24px;
+    justify-content: space-between;
   }
   .admin-sidebar-logo span {
     display: inline !important;
   }
   .admin-nav {
-    flex-direction: row;
-    padding: 0;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    white-space: nowrap;
+    flex-direction: column;
+    padding: 20px 14px;
+    overflow: visible;
   }
   .admin-nav-item span {
     display: inline !important;
@@ -443,7 +457,29 @@
     padding: 8px 12px;
   }
   .admin-logout-btn span {
-    display: none;
+    display: inline;
+  }
+  .admin-menu-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--admin-border);
+    border-radius: var(--admin-radius-sm);
+    background: white;
+    color: var(--admin-text-main);
+    margin-right: 12px;
+    cursor: pointer;
+  }
+  .admin-menu-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    background: transparent;
+    color: #FAF7F2;
+    cursor: pointer;
   }
   .admin-header {
     padding: 0 16px;

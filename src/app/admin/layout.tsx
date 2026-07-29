@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, Package, Grid, ShoppingCart, MessageSquare, Mail, LogOut, Quote } from 'lucide-react';
+import { LayoutDashboard, Package, Grid, ShoppingCart, MessageSquare, Mail, LogOut, Quote, Menu, X } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import '@/app/admin/admin.css';
 
@@ -21,6 +21,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pathname = usePathname();
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     if (pathname === '/admin/login') {
@@ -75,9 +76,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div className="admin-layout">
       {/* Sol Sidebar (240px Fixed) */}
-      <aside className="admin-sidebar">
+      {isMenuOpen && <button className="admin-menu-backdrop" aria-label="Menyunu bağla" onClick={() => setIsMenuOpen(false)} />}
+      <aside className={`admin-sidebar ${isMenuOpen ? 'is-open' : ''}`}>
         <div className="admin-sidebar-logo">
           Mebel <span>Admin</span>
+          <button className="admin-menu-close" aria-label="Menyunu bağla" onClick={() => setIsMenuOpen(false)}><X size={22} /></button>
         </div>
 
         <nav className="admin-nav">
@@ -92,6 +95,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 key={item.href}
                 href={item.href}
                 className={`admin-nav-item ${isActive ? 'active' : ''}`}
+                onClick={() => setIsMenuOpen(false)}
               >
                 <Icon size={20} />
                 <span>{item.label}</span>
@@ -114,6 +118,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className="admin-main">
         {/* Üst Bar */}
         <header className="admin-header">
+          <button className="admin-menu-toggle" aria-label="Menyunu aç" aria-expanded={isMenuOpen} onClick={() => setIsMenuOpen(true)}>
+            <Menu size={23} />
+          </button>
           <h1 className="admin-header-title">Admin İdarəetmə Paneli</h1>
         </header>
 
