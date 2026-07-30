@@ -259,7 +259,7 @@ export default function ContactPage() {
                           />
                         </div>
                         <div className="form-group">
-                          <label className="form-label">Telefon (Opsional)</label>
+                          <label className="form-label">Əlaqə nömrəsi</label>
                           <input
                             type="tel"
                             className="form-input"

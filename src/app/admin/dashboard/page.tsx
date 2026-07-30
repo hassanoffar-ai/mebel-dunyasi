@@ -50,45 +50,49 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     async function loadStats() {
       try {
-        const { count: ordersCount } = await supabase.from('orders').select('*', { count: 'exact', head: true });
-        const { count: productsCount } = await supabase.from('products').select('*', { count: 'exact', head: true });
-        const { count: pendingRevCount } = await supabase.from('reviews').select('*', { count: 'exact', head: true }).or('status.eq.gozlemede,status.eq.pending');
-        
-        const { data: revenueData } = await supabase.from('orders').select('umumi_meblegh');
-        const totalRevenue = (revenueData || []).reduce((acc: number, item: any) => acc + (item.umumi_meblegh || 0), 0);
+        const [ordersResponse, reviewsResponse, productsResponse] = await Promise.all([
+          fetch('/api/admin/orders', { cache: 'no-store' }),
+          fetch('/api/admin/reviews', { cache: 'no-store' }),
+          supabase.from('products').select('*', { count: 'exact', head: true }),
+        ]);
+        const ordersResult = await ordersResponse.json();
+        const reviewsResult = await reviewsResponse.json();
+        if (!ordersResponse.ok || !reviewsResponse.ok) throw new Error('Dashboard məlumatları yüklənə bilmədi.');
+        const ordersData = ordersResult.data || [];
+        const reviewsData = reviewsResult.data || [];
+        const pendingData = reviewsData.filter((review: any) => review.status === 'gozlemede' || review.status === 'pending');
+        const totalRevenue = ordersData.reduce((acc: number, item: any) => acc + Number(item.umumi_meblegh || item.total_amount || 0), 0);
 
         setStats({
-          totalOrders: ordersCount || 0,
-          activeProductsCount: productsCount || 0,
-          pendingReviewsCount: pendingRevCount || 0,
+          totalOrders: ordersData.length,
+          activeProductsCount: productsResponse.count || 0,
+          pendingReviewsCount: pendingData.length,
           totalRevenue: totalRevenue || 0,
         });
 
-        // Load recent orders
-        const { data: ordersData } = await supabase.from('orders').select('*').order('created_at', { ascending: false }).limit(5);
-        if (ordersData) {
-          const mappedOrders = ordersData.map((order: any) => ({
-            id: order.id,
-            musteri_ad: order.customer || order.full_name || (order.user_id ? `İstifadəçi #${order.user_id.slice(0, 6)}` : 'Qonaq Müştəri'),
-            umumi_meblegh: order.umumi_meblegh || order.total_amount || 0,
-            status: order.status || 'pending',
-            created_at: order.created_at,
-          }));
-          setRecentOrders(mappedOrders);
-        }
+        setRecentOrders(ordersData.slice(0, 5).map((order: any) => ({
+          id: order.id,
+          musteri_ad: order.customer || order.full_name || (order.user_id ? `İstifadəçi #${order.user_id.slice(0, 6)}` : 'Qonaq Müştəri'),
+          email: order.email,
+          telefon: order.telefon,
+          umumi_meblegh: order.umumi_meblegh || order.total_amount || 0,
+          status: order.status || 'pending',
+          created_at: order.created_at,
+          products: (order.order_items || []).map((item: any) => item.products?.ad || 'Məhsul').join(', '),
+        })));
 
-        // Load pending reviews
-        const { data: reviewsData } = await supabase.from('reviews').select('*').or('status.eq.gozlemede,status.eq.pending').limit(5);
-        if (reviewsData) {
-          const mappedReviews = reviewsData.map((rev: any) => ({
+        setPendingReviews(pendingData.slice(0, 5).map((rev: any) => {
+          let submitted: any = {};
+          try { submitted = JSON.parse(rev.metn || '{}'); } catch {}
+          return {
             id: rev.id,
-            user_name: rev.user_name || rev.ad_soyad || 'İstifadəçi',
-            rating: rev.ulduz || rev.rating || 5,
-            comment: rev.metn || rev.comment || '',
+            user_name: submitted.user_name || (rev.user_id ? `İstifadəçi #${rev.user_id.slice(0, 5)}` : 'İstifadəçi'),
+            rating: rev.ulduz || 5,
+            comment: submitted.comment || rev.metn || '',
+            product_name: rev.products?.ad || 'Məhsul',
             date: rev.created_at ? new Date(rev.created_at).toLocaleDateString('az-AZ') : 'Bu gün',
-          }));
-          setPendingReviews(mappedReviews);
-        }
+          };
+        }));
 
       } catch (err) {
         console.log('Database metrics fetch error:', err);
@@ -187,6 +191,7 @@ export default function AdminDashboardPage() {
                 <tr>
                   <th>Sifariş ID</th>
                   <th>Müştəri</th>
+                  <th>Məhsullar</th>
                   <th>Məbləğ</th>
                   <th>Status</th>
                   <th>Tarix</th>
@@ -197,6 +202,7 @@ export default function AdminDashboardPage() {
                   <tr key={order.id}>
                     <td style={{ fontWeight: '600' }}>{order.id.toString().substring(0, 8)}</td>
                     <td>{order.musteri_ad || order.customer_name || 'Müştəri'}</td>
+                    <td style={{ maxWidth: '170px', fontSize: '0.84rem' }}>{order.products || 'Məhsul məlumatı yoxdur'}</td>
                     <td style={{ fontWeight: '600', color: 'var(--admin-accent)' }}>{order.umumi_meblegh || order.total_amount || 0} ₼</td>
                     <td>
                       <span className="status-badge status-warning">
@@ -242,6 +248,7 @@ export default function AdminDashboardPage() {
                   <p style={{ fontSize: '0.85rem', color: 'var(--admin-text-sub)', fontStyle: 'italic' }}>
                     "{rev.comment}"
                   </p>
+                  <span style={{ display: 'block', marginTop: '8px', color: 'var(--admin-accent)', fontSize: '0.78rem', fontWeight: '600' }}>{rev.product_name}</span>
                 </div>
               ))}
             </div>

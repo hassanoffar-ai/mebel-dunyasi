@@ -36,7 +36,7 @@ function CheckoutContent() {
   const [errorMsg, setErrorMsg] = useState('');
 
   const [checkingAuth, setCheckingAuth] = useState(true);
-  const [userId, setUserId] = useState<string | null>(null);
+  const [authToken, setAuthToken] = useState<string | null>(null);
 
   // Check Auth & Redirect if not logged in
   useEffect(() => {
@@ -53,11 +53,10 @@ function CheckoutContent() {
             try {
               const mockUser = JSON.parse(mockUserStr);
               if (mockUser.email) setEmail(mockUser.email);
-              if (mockUser.id) setUserId(mockUser.id);
             } catch (e) {}
           }
         } else if (session.user) {
-          setUserId(session.user.id);
+          setAuthToken(session.access_token);
           if (session.user.email) setEmail(session.user.email);
           if (session.user.user_metadata?.full_name) setFullName(session.user.user_metadata.full_name);
           if (session.user.user_metadata?.phone) setPhone(session.user.user_metadata.phone);
@@ -102,7 +101,7 @@ function CheckoutContent() {
       try {
         const res = await fetch('/api/checkout', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}) },
           body: JSON.stringify({
             cartItems: cartItems.map((item) => ({
               product_id: item.id,
@@ -114,7 +113,6 @@ function CheckoutContent() {
             email: email,
             catdirilma_unvani: `${city}, ${address}`,
             telefon: phone,
-            user_id: userId,
           }),
         });
 
@@ -136,14 +134,13 @@ function CheckoutContent() {
       try {
         const response = await fetch('/api/checkout/cash', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}) },
           body: JSON.stringify({
             cartItems,
             customer: fullName,
             email,
             telefon: phone,
             catdirilma_unvani: `${city}, ${address}`,
-            user_id: userId,
           }),
         });
         const data = await response.json();

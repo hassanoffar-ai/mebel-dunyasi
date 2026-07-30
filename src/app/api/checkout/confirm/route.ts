@@ -38,7 +38,14 @@ export async function POST(req: Request) {
       }
     }
 
-    return NextResponse.json({ success: true, status: isPaid ? 'confirmed' : 'pending' });
+    const { data: order, error: orderError } = await supabaseAdmin
+      .from('orders')
+      .select('id, status, catdirilma_unvani, umumi_meblegh, odenis_usulu')
+      .eq('id', orderId)
+      .maybeSingle();
+    if (orderError) console.error('Order fetch error:', orderError);
+
+    return NextResponse.json({ success: true, status: isPaid ? 'confirmed' : 'pending', order });
   } catch (error: any) {
     console.error('Confirm Checkout Error:', error);
     return NextResponse.json({ error: error.message || 'Xəta baş verdi' }, { status: 500 });

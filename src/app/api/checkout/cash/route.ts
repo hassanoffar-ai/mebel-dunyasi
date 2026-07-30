@@ -7,7 +7,12 @@ export const preferredRegion = 'fra1';
 
 export async function POST(req: Request) {
   try {
-    const { cartItems, customer, email, telefon, catdirilma_unvani, user_id } = await req.json();
+    const { cartItems, customer, email, telefon, catdirilma_unvani } = await req.json();
+    const authHeader = req.headers.get('authorization');
+    const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
+    if (!token) return NextResponse.json({ error: 'Sifariş üçün hesabınıza daxil olun.' }, { status: 401 });
+    const { data: authData, error: authError } = await supabaseAdmin.auth.getUser(token);
+    if (authError || !authData.user) return NextResponse.json({ error: 'Sessiya etibarlı deyil.' }, { status: 401 });
     if (!Array.isArray(cartItems) || cartItems.length === 0) {
       return NextResponse.json({ error: 'Səbət boşdur.' }, { status: 400 });
     }
@@ -17,7 +22,7 @@ export async function POST(req: Request) {
     let orderError: any = null;
 
     const baseOrderPayload = {
-      user_id: user_id || null,
+      user_id: authData.user.id,
       telefon,
       umumi_meblegh: total,
       status: toDbStatus('pending'),
@@ -25,27 +30,13 @@ export async function POST(req: Request) {
     };
 
     try {
-      const firstAttempt = await supabaseAdmin.from('orders').insert({
+      const formattedAddress = `Müştəri: ${customer || 'Müştəri'} (${email || 'E-poçtsuz'}), Ünvan: ${catdirilma_unvani || 'Baku, Azerbaijan'}`;
+      const result = await supabaseAdmin.from('orders').insert({
         ...baseOrderPayload,
-        customer,
-        email,
-        catdirilma_unvani,
+        catdirilma_unvani: formattedAddress.slice(0, 500),
       }).select().single();
-
-      order = firstAttempt.data;
-      orderError = firstAttempt.error;
-
-      // Fallback: If database schema doesn't have customer/email columns, format them into catdirilma_unvani
-      if (orderError && (orderError.message?.includes("column") || orderError.code === 'PGRST204' || orderError.code === '42703')) {
-        const formattedAddress = `Müştəri: ${customer || 'Müştəri'} (${email || 'E-poçtsuz'}), Ünvan: ${catdirilma_unvani || 'Baku, Azerbaijan'}`;
-        const secondAttempt = await supabaseAdmin.from('orders').insert({
-          ...baseOrderPayload,
-          catdirilma_unvani: formattedAddress.slice(0, 500),
-        }).select().single();
-
-        order = secondAttempt.data;
-        orderError = secondAttempt.error;
-      }
+      order = result.data;
+      orderError = result.error;
     } catch (err: any) {
       orderError = err;
     }

@@ -12,10 +12,9 @@ export async function GET(req: Request) {
     const { data: authData, error: authError } = await supabaseAdmin.auth.getUser(token);
     if (authError || !authData.user) return NextResponse.json({ error: 'Sessiya etibarlı deyil.' }, { status: 401 });
     const userId = authData.user.id;
-    const email = authData.user.email?.toLowerCase();
 
-    // Fetch all orders with items and product details
-    const { data: allOrders, error } = await supabaseAdmin
+    // Fetch only the current account's orders with items and product details.
+    const { data: orders, error } = await supabaseAdmin
       .from('orders')
       .select(`
         *,
@@ -34,19 +33,12 @@ export async function GET(req: Request) {
           )
         )
       `)
+      .eq('user_id', userId)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
 
-    // Only return the authenticated user's orders. The email condition keeps
-    // older orders (created before user_id was saved) visible to their owner.
-    const filteredOrders = allOrders ? allOrders.filter((order: any) => {
-      const matchUserId = order.user_id === userId;
-      const matchEmail = email && order.email?.toLowerCase() === email;
-      return matchUserId || matchEmail;
-    }) : [];
-
-    return NextResponse.json({ data: filteredOrders });
+    return NextResponse.json({ data: orders || [] });
   } catch (error: any) {
     console.error('Fetch orders error:', error);
     return NextResponse.json({ error: error?.message || 'Sifarişlər yüklənə bilmədi.' }, { status: 500 });

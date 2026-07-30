@@ -25,16 +25,15 @@ function SuccessContent() {
       try {
         if (orderId) {
           // Confirm order status to confirmed via API
-          await fetch('/api/checkout/confirm', {
+          const response = await fetch('/api/checkout/confirm', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ orderId, sessionId }),
           });
 
-          // Fetch updated order from Supabase
-          const { data } = await supabase.from('orders').select('*').eq('id', orderId).single();
-          if (data) {
-            setOrder(data);
+          const result = await response.json();
+          if (response.ok && result.order) {
+            setOrder(result.order);
           } else {
             setOrder({ id: orderId, status: 'confirmed', catdirilma_unvani: 'Bakı şəhəri daxilində (Pulsuz)' });
           }
