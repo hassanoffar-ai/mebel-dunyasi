@@ -131,19 +131,17 @@ export default function ProductDetailPage() {
     getProduct();
   }, [productId]);
 
-  // Fetch approved reviews
+  // Fetch published reviews and the total submitted-review count from the
+  // server so the counter is not dependent on a stale product column or RLS.
   useEffect(() => {
     async function loadProductReviews() {
       if (!productId) return;
       try {
-        const { data } = await supabase
-          .from('reviews')
-          .select('*')
-          .eq('product_id', productId)
-          .or('status.eq.tesdiqlendi,status.eq.confirmed')
-          .order('created_at', { ascending: false });
-
-        if (data) setApprovedReviews(data);
+        const response = await fetch(`/api/reviews?product_id=${encodeURIComponent(productId)}`, { cache: 'no-store' });
+        const result = await response.json();
+        if (!response.ok) return;
+        setApprovedReviews(result.data || []);
+        setProduct((current) => current ? { ...current, reviews_count: result.count || 0 } : current);
       } catch (err) {}
     }
     loadProductReviews();
@@ -195,6 +193,7 @@ export default function ProductDetailPage() {
       if (!response.ok) throw new Error(data.error || 'Rəy göndərilə bilmədi.');
 
       setReviewStatusMsg('Rəyiniz göndərildi, admin təsdiqindən sonra dərc olunacaq.');
+      setProduct((current) => current ? { ...current, reviews_count: current.reviews_count + 1 } : current);
       setReviewName('');
       setReviewComment('');
     } catch (err: any) {
