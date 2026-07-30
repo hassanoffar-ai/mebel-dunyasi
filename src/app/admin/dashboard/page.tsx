@@ -44,6 +44,7 @@ export default function AdminDashboardPage() {
     activeProductsCount: 0,
   });
   const [recentOrders, setRecentOrders] = useState<any[]>([]);
+  const [pendingOrdersCount, setPendingOrdersCount] = useState(0);
   const [pendingReviews, setPendingReviews] = useState<any[]>([]);
 
   // Supabase dynamic stats calculation from real backend database
@@ -61,6 +62,7 @@ export default function AdminDashboardPage() {
         const ordersData = ordersResult.data || [];
         const reviewsData = reviewsResult.data || [];
         const pendingData = reviewsData.filter((review: any) => review.status === 'gozlemede' || review.status === 'pending');
+        const pendingOrders = ordersData.filter((order: any) => order.status === 'pending');
         const totalRevenue = ordersData.reduce((acc: number, item: any) => acc + Number(item.umumi_meblegh || item.total_amount || 0), 0);
 
         setStats({
@@ -70,7 +72,8 @@ export default function AdminDashboardPage() {
           totalRevenue: totalRevenue || 0,
         });
 
-        setRecentOrders(ordersData.slice(0, 5).map((order: any) => ({
+        setPendingOrdersCount(pendingOrders.length);
+        setRecentOrders(pendingOrders.slice(0, 5).map((order: any) => ({
           id: order.id,
           musteri_ad: order.customer || order.full_name || (order.user_id ? `İstifadəçi #${order.user_id.slice(0, 6)}` : 'Qonaq Müştəri'),
           email: order.email,
@@ -170,20 +173,27 @@ export default function AdminDashboardPage() {
         </Link>
       </div>
 
-      {/* 2. CƏDVƏL & WIDGET GRID (Son Sifarişlər + Gözləyən Rəylər) */}
+      {/* 2. GÖZLƏMƏDƏ OLAN SİFARİŞLƏR VƏ RƏYLƏR */}
       <div className="admin-dashboard-widgets">
-        {/* Son Sifarişlər Cədvəli */}
+        {/* Gözləmədə Olan Sifarişlər Cədvəli */}
         <div className="admin-table-container">
           <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--admin-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h2 style={{ fontSize: '1.2rem', fontWeight: '600' }}>Son Sifarişlər</h2>
-            <Link href="/admin/sifarisler" style={{ fontSize: '0.88rem', color: 'var(--admin-accent)', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              Hamısına Bax <ArrowRight size={16} />
-            </Link>
+            <h2 style={{ fontSize: '1.2rem', fontWeight: '600' }}>Gözləmədə Olan Sifarişlər</h2>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              {pendingOrdersCount > 5 && (
+                <Link href="/admin/sifarisler?status=pending" style={{ fontSize: '0.88rem', color: 'var(--admin-accent)', fontWeight: '600' }}>
+                  Daha çox
+                </Link>
+              )}
+              <Link href="/admin/sifarisler" style={{ fontSize: '0.88rem', color: 'var(--admin-accent)', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                Hamısına bax <ArrowRight size={16} />
+              </Link>
+            </div>
           </div>
 
           {recentOrders.length === 0 ? (
             <div style={{ padding: '30px', textAlign: 'center', color: 'var(--admin-text-sub)', fontSize: '0.9rem' }}>
-              Hələ ki heç bir yeni sifariş daxil olmayıb.
+              Gözləmədə olan sifariş yoxdur.
             </div>
           ) : (
             <table className="admin-table">

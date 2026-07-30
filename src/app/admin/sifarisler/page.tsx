@@ -34,6 +34,11 @@ export default function AdminOrdersPage() {
   const [newStatus, setNewStatus] = useState<OrderStatus>('pending');
   const [adminNotes, setAdminNotes] = useState('');
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setStatusFilter(params.get('status') === 'pending' ? 'pending' : '');
+  }, []);
+
   const STATUS_LABELS: Record<OrderStatus, string> = {
     pending: 'Gözləmədə (Pending)',
     confirmed: 'Təsdiqləndi (Confirmed)',
