@@ -32,7 +32,7 @@ function ProductsContent() {
     setSelectedCategory(searchParams.get('kateqoriya') || 'Bütün');
   }, [searchParams]);
 
-  const categories = ['Bütün', 'Qonaq Otağı', 'Yataq Otağı', 'Mətbəx', 'Uşaq Otağı', 'Masa və Stullar'];
+  const categories = ['Bütün', 'Qonaq Otağı', 'Yataq Otağı', 'Mətbəx', 'Ofis', 'Uşaq Otağı', 'Masa və Stullar'];
 
   useEffect(() => {
     const cat = searchParams.get('kateqoriya') || searchParams.get('category');
