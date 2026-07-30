@@ -111,7 +111,7 @@ export function Header({ cartCount: propCartCount }: HeaderProps) {
             <Link href="/sevimliler" className="icon-btn" title="Sevimlilər"><Heart size={20} /></Link>
             <Link href="/sebet" className="icon-btn" title="Səbət">
               <ShoppingBag size={20} />
-              <span className="icon-badge">{cartCount}</span>
+              {cartCount > 0 && <span className="icon-badge">{cartCount}</span>}
             </Link>
 
             {userSession ? (
