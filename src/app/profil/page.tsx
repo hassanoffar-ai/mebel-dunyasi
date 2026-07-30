@@ -23,16 +23,6 @@ export default function ProfilePage() {
         const { data: { session } } = await supabase.auth.getSession();
         let currentUser = session?.user || null;
 
-        // Fallback: Get mock user session
-        if (!currentUser) {
-          const mockUserStr = localStorage.getItem('mebel_user_session');
-          if (mockUserStr) {
-            try {
-              currentUser = JSON.parse(mockUserStr);
-            } catch (e) {}
-          }
-        }
-
         if (!currentUser) return;
 
         setUser(currentUser);

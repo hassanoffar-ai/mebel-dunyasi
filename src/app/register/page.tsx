@@ -72,11 +72,6 @@ function RegisterContent() {
       });
 
       if (error) {
-        const errStr = (error.message || '').toLowerCase();
-        if (errStr.includes('fetch') || errStr.includes('failed') || errStr.includes('network')) {
-          router.push(`/login?email=${encodeURIComponent(email)}&registered=true${redirectQuery}`);
-          return;
-        }
         setErrorMsg(error.message || 'Qeydiyyat zamanı xəta baş verdi.');
         setLoading(false);
         return;
@@ -84,7 +79,8 @@ function RegisterContent() {
 
       router.push(`/login?email=${encodeURIComponent(email)}&registered=true${redirectQuery}`);
     } catch (err: any) {
-      router.push(`/login?email=${encodeURIComponent(email)}&registered=true${redirectQuery}`);
+      setErrorMsg(err?.message || 'Qeydiyyat zamanı xəta baş verdi.');
+      setLoading(false);
     }
   };
 

@@ -45,30 +45,14 @@ function LoginContent() {
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
-        const errStr = (error.message || '').toLowerCase();
-        // Fallback for demo when Supabase credentials are placeholder
-        if (errStr.includes('fetch') || errStr.includes('failed') || errStr.includes('invalid credentials') || errStr.includes('network') || errStr.includes('client')) {
-          localStorage.setItem('mebel_user_session', JSON.stringify({ email }));
-          setSuccessMsg('Uğurlu daxilolma! Səhifəyə yönləndirilirsiniz...');
-          setTimeout(() => {
-            router.push(redirectTarget);
-          }, 1200);
-          return;
-        }
-
         if (error.message.includes('Email not confirmed')) {
-          localStorage.setItem('mebel_user_session', JSON.stringify({ email }));
-          setSuccessMsg('Uğurlu daxilolma! Səhifəyə yönləndirilirsiniz...');
-          setTimeout(() => {
-            router.push(redirectTarget);
-          }, 1200);
-          return;
+          setErrorMsg('Hesabınızı aktivləşdirmək üçün e-poçtunuza göndərilən təsdiq linkindən istifadə edin.');
         } else {
           setErrorMsg(error.message || 'Email və ya parol yanlışdır.');
         }
@@ -76,17 +60,13 @@ function LoginContent() {
         return;
       }
 
-      localStorage.setItem('mebel_user_session', JSON.stringify({ email }));
       setSuccessMsg('Uğurlu daxilolma! Səhifəyə yönləndirilirsiniz...');
       setTimeout(() => {
         router.push(redirectTarget || '/');
       }, 1200);
     } catch (err: any) {
-      localStorage.setItem('mebel_user_session', JSON.stringify({ email }));
-      setSuccessMsg('Uğurlu daxilolma! Səhifəyə yönləndirilirsiniz...');
-      setTimeout(() => {
-        router.push(redirectTarget);
-      }, 1200);
+      setErrorMsg(err?.message || 'Daxil olmaq mümkün olmadı. İnternet bağlantınızı yoxlayın və yenidən cəhd edin.');
+      setLoading(false);
     }
   };
 
@@ -110,26 +90,13 @@ function LoginContent() {
         type: 'signup',
       });
 
-      if (error) {
-        localStorage.setItem('mebel_user_session', JSON.stringify({ email }));
-        setSuccessMsg('Hesabınız uğurla aktivləşdirildi!');
-        setTimeout(() => {
-          router.push(redirectTarget);
-        }, 1200);
-        return;
-      }
-
-      localStorage.setItem('mebel_user_session', JSON.stringify({ email }));
+      if (error) throw error;
       setSuccessMsg('Hesabınız uğurla aktivləşdirildi!');
       setTimeout(() => {
         router.push(redirectTarget);
       }, 1200);
     } catch (err: any) {
-      localStorage.setItem('mebel_user_session', JSON.stringify({ email }));
-      setSuccessMsg('Hesabınız uğurla aktivləşdirildi!');
-      setTimeout(() => {
-        router.push(redirectTarget);
-      }, 1200);
+      setErrorMsg(err?.message || 'Təsdiq kodu etibarlı deyil.');
     }
   };
 

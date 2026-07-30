@@ -36,7 +36,6 @@ function CheckoutContent() {
   const [errorMsg, setErrorMsg] = useState('');
 
   const [checkingAuth, setCheckingAuth] = useState(true);
-  const [authToken, setAuthToken] = useState<string | null>(null);
 
   // Check Auth & Redirect if not logged in
   useEffect(() => {
@@ -44,19 +43,9 @@ function CheckoutContent() {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) {
-          // Check if mock user session in localStorage or fallback
-          const mockUserStr = typeof window !== 'undefined' ? localStorage.getItem('mebel_user_session') : null;
-          if (!mockUserStr) {
-            router.push('/login?redirect=/checkout');
-            return;
-          } else {
-            try {
-              const mockUser = JSON.parse(mockUserStr);
-              if (mockUser.email) setEmail(mockUser.email);
-            } catch (e) {}
-          }
+          router.push('/login?redirect=/checkout');
+          return;
         } else if (session.user) {
-          setAuthToken(session.access_token);
           if (session.user.email) setEmail(session.user.email);
           if (session.user.user_metadata?.full_name) setFullName(session.user.user_metadata.full_name);
           if (session.user.user_metadata?.phone) setPhone(session.user.user_metadata.phone);
@@ -96,12 +85,21 @@ function CheckoutContent() {
     setErrorMsg('');
     setLoading(true);
 
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.access_token) {
+      setLoading(false);
+      setErrorMsg('Sifariş vermək üçün etibarlı hesab sessiyası tələb olunur. Zəhmət olmasa yenidən daxil olun.');
+      router.push('/login?redirect=/checkout');
+      return;
+    }
+    const requestHeaders = { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` };
+
     if (paymentMethod === 'stripe') {
       // 1. STRIPE CHECKOUT HOSTED FLOW
       try {
         const res = await fetch('/api/checkout', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}) },
+          headers: requestHeaders,
           body: JSON.stringify({
             cartItems: cartItems.map((item) => ({
               product_id: item.id,
@@ -126,7 +124,7 @@ function CheckoutContent() {
         window.location.href = data.url;
       } catch (err: any) {
         console.error('Stripe Redirect Error:', err);
-        setErrorMsg('Ödəniş zamanı xəta baş verdi, yenidən cəhd edin.');
+        setErrorMsg(err.message || 'Ödəniş zamanı xəta baş verdi, yenidən cəhd edin.');
         setLoading(false);
       }
     } else {
@@ -134,7 +132,7 @@ function CheckoutContent() {
       try {
         const response = await fetch('/api/checkout/cash', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}) },
+          headers: requestHeaders,
           body: JSON.stringify({
             cartItems,
             customer: fullName,

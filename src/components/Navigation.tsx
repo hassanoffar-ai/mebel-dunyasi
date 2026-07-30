@@ -24,20 +24,12 @@ export function Header({ cartCount: propCartCount }: HeaderProps) {
   const cartCount = propCartCount !== undefined ? propCartCount : contextCartCount;
 
   React.useEffect(() => {
-    // Check localStorage session
-    const localSession = localStorage.getItem('mebel_user_session');
-    if (localSession) {
-      try {
-        setUserSession(JSON.parse(localSession));
-      } catch (e) {
-        setUserSession({ email: 'user' });
-      }
-    }
-
     // Check Supabase session
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         setUserSession(session.user);
+      } else {
+        localStorage.removeItem('mebel_user_session');
       }
     });
 
