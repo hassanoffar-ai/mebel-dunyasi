@@ -193,7 +193,6 @@ export default function ProductDetailPage() {
       if (!response.ok) throw new Error(data.error || 'Rəy göndərilə bilmədi.');
 
       setReviewStatusMsg('Rəyiniz göndərildi, admin təsdiqindən sonra dərc olunacaq.');
-      setProduct((current) => current ? { ...current, reviews_count: current.reviews_count + 1 } : current);
       setReviewName('');
       setReviewComment('');
     } catch (err: any) {

@@ -20,7 +20,7 @@ export async function GET(req: Request) {
         .from('reviews')
         .select('*', { count: 'exact', head: true })
         .eq('product_id', productId)
-        .in('status', ['gozlemede', 'pending', 'tesdiqlendi', 'confirmed']),
+        .in('status', ['tesdiqlendi', 'confirmed']),
     ]);
 
     if (approvedResult.error) throw approvedResult.error;
