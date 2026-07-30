@@ -833,6 +833,109 @@ html, body {
   }
 }
 
+/* Site-wide responsive safeguards — desktop / tablet / mobile */
+img, video, canvas, svg {
+  max-width: 100%;
+}
+
+img, video {
+  height: auto;
+}
+
+input, select, textarea, button {
+  max-width: 100%;
+}
+
+textarea {
+  resize: vertical;
+}
+
+@media (min-width: 993px) {
+  .grid-responsive-products,
+  .product-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (min-width: 577px) and (max-width: 992px) {
+  .grid-responsive-products,
+  .product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .footer > .container > div:first-child {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .header-wrapper {
+    gap: 12px;
+  }
+}
+
+@media (max-width: 576px) {
+  .container {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .grid-responsive-products,
+  .product-grid,
+  .grid-responsive-categories {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .footer > .container > div:first-child {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 28px !important;
+  }
+
+  main div[style*="minmax(320px"] {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .header-wrapper {
+    gap: 8px;
+  }
+
+  .header-actions .icon-btn:first-child,
+  .header-actions .icon-btn:nth-child(2) {
+    display: none;
+  }
+
+  .header-actions {
+    margin-left: auto;
+  }
+
+  .form-row-2col,
+  .checkout-grid,
+  .profile-grid,
+  .contact-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .form-input,
+  .form-group input,
+  .form-group select,
+  .form-group textarea,
+  .auth-card input,
+  .auth-card select,
+  .auth-card textarea {
+    width: 100% !important;
+  }
+
+  .footer {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .whatsapp-float {
+    width: 48px;
+    height: 48px;
+    right: 16px;
+    bottom: 16px;
+  }
+}
+
 /* Profile and Contact Page Responsiveness */
 .profile-grid {
   display: grid;
