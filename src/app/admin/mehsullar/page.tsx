@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { supabase, uploadImage } from '@/lib/supabase';
+import { supabase, uploadImage, optimizeImageForUpload } from '@/lib/supabase';
 import { Product } from '@/lib/mockData';
 import { Plus, Search, Edit, Trash2, X, Upload, AlertTriangle, Loader2, Image as ImageIcon, CheckCircle2 } from 'lucide-react';
 import '@/app/admin/admin.css';
@@ -191,7 +191,7 @@ export default function AdminProductsPage() {
 
       // Storage uploads do not depend on one another. Running them concurrently
       // avoids making a multi-image upload wait for every previous file.
-      const results = await Promise.allSettled(validFiles.map((file) => uploadImage(file)));
+      const results = await Promise.allSettled(validFiles.map(async (file) => uploadImage(await optimizeImageForUpload(file))));
       const uploadedUrls = results
         .filter((result): result is PromiseFulfilledResult<string> => result.status === 'fulfilled')
         .map((result) => result.value);
@@ -260,7 +260,7 @@ export default function AdminProductsPage() {
     }
     setUploadingImage(true);
     try {
-      const publicUrl = await uploadImage(file);
+      const publicUrl = await uploadImage(await optimizeImageForUpload(file));
       if (publicUrl) {
         setImages((prev) => {
           const updated = [...prev];

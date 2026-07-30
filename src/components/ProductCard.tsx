@@ -34,6 +34,8 @@ export function ProductCard({ product, onAddToCart, onToggleWishlist }: ProductC
           <img 
             src={optimizeImageUrl(product.image_url, 400)} 
             alt={product.name} 
+            loading="lazy"
+            decoding="async"
             onError={(e) => {
               e.currentTarget.src = 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=400&q=80';
             }}

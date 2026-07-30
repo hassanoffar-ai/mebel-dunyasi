@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { supabase, uploadImage } from '@/lib/supabase';
+import { supabase, uploadImage, optimizeImageForUpload } from '@/lib/supabase';
 import { Plus, Edit, Trash2, X, Upload, GripVertical, AlertTriangle, Loader2 } from 'lucide-react';
 import '@/app/admin/admin.css';
 
@@ -33,7 +33,7 @@ export default function AdminCategoriesPage() {
 
     setUploading(true);
     try {
-      const publicUrl = await uploadImage(file);
+      const publicUrl = await uploadImage(await optimizeImageForUpload(file));
       if (publicUrl) {
         setCatImg(publicUrl);
       }
