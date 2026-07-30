@@ -118,60 +118,7 @@ export default function ProfilePage() {
               <p style={{ marginTop: '18px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Hesabınız var? <Link href="/login?redirect=%2Fprofil" style={{ color: 'var(--accent-primary)', fontWeight: 600 }}>Daxil olun</Link></p>
             </section>
           ) : (
-            <div className="profile-grid">
-              
-              {/* Left Profile card */}
-              <div style={{ backgroundColor: 'var(--white)', padding: '30px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', border: '1px solid var(--border-color)' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', marginBottom: '24px' }}>
-                  <div style={{ backgroundColor: '#F0E6D8', color: 'var(--gold-color)', padding: '16px', borderRadius: '50%', marginBottom: '16px' }}>
-                    <User size={36} />
-                  </div>
-                  <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--text-color)', marginBottom: '4px' }}>
-                    {user?.user_metadata?.full_name || 'Dəyərli Müştəri'}
-                  </h3>
-                  <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>{user?.email}</p>
-                </div>
-
-                <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '20px' }}>
-                  {user?.user_metadata?.phone && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', color: 'var(--text-color)', fontSize: '0.95rem' }}>
-                      <Phone size={18} style={{ color: 'var(--gold-color)' }} />
-                      <span>{user.user_metadata.phone}</span>
-                    </div>
-                  )}
-                  <button 
-                    onClick={handleLogout}
-                    style={{ 
-                      width: '100%', 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      justifyContent: 'center', 
-                      gap: '8px', 
-                      padding: '10px', 
-                      border: '1px solid #D9534F', 
-                      borderRadius: '8px', 
-                      backgroundColor: 'transparent', 
-                      color: '#D9534F', 
-                      cursor: 'pointer',
-                      fontWeight: '600',
-                      transition: 'all 0.2s'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = '#D9534F';
-                      e.currentTarget.style.color = '#fff';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = 'transparent';
-                      e.currentTarget.style.color = '#D9534F';
-                    }}
-                  >
-                    <LogOut size={18} />
-                    Çıxış Et
-                  </button>
-                </div>
-              </div>
-
-              {/* Right Orders List */}
+            <div style={{ maxWidth: '980px', margin: '0 auto' }}>
               <div style={{ backgroundColor: 'var(--white)', padding: '35px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', border: '1px solid var(--border-color)' }}>
                 <h2 style={{ fontSize: '1.5rem', fontWeight: '600', color: 'var(--text-color)', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <ShoppingBag size={24} style={{ color: 'var(--gold-color)' }} />
