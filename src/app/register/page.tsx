@@ -3,7 +3,6 @@
 import React, { useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
 import { Eye, EyeOff, AlertCircle } from 'lucide-react';
 
 function RegisterContent() {
@@ -55,28 +54,23 @@ function RegisterContent() {
 
     setLoading(true);
 
-    const redirectQuery = redirectTarget ? `&redirect=${encodeURIComponent(redirectTarget)}` : '';
-
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: fullName,
-            phone: phone,
-          },
-        },
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fullName, email, phone, password }),
       }).catch((err) => {
-        return { data: null, error: err };
+        throw err;
       });
+      const result = await response.json();
 
-      if (error) {
-        setErrorMsg(error.message || 'Qeydiyyat zamanı xəta baş verdi.');
+      if (!response.ok) {
+        setErrorMsg(result.error || 'Qeydiyyat zamanı xəta baş verdi.');
         setLoading(false);
         return;
       }
 
+      const redirectQuery = redirectTarget ? `&redirect=${encodeURIComponent(redirectTarget)}` : '';
       router.push(`/login?email=${encodeURIComponent(email)}&registered=true${redirectQuery}`);
     } catch (err: any) {
       setErrorMsg(err?.message || 'Qeydiyyat zamanı xəta baş verdi.');
