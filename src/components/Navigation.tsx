@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Search, Heart, ShoppingBag, User, LogOut, Menu, X, MessageCircle } from 'lucide-react';
+import { Search, Heart, ShoppingBag, User, LogOut, X, MessageCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 import { useCart } from '@/context/CartContext';
@@ -13,7 +13,6 @@ interface HeaderProps {
 }
 
 export function Header({ cartCount: propCartCount }: HeaderProps) {
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [userSession, setUserSession] = useState<any>(null);
@@ -73,15 +72,6 @@ export function Header({ cartCount: propCartCount }: HeaderProps) {
     <header className="header" style={{ position: 'relative' }}>
       <div className="container">
         <div className="header-wrapper">
-          <button
-            className="hamburger"
-            aria-label={isMobileOpen ? 'Menyunu bağla' : 'Menyunu aç'}
-            aria-expanded={isMobileOpen}
-            onClick={() => setIsMobileOpen((open) => !open)}
-          >
-            {isMobileOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-
           {/* Logo */}
           <Link href="/" className="logo">
             Mebel <span>Dünyası</span>
@@ -181,28 +171,6 @@ export function Header({ cartCount: propCartCount }: HeaderProps) {
         </div>
       )}
 
-      {/* Mobile Drawer */}
-      {isMobileOpen && (
-        <>
-          <button className="mobile-nav-backdrop" aria-label="Menyunu bağla" onClick={() => setIsMobileOpen(false)} />
-          <nav className="mobile-nav-drawer open" aria-label="Mobil menyu">
-            <div className="mobile-nav-title">Menyu</div>
-            {navItems.map((item) => {
-              const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`mobile-nav-link ${isActive ? 'active' : ''}`}
-                  onClick={() => setIsMobileOpen(false)}
-                >
-                  {item.name}
-                </Link>
-              );
-            })}
-          </nav>
-        </>
-      )}
     </header>
   );
 }

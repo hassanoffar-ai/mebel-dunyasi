@@ -161,7 +161,7 @@ export default function ProfilePage() {
                               <div>
                                 <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase', fontWeight: '600' }}>Tarix</span>
                                 <span style={{ fontSize: '0.95rem', color: 'var(--text-color)' }}>
-                                  {new Date(order.created_at).toLocaleDateString('az-AZ', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                  {new Date(order.created_at).toLocaleDateString('az-AZ', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                                 </span>
                               </div>
                               <div>

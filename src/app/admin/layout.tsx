@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, Package, ShoppingCart, MessageSquare, Mail, LogOut, Quote, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, MessageSquare, LogOut, Quote, Menu, X } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import '@/app/admin/admin.css';
 
@@ -13,7 +13,6 @@ const NAV_ITEMS = [
   { href: '/admin/testimonials', label: 'Testimonials', icon: Quote },
   { href: '/admin/mehsullar', label: 'Məhsullar', icon: Package },
   { href: '/admin/reyler', label: 'Rəylər', icon: MessageSquare },
-  { href: '/admin/mesajlar', label: 'Mesajlar', icon: Mail },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
