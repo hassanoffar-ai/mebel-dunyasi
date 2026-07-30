@@ -52,7 +52,19 @@ function LoginContent() {
 
       if (error) {
         if (error.message.includes('Email not confirmed')) {
-          setErrorMsg('Hesabınızı aktivləşdirmək üçün e-poçtunuza göndərilən təsdiq linkindən istifadə edin.');
+          const activationResponse = await fetch('/api/auth/activate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email }),
+          });
+          const activationResult = await activationResponse.json();
+          if (!activationResponse.ok) throw new Error(activationResult.error || 'Hesab aktivləşdirilə bilmədi.');
+
+          const { error: retryError } = await supabase.auth.signInWithPassword({ email, password });
+          if (retryError) throw retryError;
+          setSuccessMsg('Hesabınız aktivləşdirildi. Səhifəyə yönləndirilirsiniz...');
+          setTimeout(() => router.push(redirectTarget || '/'), 700);
+          return;
         } else {
           setErrorMsg(error.message || 'Email və ya parol yanlışdır.');
         }
