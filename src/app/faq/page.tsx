@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { Header, Footer } from '@/components/Navigation';
-import { ChevronDown, HelpCircle, MessageSquare } from 'lucide-react';
+import { ChevronDown, MessageSquare } from 'lucide-react';
 
 export const FAQ_ITEMS = [
   {
@@ -37,28 +37,6 @@ export default function FAQPage() {
 
       <main style={{ flexGrow: 1, padding: '60px 0 90px 0' }}>
         <div className="container" style={{ maxWidth: '850px' }}>
-          {/* Header Title */}
-          <div style={{ textAlign: 'center', marginBottom: '50px' }}>
-            <div
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '6px 18px',
-                borderRadius: 'var(--radius-full)',
-                backgroundColor: 'var(--white)',
-                border: '1px solid var(--border-color)',
-                color: 'var(--accent-primary)',
-                fontSize: '0.88rem',
-                fontWeight: '600',
-                marginBottom: '14px',
-                boxShadow: 'var(--shadow-diffuse)',
-              }}
-            >
-              <HelpCircle size={17} /> Suallarınız var?
-            </div>
-          </div>
-
           {/* Accordions */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '60px' }}>
             {FAQ_ITEMS.map((item, index) => {
